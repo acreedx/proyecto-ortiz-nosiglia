@@ -9,7 +9,7 @@ export function SignOut() {
         await signOut();
       }}
     >
-      <Button size="xl" colorScheme="teal" variant="solid" type="submit">
+      <Button size="xl" colorPalette="teal" variant="solid" type="submit">
         Sign Out
       </Button>
     </form>

@@ -1,5 +1,4 @@
 import "./globals.css";
-
 import "./styles/animate.css";
 import "./styles/LineIcons.css";
 import "./styles/tiny-slider.css";
@@ -11,6 +10,8 @@ import Header from "../components/common/header";
 import FloatingButton from "../components/common/floating-button";
 import { metadata } from "../lib/metadata/metadata";
 import Footer from "../components/common/footer";
+import { Toaster } from "../components/ui/toaster";
+import NavBar from "../components/index/nav-bar";
 
 export { metadata };
 
@@ -26,9 +27,11 @@ export default function RootLayout({
       <body className={inter.className}>
         <Provider>
           <Header />
+          <NavBar />
           {children}
           <Footer />
           <FloatingButton />
+          <Toaster />
         </Provider>
       </body>
     </html>

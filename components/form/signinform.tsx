@@ -5,15 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema, TSignInSchema } from "../../lib/zod/zschemas";
 import NavBar from "../index/navbar";
-import {
-  FormControl,
-  FormLabel,
-  Input,
-  FormErrorMessage,
-  Button,
-  VStack,
-  useToast,
-} from "@chakra-ui/react";
+import { Input, Button, VStack, Field } from "@chakra-ui/react";
+import { toaster } from "../ui/toaster";
 export function SignIn() {
   const router = useRouter();
 
@@ -26,21 +19,20 @@ export function SignIn() {
     resolver: zodResolver(signInSchema),
   });
 
-  const toast = useToast();
   const onSubmit = async (data: TSignInSchema) => {
     const res = await signIn("credentials", {
       ...data,
       redirect: false,
     });
     if (res?.error) {
-      toast({
+      toaster.create({
         description: "Usuario y contraseña incorrectos",
-        status: "error",
+        type: "error",
       });
     } else {
-      toast({
+      toaster.create({
         description: "Inicio de sesión exitoso",
-        status: "success",
+        type: "success",
       });
       reset();
       router.push("/");
@@ -63,8 +55,8 @@ export function SignIn() {
         onSubmit={handleSubmit(onSubmit)}
         className="w-[400px] items-center flex flex-col gap-4"
       >
-        <FormControl isInvalid={!!errors.username} isRequired>
-          <FormLabel>Username</FormLabel>
+        <Field.Root invalid={!!errors.username} required>
+          <Field.Label>Username</Field.Label>
           <Input
             type="text"
             placeholder="tu@ejemplo.com"
@@ -72,11 +64,11 @@ export function SignIn() {
               required: "El usuario es requerido",
             })}
           />
-          <FormErrorMessage>{errors.username?.message}</FormErrorMessage>
-        </FormControl>
+          <Field.ErrorText>{errors.username?.message}</Field.ErrorText>
+        </Field.Root>
 
-        <FormControl isInvalid={!!errors.password} isRequired mt={4}>
-          <FormLabel>Password</FormLabel>
+        <Field.Root invalid={!!errors.password} required mt={4}>
+          <Field.Label>Password</Field.Label>
           <Input
             type="password"
             placeholder="••••••••"
@@ -84,16 +76,17 @@ export function SignIn() {
               required: "El password es requerido",
             })}
           />
-          <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
-        </FormControl>
+          <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
+        </Field.Root>
 
         <Button
           mt={6}
           size="lg"
-          colorScheme="teal"
+          colorPalette={"teal"}
           variant="solid"
+          _hover={{ color: "white" }}
           type="submit"
-          isLoading={isSubmitting}
+          loading={isSubmitting}
         >
           Iniciar Sesión
         </Button>

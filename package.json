@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chakra-ui/cli": "^3.16.1",
+    "@chakra-ui/react": "^3.16.1",
+    "@emotion/react": "^11.14.0",
     "@hookform/resolvers": "^5.0.1",
     "@neondatabase/serverless": "^1.0.0",
     "@prisma/adapter-neon": "^6.6.0",
