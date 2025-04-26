@@ -1,13 +1,14 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
-import { FaBars, FaTimes } from "react-icons/fa";
-import { Flex, Link } from "@chakra-ui/react";
+import { Button, Flex, Link } from "@chakra-ui/react";
 import NextLink from "next/link";
 import NavBarLink from "./nav-bar-link";
+import { FaBars, FaX } from "react-icons/fa6";
 
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   //const router = useRouter();
   //const [isOpen, setIsOpen] = useState(false);
   //const { data: session, status } = useSession();
@@ -21,19 +22,21 @@ export default function NavBar() {
   //};
   //const onOpen = () => setIsOpen(true);
   //const onClose = () => setIsOpen(false);
-
+  const setMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
   return (
     <nav className="border-b-1 sticky flex w-full flex-col justify-center md:flex-row">
-      <button
+      <Button
         className="absolute right-4 top-4 z-10 md:hidden"
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        onClick={setMenu}
       >
         {isMenuOpen ? (
-          <FaTimes size={24} color="orange" />
+          <FaX size={24} color="orange" />
         ) : (
           <FaBars size={24} color="orange" />
         )}
-      </button>
+      </Button>
       <ul className="m-0 mb-0 flex w-full list-none flex-col items-center p-0 py-2 align-middle md:flex-row  md:items-stretch md:justify-around">
         <div className="flex flex-col items-center md:flex-row ">
           <Link

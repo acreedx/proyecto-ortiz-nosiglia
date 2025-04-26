@@ -6,7 +6,6 @@ interface DropDownCardProps {
 }
 export default function DropDownCard({ title, content }: DropDownCardProps) {
   const [isOpen, setIsOpen] = useState(false);
-
   const toggleContent = () => {
     setIsOpen(!isOpen);
   };
