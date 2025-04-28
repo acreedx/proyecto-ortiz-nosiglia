@@ -9,7 +9,19 @@ export function SignOut() {
         await signOut();
       }}
     >
-      <Button size="xl" colorPalette="teal" variant="solid" type="submit">
+      <Button
+        width="full"
+        mt={6}
+        size="lg"
+        height={14}
+        border="1px"
+        borderColor="orange.500"
+        bg="orange.400"
+        color={"white"}
+        variant="solid"
+        _hover={{ bg: "orange.400", opacity: 0.9 }}
+        type="submit"
+      >
         Sign Out
       </Button>
     </form>

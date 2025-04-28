@@ -4,9 +4,10 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema, TSignInSchema } from "../../lib/zod/zschemas";
-import NavBar from "../index/navbar";
-import { Input, Button, VStack, Field } from "@chakra-ui/react";
+import { Input, Button, Field, Link } from "@chakra-ui/react";
 import { toaster } from "../ui/toaster";
+import PatientIcon from "../icons/patient-icon";
+import CandadoIcon from "../icons/candado-icon";
 export function SignIn() {
   const router = useRouter();
 
@@ -41,56 +42,94 @@ export function SignIn() {
   };
 
   return (
-    <VStack
-      gap={4}
-      align="stretch"
-      direction={"row"}
-      justifyContent={"center"}
-      alignItems={"center"}
-      pt={40}
-    >
-      <NavBar />
-      <h1>Inicio de sesión</h1>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="w-[400px] items-center flex flex-col gap-4"
-      >
-        <Field.Root invalid={!!errors.username} required>
-          <Field.Label>Username</Field.Label>
-          <Input
-            type="text"
-            placeholder="tu@ejemplo.com"
-            {...register("username", {
-              required: "El usuario es requerido",
-            })}
-          />
-          <Field.ErrorText>{errors.username?.message}</Field.ErrorText>
-        </Field.Root>
+    <div className="w-full border-stroke xl:w-1/2 xl:border-l-2">
+      <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
+        <h1 className="mb-9 text-2xl font-bold text-black sm:text-title-xl2">
+          Inicio de sesión
+        </h1>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Field.Root invalid={!!errors.username} required mb={4}>
+            <Field.Label className="mb-2.5 block font-medium text-black text-lg">
+              Username
+            </Field.Label>
+            <div className="relative w-full">
+              <span className="absolute left-4 h-full flex items-center">
+                <PatientIcon />
+              </span>
+              <Input
+                type="text"
+                placeholder="Ingresa tu nombre de usuario"
+                {...register("username", {
+                  required: "El usuario es requerido",
+                })}
+                className="text-base h-12 w-full rounded-lg border border-stroke bg-transparent py-4 pl-12 pr-6 text-black outline-none focus:border-orange-500 focus-visible:shadow-none"
+              />
+            </div>
+            <Field.ErrorText className="text-base">
+              {errors.username?.message}
+            </Field.ErrorText>
+          </Field.Root>
 
-        <Field.Root invalid={!!errors.password} required mt={4}>
-          <Field.Label>Password</Field.Label>
-          <Input
-            type="password"
-            placeholder="••••••••"
-            {...register("password", {
-              required: "El password es requerido",
-            })}
-          />
-          <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
-        </Field.Root>
-
-        <Button
-          mt={6}
-          size="lg"
-          colorPalette={"teal"}
-          variant="solid"
-          _hover={{ color: "white" }}
-          type="submit"
-          loading={isSubmitting}
-        >
-          Iniciar Sesión
-        </Button>
-      </form>
-    </VStack>
+          <Field.Root invalid={!!errors.password} required mb={6}>
+            <Field.Label className="mb-2.5 block font-medium text-black text-lg">
+              Contraseña
+            </Field.Label>
+            <div className="relative w-full">
+              <span className="absolute left-4 h-full flex items-center">
+                <CandadoIcon />
+              </span>
+              <Input
+                type="password"
+                placeholder="••••••••"
+                {...register("password", {
+                  required: "El password es requerido",
+                })}
+                className="text-base h-12 w-full rounded-lg border border-stroke bg-transparent py-4 pl-12 pr-6 text-black outline-none focus:border-orange-500 focus-visible:shadow-none "
+              />
+            </div>
+            <Field.ErrorText className="text-base">
+              {errors.password?.message}
+            </Field.ErrorText>
+          </Field.Root>
+          <div className="mb-5">
+            <Button
+              width="full"
+              mt={6}
+              size="lg"
+              height={14}
+              border="1px"
+              borderColor="orange.500"
+              bg="orange.400"
+              color={"white"}
+              variant="solid"
+              _hover={{ bg: "orange.400", opacity: 0.9 }}
+              type="submit"
+              loading={isSubmitting}
+            >
+              Iniciar Sesión
+            </Button>
+          </div>
+          <div>
+            <Link
+              href={"/"}
+              className="flex items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray-2 p-4 text-black hover:bg-opacity-50 no-underline"
+            >
+              Problemas para iniciar sesión?
+            </Link>
+          </div>
+          <div className="mt-6 text-center">
+            <p className="text-black">
+              No tienes una cuenta?{" "}
+              <Link
+                href={"/"}
+                className="text-orange-400 hover:text-orange-500"
+              >
+                Registrate
+              </Link>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

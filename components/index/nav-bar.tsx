@@ -1,27 +1,28 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
-import { Button, Flex, Link } from "@chakra-ui/react";
+import { Avatar, Button, Flex, HStack, Link, Text } from "@chakra-ui/react";
 import NextLink from "next/link";
 import NavBarLink from "./nav-bar-link";
-import { FaBars, FaX } from "react-icons/fa6";
+import { HiMenu, HiX } from "react-icons/hi";
+import { Session } from "next-auth";
+import { rolesList } from "../../lib/nextauth/rolesList";
+//import { useRouter } from "next/router";
 
-export default function NavBar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+export default function NavBar({ session }: { session: Session | null }) {
   //const router = useRouter();
-  //const [isOpen, setIsOpen] = useState(false);
-  //const { data: session, status } = useSession();
-  //const LogOut = async () => {
-  //  await signOut({
-  //    redirect: false,
-  //  }).then(() => {
-  //    onClose();
-  //    router.push(routes.login);
-  //  });
-  //};
-  //const onOpen = () => setIsOpen(true);
-  //const onClose = () => setIsOpen(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const LogOut = async () => {
+    //await signOut({
+    //  redirect: false,
+    //}).then(() => {
+    //  onClose();
+    //  router.push(routes.login);
+    //});
+  };
+  const onOpen = () => setIsOpen(true);
+  const onClose = () => setIsOpen(false);
   const setMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -32,9 +33,9 @@ export default function NavBar() {
         onClick={setMenu}
       >
         {isMenuOpen ? (
-          <FaX size={24} color="orange" />
+          <HiX size={24} color="orange" />
         ) : (
-          <FaBars size={24} color="orange" />
+          <HiMenu size={24} color="orange" />
         )}
       </Button>
       <ul className="m-0 mb-0 flex w-full list-none flex-col items-center p-0 py-2 align-middle md:flex-row  md:items-stretch md:justify-around">
@@ -63,7 +64,7 @@ export default function NavBar() {
           align={{ base: "center", md: "stretch" }}
         >
           <NavBarLink linkName="Inicio" linkUrl="/" />
-          <NavBarLink linkName="Nuestro equipo" linkUrl={"TODO"} />
+          <NavBarLink linkName="Nuestro equipo" linkUrl={"/nuestro-equipo"} />
           <NavBarLink linkName="Reserva una cita" linkUrl={"TODO"} />
           {/*
           <NavBarLinkDropDownChakra
@@ -76,18 +77,15 @@ export default function NavBar() {
           />
           */}
         </Flex>
-        {/*
         <div
           className={`mb-4 flex flex-col items-center gap-6 md:mb-0 md:flex-row md:gap-4 ${!isMenuOpen && "hidden"} md:flex`}
         >
-          {status === "loading" ? (
-            <Spinner />
-          ) : session?.user ? (
+          {session ? (
             <>
-              {session.user.resourceType === "Person" && (
+              {session.user.role !== rolesList.PACIENTE && (
                 <li>
                   <Link
-                    href={routes.dashboard}
+                    href={"/"}
                     className="rounded-xl  bg-orange-400 p-3 text-lg text-white no-underline transition-all  hover:text-orange-700 hover:drop-shadow-md "
                   >
                     Ingresar al dashboard
@@ -100,16 +98,15 @@ export default function NavBar() {
                   className="rounded-xl border-2 border-orange-400 p-2 text-lg text-orange-400 no-underline transition-all duration-300 hover:bg-orange-400 hover:text-white hover:drop-shadow-md focus:no-underline focus:shadow-none focus:outline-none"
                 >
                   <HStack>
-                    <Avatar
-                      size="md"
-                      name={
-                        session.user.firstName + " " + session.user.familyName
-                      }
-                      src={session.user.photoUrl}
-                    />
+                    <Avatar.Root size={"md"}>
+                      <Avatar.Fallback
+                        name={`${session.user.first_name}-${session.user.last_name}`}
+                      />
+                      <Avatar.Image src={session.user.photo_url} />
+                    </Avatar.Root>
                     <div className="flex flex-col">
                       <Text fontWeight="bold">
-                        {session.user.firstName + " " + session.user.familyName}
+                        {session.user.first_name + " " + session.user.last_name}
                       </Text>
                       <Text fontSize="sm" color="black">
                         Ver perfil
@@ -123,15 +120,15 @@ export default function NavBar() {
             <>
               <li>
                 <Link
-                  href={routes.login}
-                  className="rounded-xl bg-orange-400 p-2 text-lg text-white no-underline transition-all duration-300  hover:text-orange-700 hover:drop-shadow-md "
+                  href={"/login"}
+                  className="rounded-xl bg-orange-400 p-2 text-lg text-white no-underline transition-all duration-150  hover:text-orange-700 hover:drop-shadow-md"
                 >
                   Iniciar Sesión
                 </Link>
               </li>
               <li>
                 <Link
-                  href={routes.registro}
+                  href={"/"}
                   className="rounded-xl border-2 border-orange-400 p-2 text-lg text-orange-400 no-underline transition-all hover:bg-orange-400 hover:text-white hover:drop-shadow-md"
                 >
                   Crear Cuenta
@@ -139,7 +136,7 @@ export default function NavBar() {
               </li>
             </>
           )}
-        </div>*/}
+        </div>
       </ul>
       {/* 
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>

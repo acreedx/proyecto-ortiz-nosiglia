@@ -1,5 +1,5 @@
 export enum rolesList {
-  DENTISTA = "Dentistas",
+  DENTISTA = "Dentista",
   SECRETARIO = "Secretario",
   ADMINISTRADOR = "Administrador",
   ENFERMERO = "Enfermero",
