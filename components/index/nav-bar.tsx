@@ -1,28 +1,16 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
-import { Avatar, Button, Flex, HStack, Link, Text } from "@chakra-ui/react";
+import { Button, Flex, Link } from "@chakra-ui/react";
 import NextLink from "next/link";
 import NavBarLink from "./nav-bar-link";
 import { HiMenu, HiX } from "react-icons/hi";
 import { Session } from "next-auth";
 import { rolesList } from "../../lib/nextauth/rolesList";
-//import { useRouter } from "next/router";
+import UserDrawer from "./user-drawer";
 
 export default function NavBar({ session }: { session: Session | null }) {
-  //const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const LogOut = async () => {
-    //await signOut({
-    //  redirect: false,
-    //}).then(() => {
-    //  onClose();
-    //  router.push(routes.login);
-    //});
-  };
-  const onOpen = () => setIsOpen(true);
-  const onClose = () => setIsOpen(false);
   const setMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -42,7 +30,7 @@ export default function NavBar({ session }: { session: Session | null }) {
         <div className="flex flex-col items-center md:flex-row ">
           <Link
             as={NextLink}
-            href={"TODO"}
+            href={"/"}
             className="text-gray-900 no-underline hover:text-orange-400"
           >
             <Image
@@ -54,7 +42,6 @@ export default function NavBar({ session }: { session: Session | null }) {
             />
           </Link>
         </div>
-
         <Flex
           padding="1.5rem"
           bg="transparent"
@@ -65,17 +52,7 @@ export default function NavBar({ session }: { session: Session | null }) {
         >
           <NavBarLink linkName="Inicio" linkUrl="/" />
           <NavBarLink linkName="Nuestro equipo" linkUrl={"/nuestro-equipo"} />
-          <NavBarLink linkName="Reserva una cita" linkUrl={"TODO"} />
-          {/*
-          <NavBarLinkDropDownChakra
-            linkName="Nuestro equipo"
-            linkUrl="/equipo"
-            subLinks={[
-              { name: "Equipo Médico", url: "/equipo/medico" },
-              { name: "Equipo Administrativo", url: "/equipo/administrativo" },
-            ]}
-          />
-          */}
+          <NavBarLink linkName="Reserva una cita" linkUrl={"/citas"} />
         </Flex>
         <div
           className={`mb-4 flex flex-col items-center gap-6 md:mb-0 md:flex-row md:gap-4 ${!isMenuOpen && "hidden"} md:flex`}
@@ -93,27 +70,7 @@ export default function NavBar({ session }: { session: Session | null }) {
                 </li>
               )}
               <li>
-                <button
-                  onClick={onOpen}
-                  className="rounded-xl border-2 border-orange-400 p-2 text-lg text-orange-400 no-underline transition-all duration-300 hover:bg-orange-400 hover:text-white hover:drop-shadow-md focus:no-underline focus:shadow-none focus:outline-none"
-                >
-                  <HStack>
-                    <Avatar.Root size={"md"}>
-                      <Avatar.Fallback
-                        name={`${session.user.first_name}-${session.user.last_name}`}
-                      />
-                      <Avatar.Image src={session.user.photo_url} />
-                    </Avatar.Root>
-                    <div className="flex flex-col">
-                      <Text fontWeight="bold">
-                        {session.user.first_name + " " + session.user.last_name}
-                      </Text>
-                      <Text fontSize="sm" color="black">
-                        Ver perfil
-                      </Text>
-                    </div>
-                  </HStack>
-                </button>
+                <UserDrawer session={session} />
               </li>
             </>
           ) : (
@@ -128,7 +85,7 @@ export default function NavBar({ session }: { session: Session | null }) {
               </li>
               <li>
                 <Link
-                  href={"/"}
+                  href={"/crear-cuenta"}
                   className="rounded-xl border-2 border-orange-400 p-2 text-lg text-orange-400 no-underline transition-all hover:bg-orange-400 hover:text-white hover:drop-shadow-md"
                 >
                   Crear Cuenta
@@ -138,53 +95,6 @@ export default function NavBar({ session }: { session: Session | null }) {
           )}
         </div>
       </ul>
-      {/* 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
-        <DrawerOverlay />
-        {status === "loading" ? (
-          <Spinner />
-        ) : session?.user ? (
-          <DrawerContent>
-            <DrawerCloseButton />
-            <DrawerHeader>Perfil del Usuario</DrawerHeader>
-            <DrawerBody>
-              <div className="mb-4 flex flex-col items-center">
-                <Avatar
-                  size="2xl"
-                  name={session.user.firstName}
-                  src={session.user.photoUrl}
-                />
-                <h2 className="mt-2 text-xl font-bold">
-                  {personFullNameFormater(session.user)}
-                </h2>
-                <p className="text-gray-600">{session.user.email}</p>
-              </div>
-              <div className="flex flex-col items-center justify-center gap-4">
-                <Link
-                  href={routes.editarperfil}
-                  className="rounded-xl bg-orange-400 p-2 text-lg text-white no-underline transition-all duration-300  hover:text-orange-700 hover:drop-shadow-md "
-                >
-                  Ver Perfil
-                </Link>
-                <Link
-                  href={routes.cambiopassword}
-                  className="rounded-xl bg-orange-400 p-2 text-lg text-white no-underline transition-all duration-300  hover:text-orange-700 hover:drop-shadow-md "
-                >
-                  Cambiar contraseña
-                </Link>
-                <button
-                  onClick={LogOut}
-                  className="rounded-xl border-2 border-orange-400 p-2 text-lg text-orange-400 no-underline transition-all duration-300 hover:bg-orange-400 hover:text-white hover:drop-shadow-md focus:no-underline focus:shadow-none focus:outline-none"
-                >
-                  Cerrar Sesión
-                </button>
-              </div>
-            </DrawerBody>
-          </DrawerContent>
-        ) : (
-          <>Usuario no encontrado</>
-        )}
-      </Drawer>*/}
     </nav>
   );
 }

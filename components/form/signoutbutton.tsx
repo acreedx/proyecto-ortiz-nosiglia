@@ -12,17 +12,19 @@ export function SignOut() {
       <Button
         width="full"
         mt={6}
+        cursor={"pointer"}
         size="lg"
+        rounded={"lg"}
         height={14}
         border="1px"
         borderColor="orange.500"
         bg="orange.400"
+        p="4"
         color={"white"}
-        variant="solid"
         _hover={{ bg: "orange.400", opacity: 0.9 }}
         type="submit"
       >
-        Sign Out
+        Cerrar Sesión
       </Button>
     </form>
   );

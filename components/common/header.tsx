@@ -1,5 +1,13 @@
 "use client";
 export default function Header() {
+  const copiarTelefono = () => {
+    const texto = "59172025082";
+    navigator.clipboard.writeText(texto);
+  };
+  const copiarCorreo = () => {
+    const texto = "ortiznosiglia@gmail.com";
+    navigator.clipboard.writeText(texto);
+  };
   return (
     <header id="home">
       <div className="header-wrapper">
@@ -13,6 +21,7 @@ export default function Header() {
                       <a
                         href="#"
                         className="inline-block no-underline transition-all duration-300 ease-out hover:text-[#00adb5] focus:shadow-none focus:outline-none"
+                        onClick={copiarTelefono}
                       >
                         <i className="lni lni-phone inline-block no-underline"></i>{" "}
                         +591 72025082
@@ -22,6 +31,7 @@ export default function Header() {
                       <a
                         href="#"
                         className="inline-block no-underline transition-all duration-300 ease-out hover:text-[#00adb5] focus:shadow-none focus:outline-none"
+                        onClick={copiarCorreo}
                       >
                         <i className="lni lni-envelope inline-block no-underline"></i>
                         ortiznosiglia@gmail.com

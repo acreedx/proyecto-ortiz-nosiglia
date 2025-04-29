@@ -36,7 +36,7 @@ export function SignIn() {
         type: "success",
       });
       reset();
-      router.push("/");
+      router.refresh();
     }
     reset();
   };
@@ -111,7 +111,7 @@ export function SignIn() {
           </div>
           <div>
             <Link
-              href={"/"}
+              href={"/olvido-de-password"}
               className="flex items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray-2 p-4 text-black hover:bg-opacity-50 no-underline"
             >
               Problemas para iniciar sesión?
@@ -121,7 +121,7 @@ export function SignIn() {
             <p className="text-black">
               No tienes una cuenta?{" "}
               <Link
-                href={"/"}
+                href={"/crear-cuenta"}
                 className="text-orange-400 hover:text-orange-500"
               >
                 Registrate
