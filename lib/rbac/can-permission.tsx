@@ -1,5 +1,4 @@
 import { hasPermission } from "./permissions";
-import ForbiddenAccess from "../../components/common/forbidden-access";
 import { Session } from "next-auth";
 
 export async function CanPermission({
@@ -12,7 +11,6 @@ export async function CanPermission({
   children: React.ReactNode;
 }) {
   if (!session) return null;
-  if (!hasPermission(session.user.permissions, permission))
-    return <ForbiddenAccess />;
-  return <>{children}</>;
+  if (hasPermission(session.user.permissions, permission))
+    return <>{children}</>;
 }

@@ -1,17 +1,9 @@
 "use client";
-
-import {
-  Button,
-  Field,
-  FileUpload,
-  FileUploadList,
-  Flex,
-  Float,
-  Input,
-  useFileUpload,
-} from "@chakra-ui/react";
+import { Field, Flex, Input, useFileUpload } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import { LuFileImage, LuX } from "react-icons/lu";
+import { mostrarAlertaConfirmacion } from "../../lib/sweetalert/alerts";
+import ProfileUploadField from "./common/profileUploadField";
+import SubmitButton from "./common/submitButton";
 
 export default function CreatePatientForm() {
   const fileUpload = useFileUpload({
@@ -22,45 +14,24 @@ export default function CreatePatientForm() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    resetField,
   } = useForm();
   const onSubmit = async (data) => {
-    console.log(fileUpload.acceptedFiles);
-    console.log(data);
+    if (
+      await mostrarAlertaConfirmacion({
+        mensaje: "Confirmas los datos de tu usuario?",
+      })
+    ) {
+      console.log("datos");
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
-      <FileUpload.RootProvider value={fileUpload}>
-        <FileUpload.ItemGroup>
-          {fileUpload.acceptedFiles.map((file) => (
-            <FileUpload.Item
-              w="auto"
-              boxSize="20"
-              p="2"
-              file={file}
-              key={file.name}
-            >
-              <FileUpload.ItemPreviewImage />
-              <Float placement="top-end">
-                <FileUpload.ItemDeleteTrigger
-                  boxSize="4"
-                  layerStyle="fill.solid"
-                >
-                  <LuX />
-                </FileUpload.ItemDeleteTrigger>
-              </Float>
-            </FileUpload.Item>
-          ))}
-        </FileUpload.ItemGroup>
-        <FileUpload.HiddenInput />
-        <FileUpload.Trigger asChild>
-          <Button variant="outline" size="sm">
-            <LuFileImage /> Upload Images
-          </Button>
-        </FileUpload.Trigger>
-        <FileUploadList />
-      </FileUpload.RootProvider>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      encType="multipart/form-data"
+      className="h-full"
+    >
+      <ProfileUploadField fileUpload={fileUpload} />
       <Flex wrap="wrap" gapY={4} mb={4} w="full">
         <Field.Root
           invalid={!!errors.username}
@@ -146,22 +117,7 @@ export default function CreatePatientForm() {
           </Field.ErrorText>
         </Field.Root>
       </Flex>
-      <Button
-        rounded={"xl"}
-        mt={6}
-        size="lg"
-        height={14}
-        border="1px"
-        borderColor="orange.500"
-        bg="orange.400"
-        color={"white"}
-        variant="solid"
-        _hover={{ bg: "orange.400", opacity: 0.9 }}
-        type="submit"
-        loading={isSubmitting}
-      >
-        Crear cuenta
-      </Button>
+      <SubmitButton text={"Crear cuenta"} isSubmitting={isSubmitting} />
     </form>
   );
 }
