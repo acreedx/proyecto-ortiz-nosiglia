@@ -20,7 +20,7 @@ export default function UserDrawer({ session }: { session: Session }) {
       <Drawer.Trigger asChild>
         <Button
           onClick={onMenuOpen}
-          className="rounded-xl border-2 border-orange-400 py-8 text-lg text-orange-400 no-underline transition-all duration-300 hover:bg-orange-400 hover:text-white hover:drop-shadow-md focus:no-underline focus:shadow-none focus:outline-none"
+          className="rounded-xl border-2 bg-white border-orange-400 py-8 text-lg text-orange-400 no-underline transition-all duration-300 hover:bg-orange-400 hover:text-white hover:drop-shadow-md focus:no-underline focus:shadow-none focus:outline-none"
         >
           <HStack>
             <Avatar.Root size={"md"}>
@@ -69,19 +69,19 @@ export default function UserDrawer({ session }: { session: Session }) {
                   href={"/editar-perfil"}
                   className="rounded-xl bg-orange-400 p-1 text-base text-white no-underline transition-all duration-300  hover:text-orange-700 hover:drop-shadow-md "
                 >
-                  Editar Perfil
+                  Editar perfil
                 </Link>
                 <Link
                   href={"/cambio-de-password"}
                   className="rounded-xl bg-orange-400 p-1 text-base text-white no-underline transition-all duration-300  hover:text-orange-700 hover:drop-shadow-md "
                 >
-                  Cambiar Contraseña
+                  Cambiar contraseña
                 </Link>
                 <a
                   href="/logout"
                   className="rounded-xl border-2 border-orange-400 p-1 text-base text-orange-400 no-underline transition-all duration-300 hover:bg-orange-400 hover:text-white hover:drop-shadow-md focus:no-underline focus:shadow-none focus:outline-none"
                 >
-                  Cerrar Sesión
+                  Cerrar sesión
                 </a>
               </div>
             </Drawer.Body>

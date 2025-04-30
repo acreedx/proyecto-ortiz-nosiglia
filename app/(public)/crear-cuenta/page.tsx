@@ -1,3 +1,4 @@
+import { Link } from "@chakra-ui/react";
 import CreatePatientForm from "../../../components/form/create-patient-form";
 import Banner from "../../../components/index/banner";
 import { auth } from "../../../lib/nextauth/auth";
@@ -25,6 +26,17 @@ export default async function Page() {
                   Crear cuenta nueva
                 </h1>
                 <CreatePatientForm />
+                <div className="mt-4 text-center">
+                  <p className="text-black">
+                    Ya tienes una cuenta?{" "}
+                    <Link
+                      href={"/login"}
+                      className="text-orange-400 hover:text-orange-500"
+                    >
+                      Iniciar sesión
+                    </Link>
+                  </p>
+                </div>
               </>
             )}
           </div>

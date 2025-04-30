@@ -4,6 +4,9 @@ import { useForm } from "react-hook-form";
 import { mostrarAlertaConfirmacion } from "../../lib/sweetalert/alerts";
 import ProfileUploadField from "./common/profileUploadField";
 import SubmitButton from "./common/submitButton";
+import { createUserSchema, TCreateUserSchema } from "../../lib/zod/zschemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toaster } from "../ui/toaster";
 
 export default function CreatePatientForm() {
   const fileUpload = useFileUpload({
@@ -14,106 +17,219 @@ export default function CreatePatientForm() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm();
-  const onSubmit = async (data) => {
+  } = useForm({
+    resolver: zodResolver(createUserSchema),
+    mode: "onChange",
+  });
+  const onSubmit = async (data: TCreateUserSchema) => {
     if (
       await mostrarAlertaConfirmacion({
         mensaje: "Confirmas los datos de tu usuario?",
       })
     ) {
-      console.log("datos");
+      //TODO agregar la creación del paciente
+      toaster.create({ description: "Bienvenido de nuevo", type: "success" });
+      console.log(data);
+      //TODO iniciar sesión con el usuario
+      reset();
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      encType="multipart/form-data"
-      className="h-full"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="h-full">
       <ProfileUploadField fileUpload={fileUpload} />
       <Flex wrap="wrap" gapY={4} mb={4} w="full">
         <Field.Root
-          invalid={!!errors.username}
+          invalid={!!errors.identification}
           required
           px={4}
           w={{ base: "100%", md: "50%" }}
         >
-          <Field.Label>Username</Field.Label>
+          <Field.Label>Carnet de identidad</Field.Label>
           <Input
             colorPalette="orange"
             type="text"
             variant="outline"
-            placeholder="Ingresa tu nombre de usuario"
-            {...register("username", {
-              required: "El usuario es requerido",
+            placeholder="Ingresa tu CI"
+            {...register("identification", {
+              required: "El CI es requerido",
             })}
           />
-          <Field.ErrorText className="text-base">
-            {/*errors.username?.message*/}
+          <Field.ErrorText className="text-sm">
+            {errors.identification?.message}
+          </Field.ErrorText>
+        </Field.Root>
+        <Field.Root
+          invalid={!!errors.first_name}
+          required
+          px={4}
+          w={{ base: "100%", md: "50%" }}
+        >
+          <Field.Label>Nombres</Field.Label>
+          <Input
+            colorPalette="orange"
+            type="text"
+            autoComplete="given-name"
+            variant="outline"
+            placeholder="Ingresa tus nombres"
+            {...register("first_name", {
+              required: "El nombre es requerido",
+            })}
+          />
+          <Field.ErrorText className="text-sm">
+            {errors.first_name?.message}
+          </Field.ErrorText>
+        </Field.Root>
+        <Field.Root
+          invalid={!!errors.last_name}
+          required
+          px={4}
+          w={{ base: "100%", md: "50%" }}
+        >
+          <Field.Label>Apellidos</Field.Label>
+          <Input
+            colorPalette="orange"
+            type="text"
+            autoComplete="family-name"
+            variant="outline"
+            placeholder="Ingresa tus apellidos"
+            {...register("last_name", {
+              required: "Los apellidos son requeridos",
+            })}
+          />
+          <Field.ErrorText className="text-sm">
+            {errors.last_name?.message}
           </Field.ErrorText>
         </Field.Root>
 
         <Field.Root
-          invalid={!!errors.username}
+          invalid={!!errors.birth_date}
           required
           px={4}
           w={{ base: "100%", md: "50%" }}
         >
-          <Field.Label>Username</Field.Label>
+          <Field.Label>Fecha de nacimiento</Field.Label>
           <Input
-            colorPalette="orange"
-            type="text"
+            type="date"
+            autoComplete="bday-day"
             variant="outline"
-            placeholder="Ingresa tu nombre de usuario"
-            {...register("username", {
-              required: "El usuario es requerido",
+            placeholder="Ingresa tu fecha de nacimiento"
+            {...register("birth_date", {
+              required: "La fecha de nacimiento es requerida",
             })}
           />
-          <Field.ErrorText className="text-base">
-            {/*errors.username?.message*/}
+          <Field.ErrorText className="text-sm">
+            {errors.birth_date?.message}
           </Field.ErrorText>
         </Field.Root>
 
         <Field.Root
-          invalid={!!errors.username}
+          invalid={!!errors.phone}
           required
           px={4}
           w={{ base: "100%", md: "50%" }}
         >
-          <Field.Label>Username</Field.Label>
+          <Field.Label>Teléfono</Field.Label>
           <Input
             colorPalette="orange"
-            type="text"
+            autoComplete="tel"
+            type="tel"
             variant="outline"
-            placeholder="Ingresa tu nombre de usuario"
-            {...register("username", {
-              required: "El usuario es requerido",
+            placeholder="Ingresa tu teléfono fijo"
+            {...register("phone", {
+              required: "El teléfono es requerido",
             })}
           />
-          <Field.ErrorText className="text-base">
-            {/*errors.username?.message*/}
+          <Field.ErrorText className="text-sm">
+            {errors.phone?.message}
           </Field.ErrorText>
         </Field.Root>
 
         <Field.Root
-          invalid={!!errors.username}
+          invalid={!!errors.mobile}
           required
           px={4}
           w={{ base: "100%", md: "50%" }}
         >
-          <Field.Label>Username</Field.Label>
+          <Field.Label>Celular</Field.Label>
           <Input
+            autoComplete="mobile tel"
             colorPalette="orange"
             type="text"
             variant="outline"
-            placeholder="Ingresa tu nombre de usuario"
-            {...register("classname", {
-              required: "El usuario es requerido",
+            placeholder="Ingresa tu celular"
+            {...register("mobile", {
+              required: "El celular es requerido",
             })}
           />
-          <Field.ErrorText className="text-base">
-            {/*errors.username?.message*/}
+          <Field.ErrorText className="text-sm">
+            {errors.mobile?.message}
+          </Field.ErrorText>
+        </Field.Root>
+
+        <Field.Root
+          invalid={!!errors.email}
+          required
+          px={4}
+          w={{ base: "100%", md: "50%" }}
+        >
+          <Field.Label>Correo electrónico</Field.Label>
+          <Input
+            autoComplete="email"
+            colorPalette="orange"
+            type="email"
+            variant="outline"
+            placeholder="Ingresa tu correo"
+            {...register("email", {
+              required: "El correo es requerido",
+            })}
+          />
+          <Field.ErrorText className="text-sm">
+            {errors.email?.message}
+          </Field.ErrorText>
+        </Field.Root>
+
+        <Field.Root
+          invalid={!!errors.address_line}
+          required
+          px={4}
+          w={{ base: "100%", md: "50%" }}
+        >
+          <Field.Label>Dirección</Field.Label>
+          <Input
+            autoComplete="address-line1"
+            colorPalette="orange"
+            type="text"
+            variant="outline"
+            placeholder="Ingresa tu dirección"
+            {...register("address_line", {
+              required: "La dirección es requerida",
+            })}
+          />
+          <Field.ErrorText className="text-sm">
+            {errors.address_line?.message}
+          </Field.ErrorText>
+        </Field.Root>
+
+        <Field.Root
+          invalid={!!errors.address_city}
+          required
+          px={4}
+          w={{ base: "100%", md: "50%" }}
+        >
+          <Field.Label>Ciudad</Field.Label>
+          <Input
+            colorPalette="orange"
+            autoComplete="address-line2"
+            type="text"
+            variant="outline"
+            placeholder="Ingresa tu ciudad"
+            {...register("address_city", {
+              required: "La ciudad es requerida",
+            })}
+          />
+          <Field.ErrorText className="text-sm">
+            {errors.address_city?.message}
           </Field.ErrorText>
         </Field.Root>
       </Flex>

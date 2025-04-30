@@ -62,7 +62,7 @@ export default function NavBar({ session }: { session: Session | null }) {
               {session.user.role !== rolesList.PACIENTE && (
                 <li>
                   <Link
-                    href={"/"}
+                    href={"/area-administrativa"}
                     className="rounded-xl  bg-orange-400 p-3 text-lg text-white no-underline transition-all  hover:text-orange-700 hover:drop-shadow-md "
                   >
                     Ingresar al dashboard
