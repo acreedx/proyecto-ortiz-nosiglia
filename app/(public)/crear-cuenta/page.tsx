@@ -9,7 +9,7 @@ export default async function Page() {
       <div className="flex flex-wrap items-center ">
         <Banner />
         <div className="w-full border-stroke xl:w-1/2 xl:border-l-2 p-6 h-100 flex items-center justify-center">
-          <div className="text-center">
+          <div className="text-center w-full px-8">
             {session ? (
               <>
                 <h1 className="text-red-600 text-2xl font-bold">
