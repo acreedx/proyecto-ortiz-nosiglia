@@ -1,10 +1,17 @@
-import { useEffect } from "react";
+"use client";
+import { useEffect, useState } from "react";
 import useLocalStorage from "./useLocalStorage";
 
 const useColorMode = () => {
+  const [mounted, setMounted] = useState(false);
   const [colorMode, setColorMode] = useLocalStorage("color-theme", "light");
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     const className = "dark";
     const bodyClass = window.document.body.classList;
 
@@ -12,7 +19,9 @@ const useColorMode = () => {
     colorMode === "dark"
       ? bodyClass.add(className)
       : bodyClass.remove(className);
-  }, [colorMode]);
+  }, [colorMode, mounted]);
+
+  if (!mounted) return [null, () => {}]; // evitar render
 
   return [colorMode, setColorMode];
 };

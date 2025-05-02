@@ -10,13 +10,10 @@ import { menuOptions } from "../../types/side-bar-options";
 import ClickOutside from "./click-outside";
 import SidebarItem from "./side-bar-item";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import { useSidebar } from "./side-bar-context";
 
-interface SidebarProps {
-  sidebarOpen: boolean;
-  setSidebarOpen: (arg: boolean) => void;
-}
-
-const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
+export default function Sidebar() {
+  const { sidebarOpen, setSidebarOpen } = useSidebar();
   const pathname = usePathname();
   const [accessibleMenu, setAccessibleMenu] = useState(menuOptions);
   const [pageName, setPageName] = useLocalStorage("selectedMenu", "dashboard");
@@ -51,7 +48,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     <ClickOutside onClick={() => {}}>
       <aside
         className={`shadow-gray-500/50 fixed left-0 top-0 z-20 flex h-screen w-72.5 flex-col overflow-y-hidden bg-slate-50 shadow-lg duration-300 ease-linear dark:bg-boxdark ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          sidebarOpen ? "translate-x-0" : "hidden"
         }`}
       >
         <div className="flex items-center justify-center gap-2 px-6 py-5.5 lg:py-6.5">
@@ -91,6 +88,4 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       </aside>
     </ClickOutside>
   );
-};
-
-export default Sidebar;
+}

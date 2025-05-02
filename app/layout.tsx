@@ -1,4 +1,5 @@
 import "./globals.css";
+
 import { Inter } from "next/font/google";
 import { Provider } from "../components/ui/provider";
 import { metadata } from "../lib/metadata/metadata";
