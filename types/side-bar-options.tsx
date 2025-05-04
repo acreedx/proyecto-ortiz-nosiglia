@@ -1,45 +1,48 @@
-import PatientIcon from "../components/icons/patient-icon";
-
+import { FaHospitalUser } from "react-icons/fa";
+import {
+  LuBookOpen,
+  LuCalendar,
+  LuCog,
+  LuCreditCard,
+  LuGauge,
+  LuUser,
+} from "react-icons/lu";
 export const menuOptions = [
   {
     name: "MENU",
     menuItems: [
       {
-        icon: <PatientIcon />,
-        label: "Dashboard",
+        icon: <LuGauge color="white" />,
+        label: "Administración",
         route: "#",
         children: [
           {
             label: "Panel de control",
-            route: "#",
-          },
-          {
-            label: "Sitio Web",
-            route: "#",
+            route: "/area-administrativa/dashboard",
           },
         ],
       },
       {
-        icon: <PatientIcon />,
+        icon: <FaHospitalUser color="white" />,
         label: "Gestión de pacientes",
         route: "#",
         children: [
           {
             label: "Pacientes",
-            route: "#",
+            route: "/area-administrativa/pacientes",
           },
           {
             label: "Organizaciones",
-            route: "#",
+            route: "/area-administrativa/organizaciones",
           },
           {
             label: "Reportes",
-            route: "#",
+            route: "/area-administrativa/reportes",
           },
         ],
       },
       {
-        icon: <PatientIcon />,
+        icon: <LuCalendar color="white" />,
         label: "Gestión de citas",
         route: "#",
         children: [
@@ -54,7 +57,7 @@ export const menuOptions = [
         ],
       },
       {
-        icon: <PatientIcon />,
+        icon: <LuUser color="white" />,
         label: "Gestión de usuarios",
         route: "#",
         children: [
@@ -77,8 +80,8 @@ export const menuOptions = [
         ],
       },
       {
-        icon: <PatientIcon />,
-        label: "Gestión de Tratamientos",
+        icon: <LuBookOpen color="white" />,
+        label: "Gestión de tratamientos",
         route: "#",
         children: [
           {
@@ -96,8 +99,8 @@ export const menuOptions = [
         ],
       },
       {
-        icon: <PatientIcon />,
-        label: "Gestión de Deudas",
+        icon: <LuCreditCard color="white" />,
+        label: "Gestión de deudas",
         route: "#",
         children: [
           {
@@ -107,12 +110,12 @@ export const menuOptions = [
         ],
       },
       {
-        icon: <PatientIcon />,
+        icon: <LuCog color="white" />,
         label: "Configuración",
         route: "#",
         children: [
           {
-            label: "Importar Datos",
+            label: "Importar datos",
             route: "#",
           },
         ],

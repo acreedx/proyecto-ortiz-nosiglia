@@ -4,10 +4,10 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema, TSignInSchema } from "../../lib/zod/zschemas";
-import { Input, Button, Field, Link } from "@chakra-ui/react";
+import { Input, Button, Field, Link, InputGroup } from "@chakra-ui/react";
 import { toaster } from "../ui/toaster";
-import PatientIcon from "../icons/patient-icon";
-import CandadoIcon from "../icons/candado-icon";
+import { PasswordInput } from "../ui/password-input";
+import { LuLock, LuUser } from "react-icons/lu";
 export function SignIn() {
   const router = useRouter();
 
@@ -50,20 +50,19 @@ export function SignIn() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <Field.Root invalid={!!errors.username} required mb={4}>
             <Field.Label className="mb-2.5 block font-medium text-black text-lg">
-              Username
+              Nombre de usuario
             </Field.Label>
             <div className="relative w-full">
-              <span className="absolute left-4 h-full flex items-center">
-                <PatientIcon />
-              </span>
-              <Input
-                type="text"
-                placeholder="Ingresa tu nombre de usuario"
-                {...register("username", {
-                  required: "El usuario es requerido",
-                })}
-                className="text-base h-12 w-full rounded-lg border border-stroke bg-transparent py-4 pl-12 pr-6 text-black outline-none focus:border-orange-500 focus-visible:shadow-none"
-              />
+              <InputGroup startElement={<LuUser />}>
+                <Input
+                  type="text"
+                  placeholder="Ingresa tu nombre de usuario"
+                  {...register("username", {
+                    required: "El usuario es requerido",
+                  })}
+                  className="text-base h-12 w-full rounded-lg border border-stroke bg-transparent py-4 pl-12 pr-6 text-black outline-none focus:border-orange-500 focus-visible:shadow-none"
+                />
+              </InputGroup>
             </div>
             <Field.ErrorText className="text-base">
               {errors.username?.message}
@@ -75,17 +74,16 @@ export function SignIn() {
               Contraseña
             </Field.Label>
             <div className="relative w-full">
-              <span className="absolute left-4 h-full flex items-center">
-                <CandadoIcon />
-              </span>
-              <Input
-                type="password"
-                placeholder="••••••••"
-                {...register("password", {
-                  required: "El password es requerido",
-                })}
-                className="text-base h-12 w-full rounded-lg border border-stroke bg-transparent py-4 pl-12 pr-6 text-black outline-none focus:border-orange-500 focus-visible:shadow-none "
-              />
+              <InputGroup startElement={<LuLock />}>
+                <PasswordInput
+                  type="password"
+                  placeholder="••••••••"
+                  {...register("password", {
+                    required: "El password es requerido",
+                  })}
+                  className="text-base h-12 w-full rounded-lg border border-stroke bg-transparent py-4 pl-12 pr-6 text-black outline-none focus:border-orange-500 focus-visible:shadow-none "
+                />
+              </InputGroup>
             </div>
             <Field.ErrorText className="text-base">
               {errors.password?.message}

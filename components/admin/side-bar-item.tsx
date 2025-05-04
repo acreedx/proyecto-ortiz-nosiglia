@@ -3,8 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import SidebarDropdown from "./side-bar-drop-down";
-import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { Accordion, Icon, Span } from "@chakra-ui/react";
 
 const SidebarItem = ({ item, pageName, setPageName }: any) => {
   const pathname = usePathname();
@@ -37,32 +36,41 @@ const SidebarItem = ({ item, pageName, setPageName }: any) => {
 
   return (
     <li>
-      <Link
-        href={item.route}
-        onClick={handleClick}
-        className={`${
-          isItemActive ? "bg-orange-600 dark:bg-meta-4 " : "bg-orange-600"
-        } group relative flex items-center gap-2.5 px-4 py-3 font-medium text-white duration-300 ease-in-out hover:bg-orange-700 dark:hover:bg-meta-4`}
-      >
-        {item.icon}
-        {item.label}
-        {item.children &&
-          (isPageNameLikeItem ? (
-            <FaArrowUp className="absolute right-4 top-1/2 -translate-y-1/2 fill-current duration-200 ease-linear" />
-          ) : (
-            <FaArrowDown className="absolute right-4 top-1/2 -translate-y-1/2 fill-current duration-200 ease-linear" />
-          ))}
-      </Link>
-
-      {item.children && hasMounted && (
-        <div
-          className={`transform overflow-hidden bg-orange-400 duration-300 ease-in-out ${
-            isPageNameLikeItem ? "max-h-screen" : "hidden max-h-0"
-          }`}
-        >
-          <SidebarDropdown item={item.children} />
-        </div>
-      )}
+      <Accordion.Root collapsible>
+        <Accordion.Item value={item.pageName} bgColor={"orange.600"}>
+          <Accordion.ItemTrigger px={4} py={3} onClick={handleClick}>
+            <Icon fontSize="lg">{item.icon}</Icon>
+            <Span flex="1" className="text-white">
+              {item.label}
+            </Span>
+            <Accordion.ItemIndicator color={"white"} />
+          </Accordion.ItemTrigger>
+          <Accordion.ItemContent bgColor={"orange.400"} rounded={0} p={0}>
+            {item.children && hasMounted && (
+              <div
+                className={`transform overflow-hidden bg-orange-400 duration-150 ease-in-out`}
+              >
+                <Accordion.ItemBody p={0}>
+                  <ul>
+                    {item.children.map((item: any, index: number) => (
+                      <li key={index} className="w-full ">
+                        <Link
+                          href={item.route}
+                          className={`relative flex items-center py-3 px-4 text-center font-medium text-white duration-150 ease-linear hover:bg-orange-700 ${
+                            pathname === item.route && "bg-orange-700"
+                          }`}
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </Accordion.ItemBody>
+              </div>
+            )}
+          </Accordion.ItemContent>
+        </Accordion.Item>
+      </Accordion.Root>
     </li>
   );
 };

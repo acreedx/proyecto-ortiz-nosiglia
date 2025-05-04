@@ -9,7 +9,9 @@ import {
   TChangePasswordSchema,
 } from "../../lib/zod/zschemas";
 import SubmitButton from "./common/submitButton";
-import { Field, Flex, Input } from "@chakra-ui/react";
+import { Field, Flex, Input, InputGroup } from "@chakra-ui/react";
+import { LuLock, LuUser } from "react-icons/lu";
+import { PasswordInput } from "../ui/password-input";
 
 export default function ChangePasswordForm() {
   const {
@@ -47,15 +49,17 @@ export default function ChangePasswordForm() {
           w={{ base: "100%", md: "50%" }}
         >
           <Field.Label>Nombre de usuario</Field.Label>
-          <Input
-            colorPalette="orange"
-            type="text"
-            variant="outline"
-            placeholder="Ingresa tu nombre de usuario"
-            {...register("username", {
-              required: "El nombre de usuario es requerido",
-            })}
-          />
+          <InputGroup startElement={<LuUser />}>
+            <Input
+              colorPalette="orange"
+              type="text"
+              variant="outline"
+              placeholder="Ingresa tu nombre de usuario"
+              {...register("username", {
+                required: "El nombre de usuario es requerido",
+              })}
+            />
+          </InputGroup>
           <Field.ErrorText className="text-sm">
             {errors.username?.message}
           </Field.ErrorText>
@@ -67,15 +71,17 @@ export default function ChangePasswordForm() {
           w={{ base: "100%", md: "50%" }}
         >
           <Field.Label>Contraseña actual</Field.Label>
-          <Input
-            colorPalette="orange"
-            type="text"
-            variant="outline"
-            placeholder="Ingresa tu contraseña actual"
-            {...register("actualPassword", {
-              required: "El password actual es requerido",
-            })}
-          />
+          <InputGroup startElement={<LuLock />}>
+            <PasswordInput
+              colorPalette="orange"
+              type="text"
+              variant="outline"
+              placeholder="Ingresa tu contraseña actual"
+              {...register("actualPassword", {
+                required: "El password actual es requerido",
+              })}
+            />
+          </InputGroup>
           <Field.ErrorText className="text-sm">
             {errors.actualPassword?.message}
           </Field.ErrorText>
@@ -87,15 +93,17 @@ export default function ChangePasswordForm() {
           w={{ base: "100%", md: "50%" }}
         >
           <Field.Label>Nueva contraseña</Field.Label>
-          <Input
-            colorPalette="orange"
-            type="text"
-            variant="outline"
-            placeholder="Ingresa tu nueva contraseña"
-            {...register("newPassword", {
-              required: "La nueva contraseña es requerida",
-            })}
-          />
+          <InputGroup startElement={<LuLock />}>
+            <PasswordInput
+              colorPalette="orange"
+              type="text"
+              variant="outline"
+              placeholder="Ingresa tu nueva contraseña"
+              {...register("newPassword", {
+                required: "La nueva contraseña es requerida",
+              })}
+            />
+          </InputGroup>
           <Field.ErrorText className="text-sm">
             {errors.newPassword?.message}
           </Field.ErrorText>
@@ -107,15 +115,17 @@ export default function ChangePasswordForm() {
           w={{ base: "100%", md: "50%" }}
         >
           <Field.Label>Confirmación</Field.Label>
-          <Input
-            colorPalette="orange"
-            type="text"
-            variant="outline"
-            placeholder="Ingresa la confirmación de tu nueva contraseña"
-            {...register("newPasswordConfirmation", {
-              required: "La confirmación es requerida",
-            })}
-          />
+          <InputGroup startElement={<LuLock />}>
+            <PasswordInput
+              colorPalette="orange"
+              type="text"
+              variant="outline"
+              placeholder="Ingresa la confirmación de tu contraseña"
+              {...register("newPasswordConfirmation", {
+                required: "La confirmación es requerida",
+              })}
+            />
+          </InputGroup>
           <Field.ErrorText className="text-sm">
             {errors.newPasswordConfirmation?.message}
           </Field.ErrorText>

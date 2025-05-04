@@ -63,9 +63,9 @@ export const changePasswordSchema = z.object({
     .string()
     .min(1, "El nombre de usuario es requerido")
     .max(50, "El tamaño máximo es de 50"),
-  actualPassword: z.string(),
-  newPassword: z.string(),
-  newPasswordConfirmation: z.string(),
+  actualPassword: z.string().min(1, "La contraseña actual es requerida"),
+  newPassword: z.string().min(1, "La nueva contraseña es requerida"),
+  newPasswordConfirmation: z.string().min(1, "La confirmación es requerida"),
 });
 
 export type TChangePasswordSchema = z.infer<typeof changePasswordSchema>;
