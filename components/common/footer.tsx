@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Footer() {
   return (
-    <footer className="footer img-bg h-full pb-[100px] pt-[100px]">
+    <footer className="footer img-bg h-full pt-[60px]">
       <div className="mx-auto w-full px-[calc(1.5rem*0.5)] sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1140px] 2xl:max-w-[1320px]">
         <div className="footer-widget-wrapper pb-0">
           <div className="-mx-[calc(1.5rem*0.5)] -mt-[0rem]  flex flex-wrap justify-center">

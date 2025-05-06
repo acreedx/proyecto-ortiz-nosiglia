@@ -1,17 +1,16 @@
 "use client";
-import { Field, Flex, Input, useFileUpload } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
-import { mostrarAlertaConfirmacion } from "../../lib/sweetalert/alerts";
+
+import { Field, Flex, Image, Input, useFileUpload } from "@chakra-ui/react";
+import { User } from "@prisma/client";
 import ProfileUploadField from "./common/profileUploadField";
 import SubmitButton from "./common/submitButton";
-import { createUserSchema, TCreateUserSchema } from "../../lib/zod/zschemas";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { mostrarAlertaConfirmacion } from "../../lib/sweetalert/alerts";
 import { toaster } from "../ui/toaster";
-import { createUser } from "../../actions";
-import { useRouter } from "next/navigation";
+import { createUserSchema, TCreateUserSchema } from "../../lib/zod/zschemas";
 
-export default function CreatePatientForm() {
-  const router = useRouter();
+export default function EditProfileForm({ user }: { user: User }) {
   const fileUpload = useFileUpload({
     accept: "image/*",
   });
@@ -19,10 +18,13 @@ export default function CreatePatientForm() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
   } = useForm({
     resolver: zodResolver(createUserSchema),
     mode: "onChange",
+    defaultValues: {
+      ...user,
+      birth_date: new Date(user.birth_date).toISOString().split("T")[0],
+    },
   });
   const onSubmit = async (data: TCreateUserSchema) => {
     if (
@@ -30,33 +32,32 @@ export default function CreatePatientForm() {
         mensaje: "Confirmas los datos de tu usuario?",
       })
     ) {
-      const res = await createUser({
-        data: data,
-        image: fileUpload.acceptedFiles[0],
+      //TODO actualizar el paciente
+      toaster.create({
+        description: "Usuario actualizado con éxito",
+        type: "success",
       });
-      if (res.ok) {
-        toaster.create({
-          title: "Usuario creado con éxito",
-          description:
-            "Debes cambiar tu contraseña la siguiente ves que inicies sesión",
-          type: "success",
-          duration: 8000,
-        });
-        router.push("/login");
-      }
-      if (!res.ok) {
-        toaster.create({
-          description: "Error al crear el usuario",
-          type: "error",
-        });
-      }
-      reset();
+      console.log(data);
+      //TODO actualizar la sesion
     }
   };
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="h-full">
-      <ProfileUploadField fileUpload={fileUpload} />
+      <div className="flex flex-row justify-center items-center mt-4 mb-4">
+        <div className="h-full w-full flex flex-col items-center">
+          <p className="mb-2 font-semibold">Foto de perfil actual</p>
+          <Image
+            alt="Foto de perfil actual"
+            src={user.photo_url}
+            w={40}
+            h={40}
+            colorPalette={"orange"}
+            rounded={"full"}
+            bgColor={"orange.200"}
+          />
+        </div>
+        <ProfileUploadField fileUpload={fileUpload} />
+      </div>
       <Flex wrap="wrap" gapY={4} mb={4} w="full">
         <Field.Root
           invalid={!!errors.identification}
@@ -120,6 +121,7 @@ export default function CreatePatientForm() {
             {errors.last_name?.message}
           </Field.ErrorText>
         </Field.Root>
+
         <Field.Root
           invalid={!!errors.birth_date}
           required
@@ -140,6 +142,7 @@ export default function CreatePatientForm() {
             {errors.birth_date?.message}
           </Field.ErrorText>
         </Field.Root>
+
         <Field.Root
           invalid={!!errors.phone}
           required
@@ -161,6 +164,7 @@ export default function CreatePatientForm() {
             {errors.phone?.message}
           </Field.ErrorText>
         </Field.Root>
+
         <Field.Root
           invalid={!!errors.mobile}
           required
@@ -182,6 +186,7 @@ export default function CreatePatientForm() {
             {errors.mobile?.message}
           </Field.ErrorText>
         </Field.Root>
+
         <Field.Root
           invalid={!!errors.email}
           required
@@ -203,6 +208,7 @@ export default function CreatePatientForm() {
             {errors.email?.message}
           </Field.ErrorText>
         </Field.Root>
+
         <Field.Root
           invalid={!!errors.address_line}
           required
@@ -224,6 +230,7 @@ export default function CreatePatientForm() {
             {errors.address_line?.message}
           </Field.ErrorText>
         </Field.Root>
+
         <Field.Root
           invalid={!!errors.address_city}
           required
@@ -246,7 +253,7 @@ export default function CreatePatientForm() {
           </Field.ErrorText>
         </Field.Root>
       </Flex>
-      <SubmitButton text={"Crear cuenta"} isSubmitting={isSubmitting} />
+      <SubmitButton text={"Actualizar"} isSubmitting={isSubmitting} />
     </form>
   );
 }

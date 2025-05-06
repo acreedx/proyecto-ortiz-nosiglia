@@ -20,7 +20,7 @@ export default function UserDrawer({ session }: { session: Session }) {
       <Drawer.Trigger asChild>
         <Button
           onClick={onMenuOpen}
-          className="rounded-xl border-2 bg-white border-orange-400 py-8 text-lg text-orange-400 no-underline transition-all duration-300 hover:bg-orange-400 hover:text-white hover:drop-shadow-md focus:no-underline focus:shadow-none focus:outline-none"
+          className="rounded-xl border-2 bg-white border-orange-400 py-7 text-base text-orange-400 no-underline transition-all duration-150 hover:bg-orange-400 hover:text-white hover:drop-shadow-md focus:no-underline focus:shadow-none focus:outline-none"
         >
           <HStack>
             <Avatar.Root size={"md"}>
@@ -58,11 +58,13 @@ export default function UserDrawer({ session }: { session: Session }) {
                   />
                   <Avatar.Image src={session.user.photo_url} />
                 </Avatar.Root>
-                <h2 className="mt-2 text-xl font-bold">
+                <h2 className="mt-2 text-xl font-bold text-center">
                   {session.user.first_name} {session.user.last_name}
                 </h2>
                 <p className="text-gray-600">{session.user.email}</p>
-                <p className="text-gray-600">{session.user.role}</p>
+                <p className="text-gray-600 font-semibold">
+                  {session.user.role}
+                </p>
               </div>
               <div className="flex flex-col items-center justify-center gap-4">
                 <Link

@@ -1,28 +1,23 @@
 import BreadCrumb from "../../../../components/admin/breadcrumb";
 import PatientTable from "../../../../components/admin/tables/patient-table";
+import { rolesList } from "../../../../lib/nextauth/rolesList";
 import { prisma } from "../../../../lib/prisma/prisma";
 export default async function Page() {
-  const pacientes = await prisma.patient.findMany({
+  const pacientes = await prisma.user.findMany({
+    where: {
+      role: {
+        role_name: rolesList.PACIENTE,
+      },
+    },
     include: {
-      user: true,
+      role: true,
     },
   });
-  const items = [
-    { id: 1, name: "Laptop", category: "Electronics", price: 999.99 },
-    { id: 2, name: "Coffee Maker", category: "Home Appliances", price: 49.99 },
-    { id: 3, name: "Desk Chair", category: "Furniture", price: 150.0 },
-    { id: 4, name: "Smartphone", category: "Electronics", price: 799.99 },
-    { id: 5, name: "Headphones", category: "Accessories", price: 199.99 },
-    { id: 6, name: "asd", category: "Electronics", price: 999.99 },
-    { id: 7, name: "Coffee Maker", category: "Home Appliances", price: 49.99 },
-    { id: 8, name: "Desk Chair", category: "Furniture", price: 150.0 },
-    { id: 9, name: "Smartphone", category: "Electronics", price: 799.99 },
-    { id: 10, name: "asdasd", category: "Accessories", price: 199.99 },
-  ];
+  console.log(pacientes);
   return (
-    <div>
+    <div className="w-full flex flex-col h-full flex-grow">
       <BreadCrumb pageName="Pacientes" />
-      <PatientTable items={items} pacientes={pacientes} />
+      <PatientTable pacientes={pacientes} />
     </div>
   );
 }

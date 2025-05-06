@@ -12,6 +12,7 @@ import SubmitButton from "./common/submitButton";
 import { Field, Flex, Input, InputGroup } from "@chakra-ui/react";
 import { LuLock, LuUser } from "react-icons/lu";
 import { PasswordInput } from "../ui/password-input";
+import { changePassword } from "../../actions";
 
 export default function ChangePasswordForm() {
   const {
@@ -29,14 +30,20 @@ export default function ChangePasswordForm() {
         mensaje: "Estas seguro que deseas cambiar tu contraseña?",
       })
     ) {
-      toaster.create({
-        description: "Contraseña actualizada con éxito",
-        type: "success",
-      });
-      console.log(data);
-      //TODO Agregar el cambio de contraseña del usuario
-      //TODO Actualizar la sesión si se puede
-      reset();
+      const res = await changePassword({ data: data });
+      if (res.ok) {
+        toaster.create({
+          description: "Contraseña actualizada con éxito",
+          type: "success",
+        });
+        reset();
+      }
+      if (!res.ok) {
+        toaster.create({
+          description: "Error al actualizar la contraseña",
+          type: "error",
+        });
+      }
     }
   };
   return (

@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import { ZodError } from "zod";
 import { signInSchema } from "../zod/zschemas";
 import { prisma } from "../prisma/prisma";
+import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -19,7 +20,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const dbUser = await prisma.user.findFirst({
             where: {
               username: username,
-              password: password,
             },
             include: {
               role: {
@@ -33,23 +33,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               },
             },
           });
-
-          if (dbUser) {
-            return {
-              username: dbUser.username,
-              first_name: dbUser.first_name,
-              last_name: dbUser.last_name,
-              email: dbUser.email,
-              photo_url: dbUser.photo_url,
-              is_super_admin: dbUser.is_super_admin,
-              role: dbUser.role.role_name,
-              permissions: dbUser.role.role_permissions.map(
-                (rp) => rp.permission
-              ),
-            };
-          } else {
+          if (!dbUser) {
             throw new CredentialsSignin("Error en el login");
           }
+
+          console.log(username, password);
+          const isPasswordValid = await bcrypt.compare(
+            password,
+            dbUser.password
+          );
+          console.log(isPasswordValid);
+          if (!isPasswordValid) {
+            throw new CredentialsSignin("Contraseña incorrecta");
+          }
+
+          return {
+            id_db: dbUser.id,
+            username: dbUser.username,
+            first_name: dbUser.first_name,
+            last_name: dbUser.last_name,
+            email: dbUser.email,
+            photo_url: dbUser.photo_url,
+            is_super_admin: dbUser.is_super_admin,
+            role: dbUser.role.role_name,
+            permissions: dbUser.role.role_permissions.map(
+              (rp) => rp.permission
+            ),
+          };
         } catch (error) {
           console.log(error);
           if (error instanceof ZodError) {

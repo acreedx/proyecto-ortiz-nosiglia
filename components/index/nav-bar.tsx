@@ -17,7 +17,8 @@ export default function NavBar({ session }: { session: Session | null }) {
   return (
     <nav className="border-b-1 sticky flex w-full flex-col justify-center md:flex-row">
       <Button
-        className="absolute right-4 top-4 z-10 md:hidden"
+        className="absolute right-4 top-4 z-10 md:hidden "
+        variant={"outline"}
         onClick={setMenu}
       >
         {isMenuOpen ? (

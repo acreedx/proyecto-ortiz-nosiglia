@@ -1,8 +1,12 @@
 import React from "react";
 import Banner from "../../../components/index/banner";
 import ChangePasswordForm from "../../../components/form/change-password-form";
+import { auth } from "../../../lib/nextauth/auth";
+import { redirect } from "next/navigation";
 
-export default function Page() {
+export default async function Page() {
+  const session = await auth();
+  if (!session) redirect("/login");
   return (
     <div className="rounded-sm border border-stroke bg-white shadow-default ">
       <div className="flex flex-wrap items-center ">

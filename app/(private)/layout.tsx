@@ -4,7 +4,6 @@ import Sidebar from "../../components/admin/side-bar";
 import MarginHandler from "../../components/admin/margin-handler";
 import Header from "../../components/admin/header";
 import { Flex } from "@chakra-ui/react";
-
 export default function ControlPanelLayout({
   children,
 }: {

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ag-grid-community/locale": "^33.2.4",
     "@chakra-ui/cli": "^3.16.1",
     "@chakra-ui/react": "^3.16.1",
     "@emotion/react": "^11.14.0",
@@ -16,9 +17,11 @@
     "@neondatabase/serverless": "^1.0.0",
     "@prisma/adapter-neon": "^6.6.0",
     "@prisma/client": "^6.6.0",
+    "ag-grid-react": "^33.2.4",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.5.0",
+    "firebase": "^11.6.1",
     "jsonwebtoken": "^9.0.2",
     "next": "15.3.1",
     "next-auth": "^5.0.0-beta.25",

@@ -10,6 +10,7 @@ import {
   TForgotPasswordSchema,
 } from "../../lib/zod/zschemas";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { forgotPassword } from "../../actions";
 
 export default function ForgotPasswordForm() {
   const {
@@ -27,12 +28,22 @@ export default function ForgotPasswordForm() {
         mensaje: "Estas seguro que deseas reestablecer tu contraseña?",
       })
     ) {
-      //TODO agregar el cambio de contraseña del paciente
-      toaster.create({
-        description: "Contraseña reestablecida",
-        type: "success",
-      });
-      console.log(data);
+      const res = await forgotPassword({ data: data });
+      if (res.ok) {
+        //TODO agregar el cambio de contraseña del paciente
+        toaster.create({
+          description: "Contraseña reestablecida",
+          type: "success",
+        });
+      }
+      if (!res.ok) {
+        toaster.create({
+          description: res.message
+            ? res.message
+            : "Error al reestablecer al contraseña",
+          type: "error",
+        });
+      }
       reset();
     }
   };

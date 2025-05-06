@@ -27,7 +27,7 @@ export function SignIn() {
     });
     if (res?.error) {
       toaster.create({
-        description: "Usuario y contraseña incorrectos",
+        description: "Usuario o contraseña incorrectos",
         type: "error",
       });
     } else {

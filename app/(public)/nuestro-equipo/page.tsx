@@ -41,7 +41,9 @@ export default async function Page() {
                   description={
                     dentista.qualification.length > 0
                       ? dentista.qualification
-                          .map((q) => `${q.name} - ${q.institution}`)
+                          .map(
+                            (q) => `${q.name} - ${q.institution} - ${q.country}`
+                          )
                           .join(", ")
                       : "-"
                   }

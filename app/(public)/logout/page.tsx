@@ -19,18 +19,6 @@ export default async function Page() {
                 ¡Bienvenido de nuevo{" "}
                 {`${session.user.first_name} ${session.user.last_name}`}!
               </h2>
-              <div>
-                <p>username: {session.user.username}</p>
-                <p>rol: {session.user.role}</p>
-                permisos:{" "}
-                {session.user.permissions.map((e, index) => {
-                  return (
-                    <p key={index}>
-                      {e.permission_name} - {e.code}
-                    </p>
-                  );
-                })}
-              </div>
               <SignOut />
             </div>
           </div>
