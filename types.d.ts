@@ -10,6 +10,7 @@ declare module "next-auth" {
     email: string;
     photo_url: string;
     is_super_admin: boolean;
+    last_login: Date | null;
     role: string;
     permissions: Permission[];
   }
@@ -23,6 +24,7 @@ declare module "next-auth" {
       email: string;
       photo_url: string;
       is_super_admin: boolean;
+      last_login: Date | null;
       role: string;
       permissions: Permission[];
     } & DefaultSession["user"];

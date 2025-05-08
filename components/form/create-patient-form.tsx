@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toaster } from "../ui/toaster";
 import { createUser } from "../../actions";
 import { useRouter } from "next/navigation";
+import { getCaptchaToken } from "../../lib/captcha/validate-captcha";
 
 export default function CreatePatientForm() {
   const router = useRouter();
@@ -30,6 +31,7 @@ export default function CreatePatientForm() {
         mensaje: "Confirmas los datos de tu usuario?",
       })
     ) {
+      data.token = (await getCaptchaToken()) as string;
       const res = await createUser({
         data: data,
         image: fileUpload.acceptedFiles[0],
@@ -38,7 +40,7 @@ export default function CreatePatientForm() {
         toaster.create({
           title: "Usuario creado con éxito",
           description:
-            "Debes cambiar tu contraseña la siguiente ves que inicies sesión",
+            "Cambia tu contraseña mientras hayas iniciado sesión, sino deberás reestablecerla",
           type: "success",
           duration: 8000,
         });

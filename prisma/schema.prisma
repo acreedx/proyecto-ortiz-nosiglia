@@ -58,11 +58,11 @@ model AuditEvents {
   network            String    @db.VarChar(100)
   person_name        String    @db.VarChar(100)
   person_role        String    @db.VarChar(100)
-  staff_id           Int
-  patient_id         Int
+  staff_id           Int?
+  patient_id         Int?
   created_at         DateTime? @default(now()) @db.Timestamptz(6)
-  patient            Patient   @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  staff              Staff     @relation(fields: [staff_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  patient            Patient?   @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  staff              Staff?     @relation(fields: [staff_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("audit_events")
 }
@@ -328,7 +328,7 @@ model User {
   username            String    @db.VarChar(50)
   password            String
   password_expiration DateTime  @db.Timestamptz(6)
-  password_attempts   Int?      @default(0)
+  password_attempts   Int       @default(0)
   last_login          DateTime? @db.Timestamptz(6)
   is_super_admin      Boolean
   status              String?   @db.Char(1)

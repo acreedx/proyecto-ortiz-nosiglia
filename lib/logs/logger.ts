@@ -15,19 +15,34 @@ export async function registerLog({
   staff_id,
   patient_id,
 }: {
-  type: string;
-  action: string;
-  severity: string;
-  outcome: string;
-  module: string;
-  detail: string;
-  requestor: boolean;
-  occurred_date_time: Date;
-  network: string;
+  type?: "sistema" | "configuración" | "acción" | "autenticación" | "acceso";
+  action:
+    | "leer"
+    | "crear"
+    | "editar"
+    | "eliminar"
+    | "inicio de sesion"
+    | "cerrado de sesion"
+    | "cambio de password"
+    | "recuperar password";
+  severity?: "baja" | "media" | "alta";
+  outcome?: "éxito" | "error" | "desconocido";
+  module:
+    | "pacientes"
+    | "citas"
+    | "usuarios"
+    | "tratamientos"
+    | "deudas"
+    | "aplicación móvil"
+    | "página web";
+  detail?: string;
+  requestor?: boolean;
+  occurred_date_time?: Date;
+  network?: string;
   person_name: string;
   person_role: string;
-  staff_id: number;
-  patient_id: number;
+  staff_id?: number;
+  patient_id?: number;
 }) {
   try {
     await prisma.auditEvents.create({

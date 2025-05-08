@@ -8,9 +8,10 @@ import { Input, Button, Field, Link, InputGroup } from "@chakra-ui/react";
 import { toaster } from "../ui/toaster";
 import { PasswordInput } from "../ui/password-input";
 import { LuLock, LuUser } from "react-icons/lu";
+import { getCaptchaToken } from "../../lib/captcha/validate-captcha";
+
 export function SignIn() {
   const router = useRouter();
-
   const {
     register,
     handleSubmit,
@@ -21,15 +22,41 @@ export function SignIn() {
   });
 
   const onSubmit = async (data: TSignInSchema) => {
+    const token = await getCaptchaToken();
     const res = await signIn("credentials", {
-      ...data,
+      username: data.username,
+      password: data.password,
+      token: token,
       redirect: false,
     });
+
     if (res?.error) {
-      toaster.create({
-        description: "Usuario o contraseña incorrectos",
-        type: "error",
-      });
+      if (res.code === "blocked") {
+        toaster.create({
+          description: "Usuario bloqueado, cambia tu contraseña para continuar",
+          type: "info",
+        });
+        router.push("/olvido-de-password");
+      } else if (res.code === "expired") {
+        toaster.create({
+          description:
+            "Tu contraseña a expirado, cambiala para poder continuar",
+          type: "info",
+        });
+        router.push("/olvido-de-password");
+      } else if (res.code === "new") {
+        toaster.create({
+          description:
+            "Usuario nuevo debe reestablecer su contraseña para poder continuar",
+          type: "info",
+        });
+        router.push("/olvido-de-password");
+      } else {
+        toaster.create({
+          description: "Usuario o contraseña incorrectos",
+          type: "error",
+        });
+      }
     } else {
       toaster.create({
         description: "Inicio de sesión exitoso",

@@ -26,6 +26,11 @@ export async function createUser({
   image: File | undefined;
 }): Promise<{ ok: boolean }> {
   try {
+    if (!data.token) {
+      return {
+        ok: false,
+      };
+    }
     const generatedPassword = generateStrongPassword(12);
     const newUser = await prisma.user.create({
       data: {
@@ -48,6 +53,7 @@ export async function createUser({
         role_id: 6,
       },
     });
+
     await sendEmail({
       email: data.email,
       subject: "Bienvenido al centro Ortiz Nosiglia",
@@ -85,7 +91,6 @@ export async function changePassword({
   try {
     const session = await auth();
     if (!session) return { ok: false };
-    //TODO VALIDAR EL ESTADO DEL USUARIO QUE NO ESTE DESHABILITADO POR ALGUN ADMINISTRADOR
     const checkUser = await prisma.user.findUnique({
       where: {
         id: session.user.id_db,
@@ -115,6 +120,7 @@ export async function changePassword({
         password_attempts: 0,
         password_expiration: getPasswordExpiration(),
         status: userStatusList.ACTIVO,
+        last_login: undefined,
       },
     });
     await sendEmail({
@@ -151,6 +157,11 @@ export async function forgotPassword({
   data: TForgotPasswordSchema;
 }) {
   try {
+    if (!data.token) {
+      return {
+        ok: false,
+      };
+    }
     const checkUser = await prisma.user.findFirst({
       where: {
         username: data.username,
@@ -180,6 +191,7 @@ export async function forgotPassword({
         password_attempts: 0,
         password_expiration: getPasswordExpiration(),
         status: userStatusList.NUEVO,
+        last_login: null,
       },
     });
 

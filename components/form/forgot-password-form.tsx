@@ -11,6 +11,7 @@ import {
 } from "../../lib/zod/zschemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { forgotPassword } from "../../actions";
+import { getCaptchaToken } from "../../lib/captcha/validate-captcha";
 
 export default function ForgotPasswordForm() {
   const {
@@ -28,11 +29,11 @@ export default function ForgotPasswordForm() {
         mensaje: "Estas seguro que deseas reestablecer tu contraseña?",
       })
     ) {
+      data.token = (await getCaptchaToken()) as string;
       const res = await forgotPassword({ data: data });
       if (res.ok) {
-        //TODO agregar el cambio de contraseña del paciente
         toaster.create({
-          description: "Contraseña reestablecida",
+          description: "Contraseña reestablecida, revisa tu correo electrónico",
           type: "success",
         });
       }

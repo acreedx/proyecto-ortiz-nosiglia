@@ -11,6 +11,7 @@ export const signInSchema = z.object({
     .string()
     .min(6, "La contraseña debe tener mas de 6 carácteres")
     .max(30, "La contraseña no puede tener mas de 30 carácteres"),
+  token: z.string().optional(),
 });
 
 export type TSignInSchema = z.infer<typeof signInSchema>;
@@ -59,6 +60,7 @@ export const createUserSchema = z.object({
     .string()
     .min(1, "La ciudad es requerida")
     .max(50, "El tamaño máximo de carácteres es de 50"),
+  token: z.string().optional(),
 });
 
 export type TCreateUserSchema = z.infer<typeof createUserSchema>;
@@ -115,6 +117,7 @@ export const forgotPasswordSchema = z.object({
     .string()
     .min(6, "El nombre de usuario no puede ser menor de 6 carácteres")
     .max(30, "El nombre de usuario no puede tener mas de 30 carácteres"),
+  token: z.string().optional(),
 });
 
 export type TForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
