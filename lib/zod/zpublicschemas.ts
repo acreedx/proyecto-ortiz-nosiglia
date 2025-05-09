@@ -60,6 +60,18 @@ export const createUserSchema = z.object({
     .string()
     .min(1, "La ciudad es requerida")
     .max(50, "El tamaño máximo de carácteres es de 50"),
+  allergies: z
+    .string()
+    .max(100, "El tamaño máximo de carácteres es de 100")
+    .optional(),
+  preconditions: z
+    .string()
+    .max(100, "El tamaño máximo de carácteres es de 100")
+    .optional(),
+  organization_id: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : undefined)),
   token: z.string().optional(),
 });
 

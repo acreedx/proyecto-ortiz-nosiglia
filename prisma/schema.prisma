@@ -15,10 +15,9 @@ model Account {
   billing_status String    @db.VarChar(50)
   calculated_at  DateTime? @db.Timestamptz(6)
   status         String?   @db.Char(1)
-  patient_id     Int
   created_at     DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at     DateTime? @default(now()) @db.Timestamptz(6) @updatedAt
-  patient        Patient[]
+  updated_at     DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
+  patient        Patient?
 
   @@map("account")
 }
@@ -38,7 +37,7 @@ model Appointment {
   patient_id          Int
   doctor_id           Int
   created_at          DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime? @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at          DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
   doctor              Doctor    @relation(fields: [doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   patient             Patient   @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
@@ -61,8 +60,8 @@ model AuditEvents {
   staff_id           Int?
   patient_id         Int?
   created_at         DateTime? @default(now()) @db.Timestamptz(6)
-  patient            Patient?   @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  staff              Staff?     @relation(fields: [staff_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  patient            Patient?  @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  staff              Staff?    @relation(fields: [staff_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("audit_events")
 }
@@ -81,7 +80,7 @@ model CarePlan {
   status                    String?   @db.Char(1)
   patient_id                Int
   created_at                DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at                DateTime? @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at                DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
   patient                   Patient   @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("care_plan")
@@ -89,10 +88,10 @@ model CarePlan {
 
 model Doctor {
   id             Int             @id @default(autoincrement())
-  staff_id       Int
+  staff_id       Int             @unique
   specialization String          @db.VarChar(50)
   created_at     DateTime?       @default(now()) @db.Timestamptz(6)
-  updated_at     DateTime?       @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at     DateTime?       @default(now()) @updatedAt @db.Timestamptz(6)
   appointment    Appointment[]
   staff          Staff           @relation(fields: [staff_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   encounter      Encounter[]
@@ -110,10 +109,9 @@ model EmergencyContact {
   address_line String    @db.VarChar(100)
   address_city String    @db.VarChar(100)
   status       String?   @db.Char(1)
-  patient_id   Int
   created_at   DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at   DateTime? @default(now()) @db.Timestamptz(6) @updatedAt
-  patient      Patient   @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updated_at   DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
+  patient      Patient?
 
   @@map("emergency_contact")
 }
@@ -131,7 +129,7 @@ model Encounter {
   patient_id          Int
   doctor_id           Int
   created_at          DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime? @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at          DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
   doctor              Doctor    @relation(fields: [doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   patient             Patient   @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
@@ -146,7 +144,7 @@ model ImagingStudy {
   status      String?   @db.Char(1)
   patient_id  Int
   created_at  DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at  DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
   patient     Patient   @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("imaging_study")
@@ -156,9 +154,9 @@ model Odontogram {
   id             Int             @id @default(autoincrement())
   tratamiento    String?         @db.VarChar(200)
   status         String?         @db.Char(1)
-  patient_id     Int
+  patient_id     Int             @unique
   created_at     DateTime?       @default(now()) @db.Timestamptz(6)
-  updated_at     DateTime?       @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at     DateTime?       @default(now()) @updatedAt @db.Timestamptz(6)
   patient        Patient         @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   odontogram_row OdontogramRow[]
 
@@ -176,7 +174,7 @@ model OdontogramRow {
   status        String?    @db.Char(1)
   odontogram_id Int
   created_at    DateTime?  @default(now()) @db.Timestamptz(6)
-  updated_at    DateTime?  @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at    DateTime?  @default(now()) @updatedAt @db.Timestamptz(6)
   odontogram    Odontogram @relation(fields: [odontogram_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("odontogram_row")
@@ -188,32 +186,33 @@ model Organization {
   address    String    @db.VarChar(200)
   status     String?   @db.Char(1)
   created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @default(now()) @db.Timestamptz(6) @updatedAt
-  patient    Patient[]
+  updated_at DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
+  patient    Patient?
 
   @@map("organization")
 }
 
 model Patient {
-  id                Int                @id @default(autoincrement())
-  allergies         String?            @db.VarChar(200)
-  preconditions     String?            @db.VarChar(200)
-  status            String?            @db.Char(1)
-  organization_id   Int?
-  account_id        Int?
-  user_id           Int?
-  created_at        DateTime?          @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime?          @default(now()) @db.Timestamptz(6) @updatedAt
-  appointment       Appointment[]
-  audit_events      AuditEvents[]
-  care_plan         CarePlan[]
-  emergency_contact EmergencyContact[]
-  encounter         Encounter[]
-  imaging_study     ImagingStudy[]
-  odontogram        Odontogram[]
-  account           Account?           @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  organization      Organization?      @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user              User?              @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                   Int               @id @default(autoincrement())
+  allergies            String?           @db.VarChar(200)
+  preconditions        String?           @db.VarChar(200)
+  status               String?           @db.Char(1)
+  organization_id      Int?              @unique
+  account_id           Int               @unique
+  user_id              Int               @unique
+  emergency_contact_id Int?              @unique
+  created_at           DateTime?         @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime?         @default(now()) @updatedAt @db.Timestamptz(6)
+  appointment          Appointment[]
+  audit_events         AuditEvents[]
+  care_plan            CarePlan[]
+  encounter            Encounter[]
+  imaging_study        ImagingStudy[]
+  odontogram           Odontogram?
+  account              Account           @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  emergency_contact    EmergencyContact? @relation(fields: [emergency_contact_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  organization         Organization?     @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user                 User              @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("patient")
 }
@@ -222,9 +221,9 @@ model Payroll {
   id         Int       @id @default(autoincrement())
   salary     Decimal?  @db.Decimal(8, 2)
   bonus      Decimal?  @db.Decimal(8, 2)
-  staff_id   Int
+  staff_id   Int       @unique
   created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
   staff      Staff     @relation(fields: [staff_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("payroll")
@@ -236,7 +235,7 @@ model Permission {
   permission_name  String            @db.VarChar(50)
   status           String?           @db.Char(1)
   created_at       DateTime?         @default(now()) @db.Timestamptz(6)
-  updated_at       DateTime?         @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at       DateTime?         @default(now()) @updatedAt @db.Timestamptz(6)
   role_permissions RolePermissions[]
 
   @@map("permission")
@@ -252,7 +251,7 @@ model Qualification {
   obtainment_date DateTime  @db.Date
   doctor_id       Int
   created_at      DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at      DateTime? @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at      DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
   doctor          Doctor    @relation(fields: [doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("qualification")
@@ -265,7 +264,7 @@ model Role {
   is_protected     Boolean
   status           String?           @db.Char(1)
   created_at       DateTime?         @default(now()) @db.Timestamptz(6)
-  updated_at       DateTime?         @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at       DateTime?         @default(now()) @updatedAt @db.Timestamptz(6)
   role_permissions RolePermissions[]
   user             User[]
 
@@ -287,13 +286,13 @@ model Staff {
   contratation_date DateTime      @db.Date
   separation_date   DateTime?     @db.Date
   status            String?       @db.Char(1)
-  user_id           Int?
+  user_id           Int           @unique
   created_at        DateTime?     @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime?     @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at        DateTime?     @default(now()) @updatedAt @db.Timestamptz(6)
   audit_events      AuditEvents[]
-  doctor            Doctor[]
-  payroll           Payroll[]
-  user              User?         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  doctor            Doctor?
+  payroll           Payroll?
+  user              User          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("staff")
 }
@@ -308,7 +307,7 @@ model Treatment {
   cost_estimation           Decimal   @db.Decimal
   status                    String?   @db.Char(1)
   created_at                DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at                DateTime? @default(now()) @db.Timestamptz(6) @updatedAt
+  updated_at                DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
 
   @@map("treatment")
 }
@@ -334,9 +333,9 @@ model User {
   status              String?   @db.Char(1)
   role_id             Int
   created_at          DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime? @default(now()) @db.Timestamptz(6) @updatedAt
-  patient             Patient[]
-  staff               Staff[]
+  updated_at          DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
+  patient             Patient?
+  staff               Staff?
   role                Role      @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("user")

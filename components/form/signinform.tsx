@@ -3,7 +3,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signInSchema, TSignInSchema } from "../../lib/zod/zschemas";
+import { signInSchema, TSignInSchema } from "../../lib/zod/zpublicschemas";
 import { Input, Button, Field, Link, InputGroup } from "@chakra-ui/react";
 import { toaster } from "../ui/toaster";
 import { PasswordInput } from "../ui/password-input";
@@ -34,21 +34,21 @@ export function SignIn() {
       if (res.code === "blocked") {
         toaster.create({
           description: "Usuario bloqueado, cambia tu contraseña para continuar",
-          type: "info",
+          type: "warning",
         });
         router.push("/olvido-de-password");
       } else if (res.code === "expired") {
         toaster.create({
           description:
             "Tu contraseña a expirado, cambiala para poder continuar",
-          type: "info",
+          type: "warning",
         });
         router.push("/olvido-de-password");
       } else if (res.code === "new") {
         toaster.create({
           description:
             "Usuario nuevo debe reestablecer su contraseña para poder continuar",
-          type: "info",
+          type: "warning",
         });
         router.push("/olvido-de-password");
       } else {

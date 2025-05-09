@@ -8,9 +8,9 @@ import SubmitButton from "./common/submitButton";
 import {
   forgotPasswordSchema,
   TForgotPasswordSchema,
-} from "../../lib/zod/zschemas";
+} from "../../lib/zod/zpublicschemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { forgotPassword } from "../../actions";
+import { forgotPassword } from "../../actions/public";
 import { getCaptchaToken } from "../../lib/captcha/validate-captcha";
 
 export default function ForgotPasswordForm() {

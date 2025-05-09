@@ -8,7 +8,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { mostrarAlertaConfirmacion } from "../../lib/sweetalert/alerts";
 import { toaster } from "../ui/toaster";
-import { createUserSchema, TCreateUserSchema } from "../../lib/zod/zschemas";
+import {
+  createUserSchema,
+  TCreateUserSchema,
+} from "../../lib/zod/zpublicschemas";
 
 export default function EditProfileForm({ user }: { user: User }) {
   const fileUpload = useFileUpload({

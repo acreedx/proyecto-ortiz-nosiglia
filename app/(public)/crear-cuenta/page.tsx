@@ -2,9 +2,16 @@ import { Link } from "@chakra-ui/react";
 import CreatePatientForm from "../../../components/form/create-patient-form";
 import Banner from "../../../components/index/banner";
 import { auth } from "../../../lib/nextauth/auth";
+import { prisma } from "../../../lib/prisma/prisma";
+import { userStatusList } from "../../../types/statusList";
 
 export default async function Page() {
   const session = await auth();
+  const organizations = await prisma.organization.findMany({
+    where: {
+      status: userStatusList.ACTIVO,
+    },
+  });
   return (
     <div className="rounded-sm border border-stroke bg-white shadow-default ">
       <div className="flex flex-wrap items-center ">
@@ -25,7 +32,7 @@ export default async function Page() {
                 <h1 className="mb-4 text-2xl font-bold text-black sm:text-title-xl2">
                   Crear cuenta nueva
                 </h1>
-                <CreatePatientForm />
+                <CreatePatientForm organizations={organizations} />
                 <div className="mt-4 text-center">
                   <p className="text-black">
                     Ya tienes una cuenta?{" "}

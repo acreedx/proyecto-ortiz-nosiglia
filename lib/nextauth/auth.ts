@@ -1,6 +1,6 @@
 import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { signInSchema } from "../zod/zschemas";
+import { signInSchema } from "../zod/zpublicschemas";
 import { prisma } from "../prisma/prisma";
 import bcrypt from "bcryptjs";
 import { userStatusList } from "../../types/statusList";

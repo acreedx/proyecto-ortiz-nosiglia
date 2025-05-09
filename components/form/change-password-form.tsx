@@ -7,12 +7,12 @@ import { toaster } from "../ui/toaster";
 import {
   changePasswordSchema,
   TChangePasswordSchema,
-} from "../../lib/zod/zschemas";
+} from "../../lib/zod/zpublicschemas";
 import SubmitButton from "./common/submitButton";
 import { Field, Flex, Input, InputGroup } from "@chakra-ui/react";
 import { LuLock, LuUser } from "react-icons/lu";
 import { PasswordInput } from "../ui/password-input";
-import { changePassword } from "../../actions";
+import { changePassword } from "../../actions/public";
 
 export default function ChangePasswordForm() {
   const {

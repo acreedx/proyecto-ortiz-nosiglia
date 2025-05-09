@@ -1,17 +1,32 @@
 "use client";
-import { Field, Flex, Input, useFileUpload } from "@chakra-ui/react";
+import {
+  Field,
+  Flex,
+  Input,
+  NativeSelect,
+  Textarea,
+  useFileUpload,
+} from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { mostrarAlertaConfirmacion } from "../../lib/sweetalert/alerts";
 import ProfileUploadField from "./common/profileUploadField";
 import SubmitButton from "./common/submitButton";
-import { createUserSchema, TCreateUserSchema } from "../../lib/zod/zschemas";
+import {
+  createUserSchema,
+  TCreateUserSchema,
+} from "../../lib/zod/zpublicschemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toaster } from "../ui/toaster";
-import { createUser } from "../../actions";
+import { createUser } from "../../actions/public";
 import { useRouter } from "next/navigation";
 import { getCaptchaToken } from "../../lib/captcha/validate-captcha";
+import { Organization } from "@prisma/client";
 
-export default function CreatePatientForm() {
+export default function CreatePatientForm({
+  organizations,
+}: {
+  organizations: Organization[];
+}) {
   const router = useRouter();
   const fileUpload = useFileUpload({
     accept: "image/*",
@@ -44,6 +59,7 @@ export default function CreatePatientForm() {
           type: "success",
           duration: 8000,
         });
+        reset();
         router.push("/login");
       }
       if (!res.ok) {
@@ -52,7 +68,6 @@ export default function CreatePatientForm() {
           type: "error",
         });
       }
-      reset();
     }
   };
 
@@ -245,6 +260,67 @@ export default function CreatePatientForm() {
           />
           <Field.ErrorText className="text-sm">
             {errors.address_city?.message}
+          </Field.ErrorText>
+        </Field.Root>
+
+        <Field.Root
+          invalid={!!errors.allergies}
+          px={4}
+          w={{ base: "100%", md: "50%" }}
+        >
+          <Field.Label>Alergias</Field.Label>
+          <Textarea
+            colorPalette="orange"
+            variant="outline"
+            placeholder="Ingresa las alergias que tengas"
+            resize={"none"}
+            {...register("allergies")}
+          />
+          <Field.ErrorText className="text-sm">
+            {errors.allergies?.message}
+          </Field.ErrorText>
+        </Field.Root>
+
+        <Field.Root
+          invalid={!!errors.preconditions}
+          px={4}
+          w={{ base: "100%", md: "50%" }}
+        >
+          <Field.Label>Precondiciones</Field.Label>
+          <Textarea
+            colorPalette="orange"
+            variant="outline"
+            placeholder="Ingresa tus precondiciones"
+            resize={"none"}
+            {...register("preconditions")}
+          />
+          <Field.ErrorText className="text-sm">
+            {errors.preconditions?.message}
+          </Field.ErrorText>
+        </Field.Root>
+
+        <Field.Root
+          invalid={!!errors.organization_id}
+          px={4}
+          w={{ base: "100%", md: "50%" }}
+        >
+          <Field.Label>Seguro</Field.Label>
+          <NativeSelect.Root size={"md"}>
+            <NativeSelect.Field
+              placeholder="Cuentas con algun seguro registrado"
+              colorPalette={"orange"}
+              {...register("organization_id")}
+            >
+              {organizations.map((organization) => (
+                <option key={organization.id} value={organization.id}>
+                  {organization.name}
+                </option>
+              ))}
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+          <Field.ErrorText className="text-sm">
+            {errors.organization_id?.message}
           </Field.ErrorText>
         </Field.Root>
       </Flex>

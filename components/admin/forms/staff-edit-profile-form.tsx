@@ -5,7 +5,10 @@ import { User } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { mostrarAlertaConfirmacion } from "../../../lib/sweetalert/alerts";
-import { createUserSchema, TCreateUserSchema } from "../../../lib/zod/zschemas";
+import {
+  createUserSchema,
+  TCreateUserSchema,
+} from "../../../lib/zod/zpublicschemas";
 import ProfileUploadField from "../../form/common/profileUploadField";
 import SubmitButton from "../../form/common/submitButton";
 import { toaster } from "../../ui/toaster";

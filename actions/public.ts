@@ -10,11 +10,15 @@ import { auth, signIn } from "../lib/nextauth/auth";
 import { sendEmail } from "../lib/nodemailer/mailer";
 import { prisma } from "../lib/prisma/prisma";
 import {
+  changePasswordSchema,
+  createUserSchema,
+  forgotPasswordSchema,
   TChangePasswordSchema,
   TCreateUserSchema,
   TForgotPasswordSchema,
-} from "../lib/zod/zschemas";
+} from "../lib/zod/zpublicschemas";
 import { userStatusList } from "../types/statusList";
+import { billingStatus } from "../types/billingStatus";
 
 const url = process.env.SITE_URL;
 
@@ -27,6 +31,12 @@ export async function createUser({
 }): Promise<{ ok: boolean }> {
   try {
     if (!data.token) {
+      return {
+        ok: false,
+      };
+    }
+    const tryParse = createUserSchema.safeParse(data);
+    if (!tryParse.success) {
       return {
         ok: false,
       };
@@ -51,9 +61,30 @@ export async function createUser({
         is_super_admin: false,
         status: userStatusList.NUEVO,
         role_id: 6,
+        patient: {
+          create: {
+            allergies: data.allergies,
+            preconditions: data.preconditions,
+            status: userStatusList.ACTIVO,
+            account: {
+              create: {
+                balance: 0.0,
+                billing_status: billingStatus.SINDEUDA,
+                calculated_at: new Date(),
+                status: userStatusList.ACTIVO,
+              },
+            },
+            ...(data.organization_id && {
+              organization: {
+                connect: {
+                  id: data.organization_id,
+                },
+              },
+            }),
+          },
+        },
       },
     });
-
     await sendEmail({
       email: data.email,
       subject: "Bienvenido al centro Ortiz Nosiglia",
@@ -71,9 +102,11 @@ export async function createUser({
   
         ¡Gracias por unirte a Ortiz Nosiglia!!`,
     });
+
     await signIn("credentials", {
       username: newUser.identification,
       password: generatedPassword,
+      token: data.token,
       redirect: false,
     });
     return { ok: true };
@@ -91,6 +124,12 @@ export async function changePassword({
   try {
     const session = await auth();
     if (!session) return { ok: false };
+    const tryParse = changePasswordSchema.safeParse(data);
+    if (!tryParse.success) {
+      return {
+        ok: false,
+      };
+    }
     const checkUser = await prisma.user.findUnique({
       where: {
         id: session.user.id_db,
@@ -158,6 +197,12 @@ export async function forgotPassword({
 }) {
   try {
     if (!data.token) {
+      return {
+        ok: false,
+      };
+    }
+    const tryParse = forgotPasswordSchema.safeParse(data);
+    if (!tryParse.success) {
       return {
         ok: false,
       };
