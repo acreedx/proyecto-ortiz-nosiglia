@@ -47,7 +47,7 @@ export default async function DropdownUser() {
               <Menu.Content>
                 <Menu.Item value="profile">
                   <Link
-                    href={`/`}
+                    href={`/area-administrativa/staff-profile`}
                     className="flex items-center gap-3.5 text-sm font-medium duration-150 ease-in-out hover:text-orange-500 lg:text-base"
                   >
                     <LuUser />

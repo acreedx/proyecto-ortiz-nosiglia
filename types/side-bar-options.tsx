@@ -5,6 +5,7 @@ import {
   LuCog,
   LuCreditCard,
   LuGauge,
+  LuMonitor,
   LuUser,
 } from "react-icons/lu";
 export const menuOptions = [
@@ -71,6 +72,21 @@ export const menuOptions = [
           },
           {
             label: "Eventos del sistema",
+            route: "#",
+          },
+          {
+            label: "Reportes",
+            route: "#",
+          },
+        ],
+      },
+      {
+        icon: <LuMonitor color="white" />,
+        label: "Gestión de personal",
+        route: "#",
+        children: [
+          {
+            label: "Empleados",
             route: "#",
           },
           {
