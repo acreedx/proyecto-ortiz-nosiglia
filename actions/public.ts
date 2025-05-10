@@ -16,7 +16,7 @@ import {
   TChangePasswordSchema,
   TCreateUserSchema,
   TForgotPasswordSchema,
-} from "../lib/zod/zpublicschemas";
+} from "../lib/zod/z-sign-in-cycle-schemas";
 import { userStatusList } from "../types/statusList";
 import { billingStatus } from "../types/billingStatus";
 

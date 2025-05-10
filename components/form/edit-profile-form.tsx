@@ -11,7 +11,7 @@ import { toaster } from "../ui/toaster";
 import {
   createUserSchema,
   TCreateUserSchema,
-} from "../../lib/zod/zpublicschemas";
+} from "../../lib/zod/z-sign-in-cycle-schemas";
 
 export default function EditProfileForm({ user }: { user: User }) {
   const fileUpload = useFileUpload({

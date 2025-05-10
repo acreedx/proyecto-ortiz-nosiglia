@@ -3,7 +3,10 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signInSchema, TSignInSchema } from "../../lib/zod/zpublicschemas";
+import {
+  signInSchema,
+  TSignInSchema,
+} from "../../lib/zod/z-sign-in-cycle-schemas";
 import { Input, Button, Field, Link, InputGroup } from "@chakra-ui/react";
 import { toaster } from "../ui/toaster";
 import { PasswordInput } from "../ui/password-input";

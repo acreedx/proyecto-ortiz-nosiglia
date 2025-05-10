@@ -7,7 +7,7 @@ import { toaster } from "../ui/toaster";
 import {
   changePasswordSchema,
   TChangePasswordSchema,
-} from "../../lib/zod/zpublicschemas";
+} from "../../lib/zod/z-sign-in-cycle-schemas";
 import SubmitButton from "./common/submitButton";
 import { Field, Flex, Input, InputGroup } from "@chakra-ui/react";
 import { LuLock, LuUser } from "react-icons/lu";

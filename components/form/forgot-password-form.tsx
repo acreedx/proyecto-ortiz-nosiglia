@@ -8,7 +8,7 @@ import SubmitButton from "./common/submitButton";
 import {
   forgotPasswordSchema,
   TForgotPasswordSchema,
-} from "../../lib/zod/zpublicschemas";
+} from "../../lib/zod/z-sign-in-cycle-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { forgotPassword } from "../../actions/public";
 import { getCaptchaToken } from "../../lib/captcha/validate-captcha";

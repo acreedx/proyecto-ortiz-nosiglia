@@ -14,7 +14,7 @@ import SubmitButton from "./common/submitButton";
 import {
   createUserSchema,
   TCreateUserSchema,
-} from "../../lib/zod/zpublicschemas";
+} from "../../lib/zod/z-sign-in-cycle-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toaster } from "../ui/toaster";
 import { createUser } from "../../actions/public";

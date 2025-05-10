@@ -8,7 +8,7 @@ import { mostrarAlertaConfirmacion } from "../../../lib/sweetalert/alerts";
 import {
   createUserSchema,
   TCreateUserSchema,
-} from "../../../lib/zod/zpublicschemas";
+} from "../../../lib/zod/z-sign-in-cycle-schemas";
 import ProfileUploadField from "../../form/common/profileUploadField";
 import SubmitButton from "../../form/common/submitButton";
 import { toaster } from "../../ui/toaster";
