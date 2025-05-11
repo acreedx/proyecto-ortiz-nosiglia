@@ -132,7 +132,7 @@ export const menuOptions = [
         children: [
           {
             label: "Importar datos",
-            route: "#",
+            route: "/area-administrativa/configuracion",
           },
         ],
       },
