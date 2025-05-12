@@ -37,6 +37,7 @@ export default function DropZone() {
         <Field.Root>
           <FileUpload.Root maxW="xl" alignItems="stretch" maxFiles={10}>
             <FileUpload.HiddenInput
+              required
               {...register("files", {
                 required: "Selecciona algun archivo para empezar",
               })}

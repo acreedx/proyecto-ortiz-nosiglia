@@ -8,7 +8,6 @@ export const OrganizationSchema = z.object({
     .string()
     .min(1, "La dirección es obligatoria")
     .max(200, "La dirección no puede exceder los 200 caracteres"),
-  status: z.string().length(1, "El estado debe tener un carácter").optional(),
 });
 
 export type TOrganizationSchema = z.infer<typeof OrganizationSchema>;

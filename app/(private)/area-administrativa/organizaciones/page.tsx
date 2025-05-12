@@ -1,5 +1,23 @@
 import React from "react";
+import BreadCrumb from "../../../../components/admin/breadcrumb";
+import CreateDialog from "../../../../components/admin/dialog/create-dialog";
+import { Heading } from "@chakra-ui/react";
+import OrganizationsCreateForm from "../../../../components/admin/forms/organizations-create-form";
+import OrganizationsTable from "./components/organizations-table";
+import { prisma } from "../../../../lib/prisma/prisma";
 
-export default function Page() {
-  return <div>Organizaciones</div>;
+export default async function Page() {
+  const organizations = await prisma.organization.findMany();
+  return (
+    <main className="w-full flex flex-col h-full flex-grow">
+      <BreadCrumb pageName="Organizaciones" />
+      <div className="flex flex-row w-full items-center justify-between">
+        <Heading>Organizaciones</Heading>
+        <CreateDialog>
+          <OrganizationsCreateForm />
+        </CreateDialog>
+      </div>
+      <OrganizationsTable props={{ organizations: organizations }} />
+    </main>
+  );
 }
