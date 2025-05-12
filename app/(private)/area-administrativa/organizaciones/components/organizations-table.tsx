@@ -1,16 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
-import { IconButton } from "@chakra-ui/react";
+import { IconButton, useDialog } from "@chakra-ui/react";
 import { Organization } from "@prisma/client";
 import { AgGridReact } from "ag-grid-react";
 import { useEffect, useState } from "react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { FaEye, FaEdit, FaTrash, FaUndo } from "react-icons/fa";
+import { FaEdit, FaTrash, FaUndo } from "react-icons/fa";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { userStatusList } from "../../../../../types/statusList";
 import { toaster } from "../../../../../components/ui/toaster";
+import EditDialog from "./edit-dialog";
+import EditOrganizationsForm from "./organizations-edit-form";
+import {
+  eliminateOrganization,
+  rehabilitateOrganization,
+} from "../actions/operations";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function OrganizationsTable({
@@ -20,6 +27,12 @@ export default function OrganizationsTable({
     organizations: Organization[];
   };
 }) {
+  //Manejo de modal de editar
+  const editDialog = useDialog();
+  const [selectedOrganization, setselectedOrganization] =
+    useState<Organization>();
+
+  //Definición de la tabla
   const [rowData, setRowData] = useState<any[]>([]);
   const [colDefs, setColDefs] = useState<ColDef[]>([
     { field: "id", headerName: "Número" },
@@ -32,18 +45,6 @@ export default function OrganizationsTable({
       cellRenderer: (params: any) => {
         return (
           <div className="flex flex-row items-center justify-center w-full">
-            <IconButton
-              size="sm"
-              colorPalette="orange"
-              variant="outline"
-              aria-label="Ver"
-              mr={2}
-              onClick={async () => {
-                console.log(params.data);
-              }}
-            >
-              <FaEye color="blue" />
-            </IconButton>
             <IconButton
               size="sm"
               colorPalette="orange"
@@ -81,18 +82,30 @@ export default function OrganizationsTable({
       },
     },
   ]);
+
+  //Acciones para el manejo de datos
   const handleEdit = (e: any) => {
-    console.log(e);
+    setselectedOrganization(e as Organization);
+    editDialog.setOpen(true);
   };
   const handleDelete = async (e: any) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
       mensaje: "Estas seguro que quieres deshabilitar esta organización?",
     });
     if (isConfirmed) {
-      toaster.create({
-        description: "Organización creada con éxito",
-        type: "success",
-      });
+      const res = await eliminateOrganization({ id: e.id });
+      if (res.ok) {
+        toaster.create({
+          description: "Organización deshabilitada con éxito",
+          type: "success",
+        });
+      }
+      if (!res.ok) {
+        toaster.create({
+          description: "Error al actualizar los datos",
+          type: "error",
+        });
+      }
     }
   };
   const handleRehabilitate = async (e: any) => {
@@ -100,15 +113,27 @@ export default function OrganizationsTable({
       mensaje: "Estas seguro que quieres rehabilitar esta organización?",
     });
     if (isConfirmed) {
-      toaster.create({
-        description: "Organización creada con éxito",
-        type: "success",
-      });
+      const res = await rehabilitateOrganization({ id: e.id });
+      if (res.ok) {
+        toaster.create({
+          description: "Organización rehabilitada con éxito",
+          type: "success",
+        });
+      }
+      if (!res.ok) {
+        toaster.create({
+          description: "Error al actualizar los datos",
+          type: "error",
+        });
+      }
     }
   };
+
+  //Carga de datos iniciales
   useEffect(() => {
     setRowData([...props.organizations]);
   }, [props.organizations]);
+
   return (
     <div className="w-full h-full mb-4 pt-4">
       <AgGridReact
@@ -135,6 +160,9 @@ export default function OrganizationsTable({
           type: "fitGridWidth",
         }}
       />
+      <EditDialog dialog={editDialog}>
+        <EditOrganizationsForm organization={selectedOrganization} />
+      </EditDialog>
     </div>
   );
 }

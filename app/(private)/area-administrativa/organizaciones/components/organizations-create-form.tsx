@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import {
   OrganizationSchema,
   TOrganizationSchema,
-} from "../../../lib/zod/z-organization-schemas";
+} from "../../../../../lib/zod/z-organization-schemas";
 import {
   Button,
   CloseButton,
@@ -14,8 +14,8 @@ import {
   Flex,
   Input,
 } from "@chakra-ui/react";
-import { createOrganization } from "../../../actions/organizations/operations";
-import { toaster } from "../../ui/toaster";
+import { createOrganization } from "../actions/operations";
+import { toaster } from "../../../../../components/ui/toaster";
 
 export default function OrganizationsCreateForm() {
   const {
@@ -31,7 +31,7 @@ export default function OrganizationsCreateForm() {
     const res = await createOrganization({ data: data });
     if (res.ok) {
       toaster.create({
-        description: "Organización creada con éxito",
+        description: "Organización actualizada con éxito",
         type: "success",
       });
       reset();

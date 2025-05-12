@@ -1,10 +1,13 @@
 "use server";
-import { prisma } from "../../lib/prisma/prisma";
+import { revalidatePath } from "next/cache";
+import { prisma } from "../../../../../lib/prisma/prisma";
 import {
+  EditOrganizationSchema,
   OrganizationSchema,
+  TEditOrganizationSchema,
   TOrganizationSchema,
-} from "../../lib/zod/z-organization-schemas";
-import { userStatusList } from "../../types/statusList";
+} from "../../../../../lib/zod/z-organization-schemas";
+import { userStatusList } from "../../../../../types/statusList";
 
 export async function createOrganization({
   data,
@@ -25,6 +28,7 @@ export async function createOrganization({
         status: userStatusList.ACTIVO,
       },
     });
+    revalidatePath("/area-administrativa/organizaciones");
     return { ok: true };
   } catch (e) {
     console.log(e);
@@ -35,9 +39,25 @@ export async function createOrganization({
 export async function editOrganization({
   data,
 }: {
-  data: TOrganizationSchema;
+  data: TEditOrganizationSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const tryParse = EditOrganizationSchema.safeParse(data);
+    if (!tryParse.success) {
+      return {
+        ok: false,
+      };
+    }
+    await prisma.organization.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        name: data.name,
+        address: data.address,
+      },
+    });
+    revalidatePath("/area-administrativa/organizaciones");
     return { ok: true };
   } catch (e) {
     console.log(e);
@@ -51,6 +71,15 @@ export async function eliminateOrganization({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    await prisma.organization.update({
+      where: {
+        id: id,
+      },
+      data: {
+        status: userStatusList.INACTIVO,
+      },
+    });
+    revalidatePath("/area-administrativa/organizaciones");
     return { ok: true };
   } catch (e) {
     console.log(e);
@@ -64,6 +93,15 @@ export async function rehabilitateOrganization({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    await prisma.organization.update({
+      where: {
+        id: id,
+      },
+      data: {
+        status: userStatusList.ACTIVO,
+      },
+    });
+    revalidatePath("/area-administrativa/organizaciones");
     return { ok: true };
   } catch (e) {
     console.log(e);

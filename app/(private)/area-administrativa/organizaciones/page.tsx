@@ -2,7 +2,7 @@ import React from "react";
 import BreadCrumb from "../../../../components/admin/breadcrumb";
 import CreateDialog from "../../../../components/admin/dialog/create-dialog";
 import { Heading } from "@chakra-ui/react";
-import OrganizationsCreateForm from "../../../../components/admin/forms/organizations-create-form";
+import OrganizationsCreateForm from "./components/organizations-create-form";
 import OrganizationsTable from "./components/organizations-table";
 import { prisma } from "../../../../lib/prisma/prisma";
 
