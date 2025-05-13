@@ -5,9 +5,16 @@ import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { IconButton } from "@chakra-ui/react";
 import { FaEdit, FaTrash, FaUndo } from "react-icons/fa";
+import { Account } from "@prisma/client";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-export default function DebtsTable() {
+export default function DebtsTable({
+  props,
+}: {
+  props: {
+    accounts: Account[];
+  };
+}) {
   const [colDefs, setColDefs] = useState<ColDef[]>([
     { field: "id", headerName: "ID" },
     {

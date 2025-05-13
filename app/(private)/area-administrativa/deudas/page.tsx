@@ -18,7 +18,7 @@ export default async function Page() {
             <div>Create</div>
           </CreateDialog>
         </div>
-        <DebtsTable />
+        <DebtsTable props={{ accounts: accounts }} />
       </main>
     </CanStaff>
   );
