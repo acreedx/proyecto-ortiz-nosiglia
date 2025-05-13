@@ -49,7 +49,7 @@ export const menuOptions = [
         children: [
           {
             label: "Citas",
-            route: "#",
+            route: "/area-administrativa/citas",
           },
           {
             label: "Reportes",
@@ -64,15 +64,15 @@ export const menuOptions = [
         children: [
           {
             label: "Usuarios",
-            route: "#",
+            route: "/area-administrativa/usuarios",
           },
           {
             label: "Roles",
-            route: "#",
+            route: "/area-administrativa/roles",
           },
           {
             label: "Eventos del sistema",
-            route: "#",
+            route: "/area-administrativa/eventos-del-sistema",
           },
           {
             label: "Reportes",
@@ -87,7 +87,7 @@ export const menuOptions = [
         children: [
           {
             label: "Empleados",
-            route: "#",
+            route: "/area-administrativa/personal",
           },
           {
             label: "Reportes",
@@ -101,12 +101,12 @@ export const menuOptions = [
         route: "#",
         children: [
           {
-            label: "Listado de tratamientos",
-            route: "#",
+            label: "Tratamientos asignados",
+            route: "/area-administrativa/tratamientos",
           },
           {
             label: "Tipos de tratamiento",
-            route: "#",
+            route: "/area-administrativa/tipos-de-tratamiento",
           },
           {
             label: "Reportes",
@@ -121,7 +121,7 @@ export const menuOptions = [
         children: [
           {
             label: "Panel de deudas",
-            route: "#",
+            route: "/area-administrativa/deudas",
           },
         ],
       },

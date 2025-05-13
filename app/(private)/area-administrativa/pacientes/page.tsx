@@ -1,7 +1,9 @@
 import BreadCrumb from "../../../../components/admin/breadcrumb";
-import PatientTable from "../../../../components/admin/tables/patient-table";
+import PatientTable from "./components/patient-table";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
 import { prisma } from "../../../../lib/prisma/prisma";
+import CanStaff from "../../../../lib/rbac/can-staff";
+import { Heading } from "@chakra-ui/react";
 export default async function Page() {
   const pacientes = await prisma.user.findMany({
     where: {
@@ -11,13 +13,18 @@ export default async function Page() {
     },
     include: {
       role: true,
+      patient: true,
     },
   });
-  console.log(pacientes);
   return (
-    <div className="w-full flex flex-col h-full flex-grow">
-      <BreadCrumb pageName="Pacientes" />
-      <PatientTable pacientes={pacientes} />
-    </div>
+    <CanStaff>
+      <main className="w-full flex flex-col h-full flex-grow">
+        <BreadCrumb pageName="Pacientes" />
+        <Heading size="lg" mb={4}>
+          Pacientes
+        </Heading>
+        <PatientTable props={{ pacientes: pacientes }} />
+      </main>
+    </CanStaff>
   );
 }

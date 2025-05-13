@@ -1,26 +1,26 @@
 import React from "react";
+import { prisma } from "../../../../lib/prisma/prisma";
 import BreadCrumb from "../../../../components/admin/breadcrumb";
-import CanStaff from "../../../../lib/rbac/can-staff";
 import { Heading } from "@chakra-ui/react";
 import CreateDialog from "../../../../components/admin/dialog/create-dialog";
-import TreatmentsTable from "./components/treatments-table";
-import { prisma } from "../../../../lib/prisma/prisma";
+import RolesTable from "./components/roles-table";
+import CanStaff from "../../../../lib/rbac/can-staff";
 
 export default async function Page() {
-  const carePlans = await prisma.carePlan.findMany({});
+  const roles = await prisma.role.findMany();
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
-        <BreadCrumb pageName="Tratamientos" />
+        <BreadCrumb pageName="Roles" />
         <div className="flex flex-row w-full items-center justify-between">
-          <Heading>Tratamientos</Heading>
+          <Heading>Roles</Heading>
           <CreateDialog>
             <div>Create</div>
           </CreateDialog>
         </div>
-        <TreatmentsTable
+        <RolesTable
           props={{
-            careplans: carePlans,
+            roles: roles,
           }}
         />
       </main>

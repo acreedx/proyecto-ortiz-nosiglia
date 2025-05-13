@@ -2,7 +2,7 @@
 import { FileUpload, Icon, Box, Field, Table } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { LuUpload } from "react-icons/lu";
-import SubmitButton from "../../form/common/submitButton";
+import SubmitButton from "../../../../../components/form/common/submitButton";
 import * as XLSX from "xlsx";
 import { useState } from "react";
 

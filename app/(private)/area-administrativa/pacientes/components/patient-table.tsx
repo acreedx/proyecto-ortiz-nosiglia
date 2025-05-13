@@ -6,19 +6,24 @@ import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import Image from "next/image";
-import { Heading, IconButton } from "@chakra-ui/react";
-import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import { IconButton } from "@chakra-ui/react";
+import { FaEdit, FaEye, FaFile, FaTrash } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function PatientTable({
-  pacientes,
+  props,
 }: {
-  pacientes: Prisma.UserGetPayload<{
-    include: {
-      role: true;
-    };
-  }>[];
+  props: {
+    pacientes: Prisma.UserGetPayload<{
+      include: {
+        role: true;
+        patient: true;
+      };
+    }>[];
+  };
 }) {
+  const router = useRouter();
   const [rowData, setRowData] = useState<any[]>([]);
   const [colDefs, setColDefs] = useState<ColDef[]>([
     {
@@ -40,17 +45,33 @@ export default function PatientTable({
         );
       },
     },
-    { field: "id", headerName: "ID", flex: 1, filter: false },
-    { field: "first_name", headerName: "Nombre", flex: 1 },
-    { field: "last_name", headerName: "Apellido", flex: 1 },
-    { field: "role.role_name", headerName: "Rol", flex: 1 },
+    { field: "first_name", headerName: "Nombre" },
+    { field: "last_name", headerName: "Apellido" },
+    {
+      field: "birth_date",
+      headerName: "Fecha de nacimiento",
+      valueFormatter: (params) => new Date(params.value).toLocaleDateString(),
+    },
+    { field: "phone", headerName: "Teléfono" },
+    { field: "mobile", headerName: "Celular" },
+    { field: "address_line", headerName: "Dirección" },
+    { field: "address_city", headerName: "Ciudad" },
+    {
+      field: "patient.allergies",
+      headerName: "Alergias",
+      valueFormatter: (params) => (params.value ? params.value : "Ninguna"),
+    },
+    {
+      field: "patient.preconditions",
+      headerName: "Precondiciones",
+      valueFormatter: (params) => (params.value ? params.value : "Ninguna"),
+    },
     {
       field: "actions",
       headerName: "Acciones",
-      flex: 1,
       filter: false,
       sortable: false,
-      cellRenderer: () => {
+      cellRenderer: (params: any) => {
         return (
           <div>
             <IconButton
@@ -76,8 +97,20 @@ export default function PatientTable({
               colorPalette="orange"
               variant="outline"
               aria-label="Eliminar"
+              mr={2}
             >
               <FaTrash color="red" />
+            </IconButton>
+            <IconButton
+              size="sm"
+              colorPalette="orange"
+              variant="outline"
+              aria-label="Odontograma"
+              onClick={() => {
+                router.push(`/area-administrativa/pacientes/${params.data.id}`);
+              }}
+            >
+              <FaFile color="gray" />
             </IconButton>
           </div>
         );
@@ -85,13 +118,10 @@ export default function PatientTable({
     },
   ]);
   useEffect(() => {
-    setRowData([...pacientes]);
-  }, [pacientes]);
+    setRowData([...props.pacientes]);
+  }, [props.pacientes]);
   return (
     <div className="w-full h-full mb-4">
-      <Heading size="lg" mb={4}>
-        Pacientes
-      </Heading>
       <AgGridReact
         rowData={rowData}
         columnDefs={colDefs}
@@ -106,11 +136,11 @@ export default function PatientTable({
             filterOptions: ["contains", "equals"],
             maxNumConditions: 1,
           },
+          flex: 1,
           wrapText: true,
           autoHeight: true,
-          minWidth: 100,
-          maxWidth: 300,
         }}
+        suppressCellFocus
         cellSelection={false}
       />
     </div>

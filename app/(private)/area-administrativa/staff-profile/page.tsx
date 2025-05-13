@@ -15,10 +15,10 @@ export default async function Page() {
     },
   });
   return (
-    <div>
+    <main>
       <BreadCrumb pageName="Perfil" />
       <Heading>Editar tu perfil</Heading>
       <EditProfileForm user={user as User} />
-    </div>
+    </main>
   );
 }

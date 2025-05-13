@@ -1,26 +1,30 @@
 import React from "react";
 import BreadCrumb from "../../../../components/admin/breadcrumb";
-import CanStaff from "../../../../lib/rbac/can-staff";
-import { Heading } from "@chakra-ui/react";
 import CreateDialog from "../../../../components/admin/dialog/create-dialog";
-import TreatmentsTable from "./components/treatments-table";
+import { Heading } from "@chakra-ui/react";
+import TreatmentTypeTable from "./components/treatment-type-table";
 import { prisma } from "../../../../lib/prisma/prisma";
+import CanStaff from "../../../../lib/rbac/can-staff";
 
 export default async function Page() {
-  const carePlans = await prisma.carePlan.findMany({});
+  const treatments = await prisma.treatment.findMany({});
+  const serializedTreatments = treatments.map((t) => ({
+    ...t,
+    cost_estimation: t.cost_estimation.toNumber(),
+  }));
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
-        <BreadCrumb pageName="Tratamientos" />
+        <BreadCrumb pageName="Tipos de tratamiento" />
         <div className="flex flex-row w-full items-center justify-between">
-          <Heading>Tratamientos</Heading>
+          <Heading>Tipos de tratamiento</Heading>
           <CreateDialog>
             <div>Create</div>
           </CreateDialog>
         </div>
-        <TreatmentsTable
+        <TreatmentTypeTable
           props={{
-            careplans: carePlans,
+            treatments: serializedTreatments,
           }}
         />
       </main>

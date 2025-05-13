@@ -1,11 +1,15 @@
 import React from "react";
 import BreadCrumb from "../../../../components/admin/breadcrumb";
+import { Heading } from "@chakra-ui/react";
+import CanStaff from "../../../../lib/rbac/can-staff";
 
-export default function Page() {
+export default async function Page() {
   return (
-    <div>
-      <BreadCrumb pageName="Panel de control" />
-      Dashboard
-    </div>
+    <CanStaff>
+      <main>
+        <BreadCrumb pageName="Panel de control" />
+        <Heading>Dashboard</Heading>
+      </main>
+    </CanStaff>
   );
 }

@@ -39,6 +39,13 @@ export default function OrganizationsTable({
     { field: "name", headerName: "Nombre", filter: true },
     { field: "address", headerName: "Dirección", filter: true },
     {
+      field: "status",
+      headerName: "Estado",
+      filter: true,
+      valueFormatter: (params) =>
+        params.value === userStatusList.ACTIVO ? "activo" : "inactivo",
+    },
+    {
       field: "actions",
       headerName: "Acciones",
       sortable: false,
