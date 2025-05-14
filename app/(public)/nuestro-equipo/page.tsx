@@ -1,12 +1,15 @@
 import React from "react";
 import { prisma } from "../../../lib/prisma/prisma";
 import TeamCard from "../../../components/index/team-card";
+import { userStatusList } from "../../../types/statusList";
 
 export default async function Page() {
   const dentistas = await prisma.doctor.findMany({
     where: {
       staff: {
-        status: "1",
+        user: {
+          status: userStatusList.ACTIVO,
+        },
       },
     },
     include: {
@@ -19,7 +22,7 @@ export default async function Page() {
     },
   });
   return (
-    <div className="bg-white">
+    <main className="bg-white">
       <section className="h-[750px] bg-[url('/images/paginaweb/team.png')] bg-cover bg-center">
         <div className="flex h-full w-full items-center justify-center bg-black bg-opacity-50"></div>
       </section>
@@ -53,6 +56,6 @@ export default async function Page() {
           </div>
         )}
       </section>
-    </div>
+    </main>
   );
 }

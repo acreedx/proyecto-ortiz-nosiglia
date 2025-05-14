@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const CarePlanSchema = z.object({
+export const CreateCarePlanSchema = z.object({
   treatment_type: z
     .string()
     .min(1, "El tipo de tratamiento es obligatorio")
@@ -30,7 +30,6 @@ export const CarePlanSchema = z.object({
   cost: z
     .string()
     .regex(/^\d+(\.\d{1,2})?$/, "El costo debe ser un número válido"),
-  status: z.string().length(1, "El estado debe tener un carácter").optional(),
   patient_id: z.number({ required_error: "El ID del paciente es obligatorio" }),
 });
-export type TCarePlanSchema = z.infer<typeof CarePlanSchema>;
+export type TCreateCarePlanSchema = z.infer<typeof CreateCarePlanSchema>;

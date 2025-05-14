@@ -8,7 +8,7 @@ export default async function Page() {
   const session = await auth();
   if (!session) redirect("/login");
   return (
-    <div className="rounded-sm border border-stroke bg-white shadow-default ">
+    <main className="rounded-sm border border-stroke bg-white shadow-default ">
       <div className="flex flex-wrap items-center ">
         <Banner />
         <div className="w-full border-stroke xl:w-1/2 xl:border-l-2 p-6 h-full flex items-center justify-center">
@@ -20,6 +20,6 @@ export default async function Page() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

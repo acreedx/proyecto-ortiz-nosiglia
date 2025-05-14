@@ -5,6 +5,7 @@ import { mostrarAlertaExito } from "../../../lib/sweetalert/alerts";
 import generateStrongPassword from "../../../lib/bcrypt/password-generator";
 
 export default function Page() {
+  //todo eliminar esta página en producción
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -15,7 +16,7 @@ export default function Page() {
     });
   };
   return (
-    <div className="flex flex-row flex-grow h-full justify-center items-center gap-10">
+    <main className="flex flex-row flex-grow h-full justify-center items-center gap-10">
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <input name="texto" placeholder="Ingresa la contraseña" type="text" />
         <button type="submit" className="bg-orange-200">
@@ -36,6 +37,6 @@ export default function Page() {
       >
         Generar contraseña aleatoria
       </button>
-    </div>
+    </main>
   );
 }

@@ -14,7 +14,7 @@ export default async function Page() {
     },
   });
   return (
-    <div>
+    <main>
       <div className="rounded-sm border border-stroke bg-white shadow-default ">
         <div className="flex flex-wrap items-center ">
           <Banner />
@@ -26,6 +26,6 @@ export default async function Page() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

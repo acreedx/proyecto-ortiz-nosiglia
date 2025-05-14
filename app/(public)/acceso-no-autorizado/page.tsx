@@ -2,7 +2,7 @@ import Banner from "../../../components/index/banner";
 
 export default function Page() {
   return (
-    <div className="rounded-sm border border-stroke bg-white shadow-default ">
+    <main className="rounded-sm border border-stroke bg-white shadow-default ">
       <div className="flex flex-wrap items-center w-full">
         <Banner />
         <div className="p-6  w-full xl:w-1/2 h-100 flex items-center justify-center">
@@ -20,6 +20,6 @@ export default function Page() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

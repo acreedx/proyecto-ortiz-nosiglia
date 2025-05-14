@@ -4,8 +4,10 @@ import CreateDialog from "../../../../components/admin/dialog/create-dialog";
 import { Heading } from "@chakra-ui/react";
 import AppointmentsTable from "./components/appointments-table";
 import CanStaff from "../../../../lib/rbac/can-staff";
+import { prisma } from "../../../../lib/prisma/prisma";
 
 export default async function Page() {
+  const appointments = await prisma.appointment.findMany();
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
@@ -14,7 +16,11 @@ export default async function Page() {
           <Heading>Citas</Heading>
           <CreateDialog>Create</CreateDialog>
         </div>
-        <AppointmentsTable />
+        <AppointmentsTable
+          props={{
+            citas: appointments,
+          }}
+        />
       </main>
     </CanStaff>
   );
