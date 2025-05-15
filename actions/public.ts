@@ -61,8 +61,179 @@ export async function createUser({
         is_super_admin: false,
         status: userStatusList.NUEVO,
         role_id: 6,
+        staff: {
+          create: {
+            contratation_date: new Date(),
+            payroll: {
+              create: {},
+            },
+            doctor: {
+              create: {
+                specialization: "No registrada",
+              },
+            },
+          },
+        },
         patient: {
           create: {
+            odontogram: {
+              create: {
+                odontogram_row: {
+                  createMany: {
+                    data: [
+                      {
+                        msc: "ICSI",
+                        temp: "61",
+                        pieza: "21",
+                      },
+                      {
+                        msc: "ILSI",
+                        temp: "62",
+                        pieza: "22",
+                      },
+                      {
+                        msc: "CSI",
+                        temp: "63",
+                        pieza: "23",
+                      },
+                      {
+                        msc: "1PMSI",
+                        temp: "64",
+                        pieza: "24",
+                      },
+                      {
+                        msc: "2PMSI",
+                        temp: "65",
+                        pieza: "25",
+                      },
+                      {
+                        msc: "1MSI",
+                        pieza: "26",
+                      },
+                      {
+                        msc: "2MSI",
+                        pieza: "27",
+                      },
+                      {
+                        msc: "3MSI",
+                        pieza: "28",
+                      },
+                      {
+                        msc: "3MII",
+                        pieza: "38",
+                      },
+                      {
+                        msc: "2MII",
+                        pieza: "37",
+                      },
+                      {
+                        msc: "1MII",
+                        pieza: "36",
+                      },
+                      {
+                        msc: "2PMII",
+                        temp: "75",
+                        pieza: "35",
+                      },
+                      {
+                        msc: "1PMII",
+                        temp: "74",
+                        pieza: "34",
+                      },
+                      {
+                        msc: "CII",
+                        temp: "73",
+                        pieza: "33",
+                      },
+                      {
+                        msc: "ILII",
+                        temp: "72",
+                        pieza: "32",
+                      },
+                      {
+                        msc: "ICII",
+                        temp: "71",
+                        pieza: "31",
+                      },
+                      {
+                        msc: "ICSD",
+                        temp: "51",
+                        pieza: "11",
+                      },
+                      {
+                        msc: "ILSD",
+                        temp: "52",
+                        pieza: "12",
+                      },
+                      {
+                        msc: "CSD",
+                        temp: "53",
+                        pieza: "13",
+                      },
+                      {
+                        msc: "1PMSD",
+                        temp: "54",
+                        pieza: "14",
+                      },
+                      {
+                        msc: "2PMSD",
+                        temp: "55",
+                        pieza: "15",
+                      },
+                      {
+                        msc: "1MSD",
+                        pieza: "16",
+                      },
+                      {
+                        msc: "2MSD",
+                        pieza: "17",
+                      },
+                      {
+                        msc: "3MSD",
+                        pieza: "18",
+                      },
+                      {
+                        msc: "3MID",
+                        pieza: "48",
+                      },
+                      {
+                        msc: "2MID",
+                        pieza: "47",
+                      },
+                      {
+                        msc: "1MID",
+                        pieza: "46",
+                      },
+                      {
+                        msc: "2PMID",
+                        temp: "85",
+                        pieza: "45",
+                      },
+                      {
+                        msc: "1PMID",
+                        temp: "84",
+                        pieza: "44",
+                      },
+                      {
+                        msc: "CID",
+                        temp: "83",
+                        pieza: "43",
+                      },
+                      {
+                        msc: "ILID",
+                        temp: "82",
+                        pieza: "42",
+                      },
+                      {
+                        msc: "ICID",
+                        temp: "81",
+                        pieza: "41",
+                      },
+                    ],
+                  },
+                },
+              },
+            },
             allergies: data.allergies,
             preconditions: data.preconditions,
             status: userStatusList.ACTIVO,

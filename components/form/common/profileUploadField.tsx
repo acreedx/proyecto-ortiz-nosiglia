@@ -13,7 +13,7 @@ export default function ProfileUploadField({
     <FileUpload.RootProvider
       value={fileUpload}
       colorPalette={"orange"}
-      className="w-full flex items-center"
+      className="w-full flex items-center "
       mb={4}
     >
       <FileUpload.ItemGroup
