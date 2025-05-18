@@ -29,7 +29,16 @@ export async function create({
   }
 }
 
-export async function edit({ data }: { data: any }): Promise<{ ok: boolean }> {
+export async function editRow({
+  data,
+}: {
+  data: {
+    id: number;
+    fecha: Date;
+    diagnostico: string;
+    tratamiento: string;
+  };
+}): Promise<{ ok: boolean }> {
   try {
     //const tryParse = OrganizationSchema.safeParse(data);
     //if (!tryParse.success) {
@@ -37,14 +46,16 @@ export async function edit({ data }: { data: any }): Promise<{ ok: boolean }> {
     //    ok: false,
     //  };
     //}
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
+    await prisma.odontogramRow.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        fecha: new Date(data.fecha),
+        diagnostico: data.diagnostico,
+        tratamiento: data.tratamiento,
+      },
+    });
     return { ok: true };
   } catch (e) {
     console.log(e);

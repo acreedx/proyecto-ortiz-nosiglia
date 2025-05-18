@@ -24,10 +24,6 @@ export const CreateTreatmentSchema = z.object({
   cost_estimation: z
     .number()
     .min(0, "La estimación de costos debe ser un número positivo"),
-  status: z
-    .string()
-    .max(1, "El tamaño máximo del estado es de 1 carácter")
-    .optional(),
 });
 
 export type TCreateTreatmentSchema = z.infer<typeof CreateTreatmentSchema>;

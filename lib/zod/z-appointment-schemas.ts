@@ -24,7 +24,9 @@ export const CreateAppointmentSchema = z.object({
   cancellation_reason: z.string().max(200, "Máximo 200 caracteres").optional(),
   is_cancelled: z.boolean().optional(),
   patient_id: z.number({ required_error: "El ID del paciente es obligatorio" }),
-  doctor_id: z.number({ required_error: "El ID del doctor es obligatorio" }),
+  doctor_id: z
+    .string({ message: "El doctor es obligatorio" })
+    .transform((val) => parseInt(val, 10)),
 });
 export type TCreateAppointmentSchema = z.infer<typeof CreateAppointmentSchema>;
 

@@ -1,11 +1,10 @@
 import React from "react";
-import CanStaff from "../../../../../lib/rbac/can-staff";
-import BreadCrumb from "../../../../../components/admin/breadcrumb";
-import { prisma } from "../../../../../lib/prisma/prisma";
-import { rolesList } from "../../../../../lib/nextauth/rolesList";
-import { userStatusList } from "../../../../../types/statusList";
-import PatientOdontogram from "../components/patient-odontogram";
 import { Heading, Link } from "@chakra-ui/react";
+import CanStaff from "../../../../../../lib/rbac/can-staff";
+import BreadCrumb from "../../../../../../components/admin/breadcrumb";
+import PatientOdontogram from "../../components/patient-odontogram";
+import { prisma } from "../../../../../../lib/prisma/prisma";
+import { rolesList } from "../../../../../../lib/nextauth/rolesList";
 
 export default async function Page({
   params,
@@ -44,7 +43,11 @@ export default async function Page({
           pageName={`Odontograma de ${paciente.first_name} ${paciente.last_name}`}
         />
         <Heading>{`Odontograma de ${paciente.first_name} ${paciente.last_name}`}</Heading>
-        <Link href="/area-administrativa/pacientes" colorPalette={"orange"}>
+        <Link
+          href="/area-administrativa/pacientes"
+          colorPalette={"orange"}
+          w={"fit-content"}
+        >
           Volver
         </Link>
         <PatientOdontogram

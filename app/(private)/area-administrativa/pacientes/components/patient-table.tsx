@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import Image from "next/image";
 import { IconButton } from "@chakra-ui/react";
 import { FaEdit, FaEye, FaFile, FaTrash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function PatientTable({
@@ -107,7 +107,9 @@ export default function PatientTable({
               variant="outline"
               aria-label="Odontograma"
               onClick={() => {
-                router.push(`/area-administrativa/pacientes/${params.data.id}`);
+                router.push(
+                  `/area-administrativa/pacientes/odontograma/${params.data.id}`
+                );
               }}
             >
               <FaFile color="gray" />

@@ -30,6 +30,8 @@ export const CreateCarePlanSchema = z.object({
   cost: z
     .string()
     .regex(/^\d+(\.\d{1,2})?$/, "El costo debe ser un número válido"),
-  patient_id: z.number({ required_error: "El ID del paciente es obligatorio" }),
+  patient_id: z
+    .string({ message: "El paciente es obligatorio" })
+    .transform((val) => parseInt(val, 10)),
 });
 export type TCreateCarePlanSchema = z.infer<typeof CreateCarePlanSchema>;

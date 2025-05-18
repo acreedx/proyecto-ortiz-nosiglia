@@ -5,16 +5,33 @@ import { Heading } from "@chakra-ui/react";
 import AppointmentsTable from "./components/appointments-table";
 import CanStaff from "../../../../lib/rbac/can-staff";
 import { prisma } from "../../../../lib/prisma/prisma";
+import AppointmentsCreateForm from "./components/appointments-create-form";
+import { userStatusList } from "../../../../types/statusList";
+import { rolesList } from "../../../../lib/nextauth/rolesList";
 
 export default async function Page() {
   const appointments = await prisma.appointment.findMany();
+  const doctores = await prisma.user.findMany({
+    where: {
+      status: userStatusList.ACTIVO,
+      role: {
+        role_name: rolesList.DENTISTA,
+      },
+    },
+  });
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
         <BreadCrumb pageName="Citas" />
         <div className="flex flex-row w-full items-center justify-between">
           <Heading>Citas</Heading>
-          <CreateDialog>Create</CreateDialog>
+          <CreateDialog>
+            <AppointmentsCreateForm
+              props={{
+                doctores: doctores,
+              }}
+            />
+          </CreateDialog>
         </div>
         <AppointmentsTable
           props={{

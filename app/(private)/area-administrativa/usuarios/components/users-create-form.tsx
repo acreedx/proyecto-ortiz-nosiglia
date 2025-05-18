@@ -260,7 +260,7 @@ export default function UsersCreateForm({
             px={4}
             w={{ base: "100%", md: "50%" }}
           >
-            <Field.Label>Seguro</Field.Label>
+            <Field.Label>Rol</Field.Label>
             <NativeSelect.Root size={"md"}>
               <NativeSelect.Field
                 placeholder="Selecciona algún rol registrado"

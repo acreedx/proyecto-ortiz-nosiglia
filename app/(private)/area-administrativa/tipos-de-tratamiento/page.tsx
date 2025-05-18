@@ -5,6 +5,7 @@ import { Heading } from "@chakra-ui/react";
 import TreatmentTypeTable from "./components/treatment-type-table";
 import { prisma } from "../../../../lib/prisma/prisma";
 import CanStaff from "../../../../lib/rbac/can-staff";
+import TreatmentTypeCreateForm from "./components/treatment-type-create-form";
 
 export default async function Page() {
   const treatments = await prisma.treatment.findMany({});
@@ -19,7 +20,7 @@ export default async function Page() {
         <div className="flex flex-row w-full items-center justify-between">
           <Heading>Tipos de tratamiento</Heading>
           <CreateDialog>
-            <div>Create</div>
+            <TreatmentTypeCreateForm />
           </CreateDialog>
         </div>
         <TreatmentTypeTable
