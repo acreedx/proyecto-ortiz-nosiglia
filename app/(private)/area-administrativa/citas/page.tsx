@@ -19,6 +19,14 @@ export default async function Page() {
       },
     },
   });
+  const pacientes = await prisma.user.findMany({
+    where: {
+      status: userStatusList.ACTIVO,
+      role: {
+        role_name: rolesList.PACIENTE,
+      },
+    },
+  });
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
@@ -29,6 +37,7 @@ export default async function Page() {
             <AppointmentsCreateForm
               props={{
                 doctores: doctores,
+                pacientes: pacientes,
               }}
             />
           </CreateDialog>

@@ -1,10 +1,15 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "../../../../../lib/prisma/prisma";
-import { userStatusList } from "../../../../../types/statusList";
+import {
+  treatmentStatusList,
+  userStatusList,
+} from "../../../../../types/statusList";
 import {
   CreateCarePlanSchema,
+  EditCarePlanSchema,
   TCreateCarePlanSchema,
+  TEditCarePlanSchema,
 } from "../../../../../lib/zod/z-care-plan-schemas";
 
 export async function create({
@@ -25,7 +30,6 @@ export async function create({
         title: data.title,
         description: data.description,
         start_date: new Date(data.start_date),
-        end_date: data.end_date ? new Date(data.end_date) : undefined,
         estimated_appointments: data.estimated_appointments,
         days_between_appointments: data.days_between_appointments,
         cost: data.cost,
@@ -41,22 +45,34 @@ export async function create({
   }
 }
 
-export async function edit({ data }: { data: any }): Promise<{ ok: boolean }> {
+export async function edit({
+  data,
+}: {
+  data: TEditCarePlanSchema;
+}): Promise<{ ok: boolean }> {
   try {
-    //const tryParse = OrganizationSchema.safeParse(data);
-    //if (!tryParse.success) {
-    //  return {
-    //    ok: false,
-    //  };
-    //}
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
+    const tryParse = EditCarePlanSchema.safeParse(data);
+    if (!tryParse.success) {
+      return {
+        ok: false,
+      };
+    }
+    await prisma.carePlan.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        treatment_type: data.treatment_type,
+        title: data.title,
+        description: data.description,
+        start_date: new Date(data.start_date),
+        estimated_appointments: data.estimated_appointments,
+        days_between_appointments: data.days_between_appointments,
+        cost: data.cost,
+        patient_id: data.patient_id,
+      },
+    });
+    revalidatePath("/area-administrativa/tratamientos");
     return { ok: true };
   } catch (e) {
     console.log(e);
@@ -70,14 +86,15 @@ export async function eliminate({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
+    await prisma.carePlan.update({
+      where: {
+        id: id,
+      },
+      data: {
+        status: userStatusList.INACTIVO,
+      },
+    });
+    revalidatePath("/area-administrativa/tratamientos");
     return { ok: true };
   } catch (e) {
     console.log(e);
@@ -91,14 +108,38 @@ export async function restore({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
+    await prisma.carePlan.update({
+      where: {
+        id: id,
+      },
+      data: {
+        status: userStatusList.ACTIVO,
+      },
+    });
+    revalidatePath("/area-administrativa/tratamientos");
+    return { ok: true };
+  } catch (e) {
+    console.log(e);
+    return { ok: false };
+  }
+}
+
+export async function complete({
+  id,
+}: {
+  id: number;
+}): Promise<{ ok: boolean }> {
+  try {
+    await prisma.carePlan.update({
+      where: {
+        id: id,
+      },
+      data: {
+        end_date: new Date(),
+        status: treatmentStatusList.COMPLETADO,
+      },
+    });
+    revalidatePath("/area-administrativa/tratamientos");
     return { ok: true };
   } catch (e) {
     console.log(e);

@@ -27,6 +27,7 @@ export default async function Page() {
       },
     },
   });
+  const treatmentTypes = await prisma.treatment.findMany();
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
@@ -34,12 +35,15 @@ export default async function Page() {
         <div className="flex flex-row w-full items-center justify-between">
           <Heading>Tratamientos asignados</Heading>
           <CreateDialog>
-            <TreatmentsCreateForm props={{ pacientes: pacientes }} />
+            <TreatmentsCreateForm
+              props={{ pacientes: pacientes, treatmentTypes: treatmentTypes }}
+            />
           </CreateDialog>
         </div>
         <TreatmentsTable
           props={{
             careplans: carePlans,
+            treatments: treatmentTypes,
           }}
         />
       </main>

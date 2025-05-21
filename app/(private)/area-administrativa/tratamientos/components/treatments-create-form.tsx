@@ -9,21 +9,23 @@ import {
   Input,
   Field,
   NativeSelect,
+  Textarea,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect } from "react";
 import { toaster } from "../../../../../components/ui/toaster";
 import { create } from "../actions/operations";
 import {
   CreateCarePlanSchema,
   TCreateCarePlanSchema,
 } from "../../../../../lib/zod/z-care-plan-schemas";
-import { User } from "@prisma/client";
+import { Treatment, User } from "@prisma/client";
 
 export default function TreatmentsCreateForm({
   props,
 }: {
   props: {
     pacientes: User[];
+    treatmentTypes: Treatment[];
   };
 }) {
   const {
@@ -31,10 +33,34 @@ export default function TreatmentsCreateForm({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    watch,
+    setValue,
   } = useForm({
     resolver: zodResolver(CreateCarePlanSchema),
     mode: "onChange",
   });
+  const treatmentTypeId = watch("treatment_type_id");
+  useEffect(() => {
+    if (treatmentTypeId) {
+      const filteredTreatment = props.treatmentTypes.find(
+        (treatment) => String(treatment.id) === String(treatmentTypeId)
+      );
+      if (filteredTreatment) {
+        setValue("treatment_type", filteredTreatment.treatment_type);
+        setValue("title", filteredTreatment.title);
+        setValue("description", filteredTreatment.description);
+        setValue(
+          "estimated_appointments",
+          filteredTreatment.estimated_appointments
+        );
+        setValue(
+          "days_between_appointments",
+          filteredTreatment.days_between_appointments
+        );
+        setValue("cost", filteredTreatment.cost_estimation);
+      }
+    }
+  }, [treatmentTypeId]);
   const onSubmit = async (data: TCreateCarePlanSchema) => {
     const res = await create({ data: data });
     if (res.ok) {
@@ -57,6 +83,30 @@ export default function TreatmentsCreateForm({
       </Dialog.Header>
       <Dialog.Body>
         <Flex wrap="wrap" gapY={4} mb={4} w="full">
+          <Field.Root
+            invalid={!!errors.treatment_type_id}
+            px={4}
+            w={{ base: "100%", md: "50%" }}
+          >
+            <Field.Label>Tratamiento</Field.Label>
+            <NativeSelect.Root size={"md"}>
+              <NativeSelect.Field
+                placeholder="Selecciona algún tratamiento registrado"
+                colorPalette={"orange"}
+                {...register("treatment_type_id")}
+              >
+                {props.treatmentTypes.map((treatment) => (
+                  <option key={treatment.id} value={treatment.id}>
+                    {treatment.title}
+                  </option>
+                ))}
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+            <Field.ErrorText className="text-sm">
+              {errors.treatment_type_id?.message}
+            </Field.ErrorText>
+          </Field.Root>
           <Field.Root
             invalid={!!errors.treatment_type}
             required
@@ -95,47 +145,14 @@ export default function TreatmentsCreateForm({
           {/* Descripción */}
           <Field.Root invalid={!!errors.description} required px={4} w="full">
             <Field.Label>Descripción</Field.Label>
-            <Input
+            <Textarea
               colorPalette="orange"
-              type="text"
+              resize="none"
               placeholder="Descripción del plan de cuidado"
               variant="outline"
               {...register("description")}
             />
             <Field.ErrorText>{errors.description?.message}</Field.ErrorText>
-          </Field.Root>
-
-          {/* Fecha de inicio */}
-          <Field.Root
-            invalid={!!errors.start_date}
-            required
-            px={4}
-            w={{ base: "100%", md: "50%" }}
-          >
-            <Field.Label>Fecha de inicio</Field.Label>
-            <Input
-              colorPalette="orange"
-              type="date"
-              variant="outline"
-              {...register("start_date")}
-            />
-            <Field.ErrorText>{errors.start_date?.message}</Field.ErrorText>
-          </Field.Root>
-
-          {/* Fecha de finalización */}
-          <Field.Root
-            invalid={!!errors.end_date}
-            px={4}
-            w={{ base: "100%", md: "50%" }}
-          >
-            <Field.Label>Fecha de finalización</Field.Label>
-            <Input
-              colorPalette="orange"
-              type="date"
-              variant="outline"
-              {...register("end_date")}
-            />
-            <Field.ErrorText>{errors.end_date?.message}</Field.ErrorText>
           </Field.Root>
 
           {/* Citas estimadas */}
@@ -180,25 +197,6 @@ export default function TreatmentsCreateForm({
             </Field.ErrorText>
           </Field.Root>
 
-          {/* Total de citas (opcional) */}
-          <Field.Root
-            invalid={!!errors.total_appointments}
-            px={4}
-            w={{ base: "100%", md: "50%" }}
-          >
-            <Field.Label>Total de citas</Field.Label>
-            <Input
-              colorPalette="orange"
-              type="number"
-              placeholder="Ej. 12"
-              variant="outline"
-              {...register("total_appointments", { valueAsNumber: true })}
-            />
-            <Field.ErrorText>
-              {errors.total_appointments?.message}
-            </Field.ErrorText>
-          </Field.Root>
-
           {/* Costo */}
           <Field.Root
             invalid={!!errors.cost}
@@ -215,6 +213,23 @@ export default function TreatmentsCreateForm({
               {...register("cost")}
             />
             <Field.ErrorText>{errors.cost?.message}</Field.ErrorText>
+          </Field.Root>
+
+          {/* Fecha de inicio */}
+          <Field.Root
+            invalid={!!errors.start_date}
+            required
+            px={4}
+            w={{ base: "100%", md: "50%" }}
+          >
+            <Field.Label>Fecha de inicio</Field.Label>
+            <Input
+              colorPalette="orange"
+              type="date"
+              variant="outline"
+              {...register("start_date")}
+            />
+            <Field.ErrorText>{errors.start_date?.message}</Field.ErrorText>
           </Field.Root>
 
           {/* ID del paciente */}

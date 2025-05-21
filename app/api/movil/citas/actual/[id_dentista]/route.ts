@@ -1,17 +1,17 @@
-import { prisma } from "@/config/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "../../../../../../lib/prisma/prisma";
 export const dynamic = "force-dynamic";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id_dentista: string } },
+  { params }: { params: { id_dentista: number } }
 ) {
   try {
     const { id_dentista } = params;
     const citasActivas = await prisma.appointment.findMany({
       where: {
-        practitionerId: id_dentista,
-        start: {
+        doctor_id: id_dentista,
+        programed_date_time: {
           lte: new Date(),
         },
         end: {

@@ -4,14 +4,19 @@ import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { IconButton, useDialog } from "@chakra-ui/react";
-import { FaEdit, FaTrash, FaUndo } from "react-icons/fa";
-import { CarePlan } from "@prisma/client";
+import { FaCheck, FaEdit, FaTrash, FaUndo } from "react-icons/fa";
+import { CarePlan, Treatment } from "@prisma/client";
 import { AgGridReact } from "ag-grid-react";
-import { userStatusList } from "../../../../../types/statusList";
+import {
+  treatmentStatusList,
+  userStatusList,
+} from "../../../../../types/statusList";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
-import { eliminate, restore } from "../actions/operations";
+import { complete, eliminate, restore } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
 import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
+import TreatmentsEditForm from "./treatments-edit-form";
+import formatDateLocal from "../../../../../types/dateFormatter";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function TreatmentsTable({
@@ -19,6 +24,7 @@ export default function TreatmentsTable({
 }: {
   props: {
     careplans: CarePlan[];
+    treatments: Treatment[];
   };
 }) {
   const editDialog = useDialog();
@@ -38,11 +44,6 @@ export default function TreatmentsTable({
       filter: true,
     },
     {
-      field: "description",
-      headerName: "Descripción",
-      filter: true,
-    },
-    {
       field: "start_date",
       headerName: "Fecha de Inicio",
       valueFormatter: (params) =>
@@ -52,7 +53,16 @@ export default function TreatmentsTable({
       field: "end_date",
       headerName: "Fecha de Fin",
       valueFormatter: (params) =>
-        params.value ? new Date(params.value).toLocaleDateString() : "—",
+        params.value
+          ? new Intl.DateTimeFormat("es-ES", {
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+              timeZone: "UTC",
+            })
+              .format(new Date(params.value))
+              .toString()
+          : "—",
     },
     {
       field: "estimated_appointments",
@@ -61,11 +71,6 @@ export default function TreatmentsTable({
     {
       field: "days_between_appointments",
       headerName: "Días entre Citas",
-    },
-    {
-      field: "total_appointments",
-      headerName: "Total de Citas",
-      valueFormatter: (params) => params.value ?? "—",
     },
     {
       field: "patient.user.first_name",
@@ -92,6 +97,8 @@ export default function TreatmentsTable({
             return "Activo";
           case userStatusList.INACTIVO:
             return "Inactivo";
+          case treatmentStatusList.COMPLETADO:
+            return "Completado";
           default:
             return "—";
         }
@@ -128,18 +135,31 @@ export default function TreatmentsTable({
                 <FaTrash color="red" />
               </IconButton>
             )}
-            {params.data.status === userStatusList.INACTIVO && (
+            {params.data.status === userStatusList.ACTIVO && (
               <IconButton
                 size="sm"
-                colorPalette="green"
+                colorPalette="blue"
                 variant="outline"
-                aria-label="Reactivar"
+                aria-label="Completar"
                 ml={2}
-                onClick={async () => handleRestore(params.data.id)}
+                onClick={async () => handleCompleteTreatment(params.data.id)}
               >
-                <FaUndo color="green" />
+                <FaCheck color="blue" />
               </IconButton>
             )}
+            {params.data.status === userStatusList.INACTIVO ||
+              (params.data.status === treatmentStatusList.COMPLETADO && (
+                <IconButton
+                  size="sm"
+                  colorPalette="green"
+                  variant="outline"
+                  aria-label="Reactivar"
+                  ml={2}
+                  onClick={async () => handleRestore(params.data.id)}
+                >
+                  <FaUndo color="green" />
+                </IconButton>
+              ))}
           </div>
         );
       },
@@ -153,6 +173,27 @@ export default function TreatmentsTable({
   const handleEdit = (tratamiento: CarePlan) => {
     editDialog.setOpen(true);
     setselectedTreatment(tratamiento);
+  };
+  const handleCompleteTreatment = async (id: number) => {
+    const isConfirmed = await mostrarAlertaConfirmacion({
+      mensaje: "Esta seguro de completar este tratamiento?",
+    });
+    if (isConfirmed) {
+      const res = await complete({
+        id: id,
+      });
+      if (res.ok) {
+        toaster.create({
+          description: "Tratamiento completado con éxito",
+          type: "success",
+        });
+      } else {
+        toaster.create({
+          description: "Error al completar el tratamiento",
+          type: "error",
+        });
+      }
+    }
   };
   const handleDelete = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
@@ -226,7 +267,11 @@ export default function TreatmentsTable({
         }}
       />
       <EditDialog dialog={editDialog}>
-        <div>{selectedTreatment?.title}</div>
+        <TreatmentsEditForm
+          props={{
+            treatment: selectedTreatment,
+          }}
+        />
       </EditDialog>
     </div>
   );

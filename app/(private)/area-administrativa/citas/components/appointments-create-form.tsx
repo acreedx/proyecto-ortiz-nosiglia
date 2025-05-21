@@ -9,6 +9,7 @@ import {
   Field,
   Input,
   NativeSelect,
+  Textarea,
 } from "@chakra-ui/react";
 import React from "react";
 import { toaster } from "../../../../../components/ui/toaster";
@@ -24,6 +25,7 @@ export default function AppointmentsCreateForm({
 }: {
   props: {
     doctores: User[];
+    pacientes: User[];
   };
 }) {
   const {
@@ -58,23 +60,6 @@ export default function AppointmentsCreateForm({
       </Dialog.Header>
       <Dialog.Body>
         <Flex wrap="wrap" gapY={4} mb={4} w="full">
-          {/* Fecha de programación */}
-          <Field.Root
-            invalid={!!errors.scheduled_on}
-            required
-            px={4}
-            w={{ base: "100%", md: "50%" }}
-          >
-            <Field.Label>Fecha de programación</Field.Label>
-            <Input
-              colorPalette="orange"
-              type="datetime-local"
-              variant="outline"
-              {...register("scheduled_on")}
-            />
-            <Field.ErrorText>{errors.scheduled_on?.message}</Field.ErrorText>
-          </Field.Root>
-
           {/* Fecha programada */}
           <Field.Root
             invalid={!!errors.programed_date_time}
@@ -120,9 +105,9 @@ export default function AppointmentsCreateForm({
             w={{ base: "100%", md: "50%" }}
           >
             <Field.Label>Motivo</Field.Label>
-            <Input
+            <Textarea
               colorPalette="orange"
-              type="text"
+              resize={"none"}
               placeholder="Ej. Dolor de muela"
               variant="outline"
               {...register("reason")}
@@ -137,9 +122,9 @@ export default function AppointmentsCreateForm({
             w={{ base: "100%", md: "50%" }}
           >
             <Field.Label>Nota</Field.Label>
-            <Input
+            <Textarea
               colorPalette="orange"
-              type="text"
+              resize={"none"}
               placeholder="Nota adicional"
               variant="outline"
               {...register("note")}
@@ -154,9 +139,9 @@ export default function AppointmentsCreateForm({
             w={{ base: "100%", md: "50%" }}
           >
             <Field.Label>Instrucciones al paciente</Field.Label>
-            <Input
+            <Textarea
               colorPalette="orange"
-              type="text"
+              resize={"none"}
               placeholder="Ej. Llegar 10 minutos antes"
               variant="outline"
               {...register("patient_instruction")}
@@ -166,95 +151,54 @@ export default function AppointmentsCreateForm({
             </Field.ErrorText>
           </Field.Root>
 
-          {/* Fecha de cancelación (opcional) */}
-          <Field.Root
-            invalid={!!errors.cancellation_date}
-            px={4}
-            w={{ base: "100%", md: "50%" }}
-          >
-            <Field.Label>Fecha de cancelación</Field.Label>
-            <Input
-              colorPalette="orange"
-              type="datetime-local"
-              variant="outline"
-              {...register("cancellation_date")}
-            />
-            <Field.ErrorText>
-              {errors.cancellation_date?.message}
-            </Field.ErrorText>
-          </Field.Root>
-
-          {/* Motivo de cancelación (opcional) */}
-          <Field.Root
-            invalid={!!errors.cancellation_reason}
-            px={4}
-            w={{ base: "100%", md: "50%" }}
-          >
-            <Field.Label>Motivo de cancelación</Field.Label>
-            <Input
-              colorPalette="orange"
-              type="text"
-              placeholder="Ej. Emergencia personal"
-              variant="outline"
-              {...register("cancellation_reason")}
-            />
-            <Field.ErrorText>
-              {errors.cancellation_reason?.message}
-            </Field.ErrorText>
-          </Field.Root>
-
-          {/* ¿Cancelado? */}
-          <Field.Root
-            invalid={!!errors.is_cancelled}
-            px={4}
-            w={{ base: "100%", md: "50%" }}
-          >
-            <Field.Label>¿Está cancelada?</Field.Label>
-            <select
-              {...register("is_cancelled")}
-              className="chakra-input css-1c6xhv5"
-              style={{ padding: "0.5rem", borderRadius: "6px" }}
-            >
-              <option value="">Selecciona</option>
-              <option value="true">Sí</option>
-              <option value="false">No</option>
-            </select>
-            <Field.ErrorText>{errors.is_cancelled?.message}</Field.ErrorText>
-          </Field.Root>
-
           {/* ID del paciente */}
+
           <Field.Root
             invalid={!!errors.patient_id}
-            required
             px={4}
             w={{ base: "100%", md: "50%" }}
+            required
           >
-            <Field.Label>ID del paciente</Field.Label>
-            <Input
-              colorPalette="orange"
-              type="number"
-              placeholder="ID del paciente"
-              variant="outline"
-              {...register("patient_id", { valueAsNumber: true })}
-            />
-            <Field.ErrorText>{errors.patient_id?.message}</Field.ErrorText>
+            <Field.Label>Pacientes</Field.Label>
+            <NativeSelect.Root size={"md"}>
+              <NativeSelect.Field
+                placeholder="Selecciona algún paciente registrado"
+                colorPalette={"orange"}
+                {...register("patient_id", {
+                  required: "Escoja un paciente registrado",
+                })}
+              >
+                {props.pacientes.map((paciente) => (
+                  <option key={paciente.id} value={paciente.id}>
+                    {paciente.first_name} {paciente.last_name}
+                  </option>
+                ))}
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+            <Field.ErrorText className="text-sm">
+              {errors.patient_id?.message}
+            </Field.ErrorText>
           </Field.Root>
 
           <Field.Root
             invalid={!!errors.doctor_id}
             px={4}
             w={{ base: "100%", md: "50%" }}
+            required
           >
             <Field.Label>Doctor</Field.Label>
             <NativeSelect.Root size={"md"}>
               <NativeSelect.Field
                 placeholder="Selecciona algún doctor registrado"
                 colorPalette={"orange"}
-                {...register("doctor_id")}
+                {...register("doctor_id", {
+                  required: "Escoja un doctor registrado",
+                })}
               >
                 {props.doctores.map((doctor) => (
                   <option key={doctor.id} value={doctor.id}>
-                    {doctor.first_name}
+                    {doctor.first_name} {doctor.last_name}
                   </option>
                 ))}
               </NativeSelect.Field>

@@ -8,6 +8,9 @@ import { FaEye, FaEdit, FaBan } from "react-icons/fa";
 import { AgGridReact } from "ag-grid-react";
 import { Appointment } from "@prisma/client";
 import { userStatusList } from "../../../../../types/statusList";
+import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
+import { cancel } from "../actions/operations";
+import { toaster } from "../../../../../components/ui/toaster";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function AppointmentsTable({
@@ -19,18 +22,35 @@ export default function AppointmentsTable({
 }) {
   const [rowData, setRowData] = useState<any[]>([]);
   const [colDefs, setColDefs] = useState<ColDef[]>([
-    { field: "id", headerName: "ID" },
     {
       field: "scheduled_on",
       headerName: "Fecha de Registro",
       valueFormatter: (params) =>
-        params.value ? new Date(params.value).toLocaleString() : "",
+        params.value
+          ? new Intl.DateTimeFormat("es-ES", {
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+              timeZone: "UTC",
+            })
+              .format(new Date(params.value))
+              .toString()
+          : "",
     },
     {
       field: "programed_date_time",
       headerName: "Fecha Programada",
       valueFormatter: (params) =>
-        params.value ? new Date(params.value).toLocaleString() : "",
+        params.value
+          ? new Intl.DateTimeFormat("es-ES", {
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+              timeZone: "UTC",
+            })
+              .format(new Date(params.value))
+              .toString()
+          : "",
     },
     { field: "specialty", headerName: "Especialidad", filter: true },
     { field: "reason", headerName: "Motivo", filter: true },
@@ -92,7 +112,7 @@ export default function AppointmentsTable({
               colorPalette="blue"
               variant="outline"
               aria-label="Ver Detalles"
-              //onClick={() => handleViewDetails(params.data)}
+              //onClick={async () => handleViewDetails(params.data)}
             >
               <FaEye color="blue" />
             </IconButton>
@@ -103,7 +123,7 @@ export default function AppointmentsTable({
                 variant="outline"
                 aria-label="Editar"
                 ml={2}
-                //onClick={() => handleEdit(params.data)}
+                //onClick={async () => handleEdit(params.data)}
               >
                 <FaEdit color="orange" />
               </IconButton>
@@ -115,7 +135,7 @@ export default function AppointmentsTable({
                 variant="outline"
                 aria-label="Cancelar"
                 ml={2}
-                //onClick={() => handleCancel(params.data)}
+                onClick={async () => handleCancel(params.data)}
               >
                 <FaBan color="red" />
               </IconButton>
@@ -124,7 +144,33 @@ export default function AppointmentsTable({
         );
       },
     },
+    {
+      field: "created_at",
+      sort: "asc",
+      hide: true,
+    },
   ]);
+  const handleEdit = async () => {};
+  const handleCancel = async (id: number) => {
+    const isConfirmed = await mostrarAlertaConfirmacion({
+      mensaje: "Esta seguro de cancelar esta cita?",
+    });
+    if (isConfirmed) {
+      const res = await cancel({ id: id });
+      if (res.ok) {
+        toaster.create({
+          description: "Éxito al cancelar la cita",
+          type: "success",
+        });
+      } else {
+        toaster.create({
+          description: "Error al cancelar la cita",
+          type: "error",
+        });
+      }
+    }
+  };
+  const handleViewDetails = async () => {};
   useEffect(() => {
     setRowData([...props.citas]);
   }, [props.citas]);
