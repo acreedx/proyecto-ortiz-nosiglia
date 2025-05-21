@@ -3,11 +3,14 @@ import React, { useEffect, useState } from "react";
 import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { Prisma, User } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { AgGridReact } from "ag-grid-react";
-import { IconButton, Image } from "@chakra-ui/react";
-import { FaEdit, FaMoneyBill, FaTrash } from "react-icons/fa";
+import { IconButton, Image, useDialog } from "@chakra-ui/react";
+import { FaMoneyBill, FaScroll } from "react-icons/fa";
+import NextLink from "next/link";
 import { userStatusList } from "../../../../../types/statusList";
+import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
+import EditPayrollForm from "./payroll-edit-form";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function StaffTable({
@@ -16,14 +19,31 @@ export default function StaffTable({
   props: {
     personal: Prisma.UserGetPayload<{
       include: {
-        staff: true;
+        staff: {
+          include: {
+            payroll: true;
+          };
+        };
+        role: true;
       };
     }>[];
   };
 }) {
+  const editDialog = useDialog();
+  const [selectedUser, setselectedUser] = useState<
+    Prisma.UserGetPayload<{
+      include: {
+        staff: {
+          include: {
+            payroll: true;
+          };
+        };
+        role: true;
+      };
+    }>
+  >();
   const [rowData, setRowData] = useState<any[]>([]);
   const [colDefs, setColDefs] = useState<ColDef[]>([
-    { field: "id", headerName: "ID", flex: 0.5 },
     {
       field: "photo_url",
       headerName: "Foto",
@@ -69,6 +89,7 @@ export default function StaffTable({
       headerName: "Fecha de contratación",
       valueFormatter: (params) => params.value.toLocaleDateString(),
     },
+    { field: "role.role_name", headerName: "Rol" },
     {
       field: "actions",
       headerName: "Acciones",
@@ -77,35 +98,38 @@ export default function StaffTable({
         <div className="flex flex-row items-center justify-center w-full">
           <IconButton
             size="sm"
-            colorPalette="orange"
-            variant="outline"
-            aria-label="Editar"
-            //onClick={() => handleEdit(params.data)}
-          >
-            <FaEdit color="orange" />
-          </IconButton>
-          <IconButton
-            size="sm"
-            colorPalette="red"
-            variant="outline"
-            aria-label="Eliminar"
-            ml={2}
-            //onClick={() => handleDelete(params.data)}
-          >
-            <FaTrash color="red" />
-          </IconButton>
-          <IconButton
-            size="sm"
             colorPalette="red"
             variant="outline"
             aria-label="Pagos"
             ml={2}
-            //onClick={() => handleDelete(params.data)}
+            onClick={() => {
+              editDialog.setOpen(true);
+              setselectedUser(params.data);
+            }}
           >
             <FaMoneyBill color="green" />
           </IconButton>
+
+          <NextLink
+            href={`/area-administrativa/personal/qualifications/${params.data.id}`}
+          >
+            <IconButton
+              size="sm"
+              colorPalette="red"
+              variant="outline"
+              aria-label="Pagos"
+              ml={2}
+            >
+              <FaScroll color="golden" />
+            </IconButton>
+          </NextLink>
         </div>
       ),
+    },
+    {
+      field: "created_at",
+      sort: "asc",
+      hide: true,
     },
   ]);
   useEffect(() => {
@@ -137,6 +161,9 @@ export default function StaffTable({
           type: "fitGridWidth",
         }}
       />
+      <EditDialog dialog={editDialog}>
+        <EditPayrollForm user={selectedUser} />
+      </EditDialog>
     </div>
   );
 }

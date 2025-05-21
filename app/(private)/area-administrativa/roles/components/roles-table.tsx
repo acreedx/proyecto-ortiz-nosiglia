@@ -3,24 +3,51 @@ import React, { useEffect, useState } from "react";
 import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { IconButton } from "@chakra-ui/react";
-import { FaEdit, FaTrash } from "react-icons/fa";
-import { Role } from "@prisma/client";
+import { IconButton, useDialog } from "@chakra-ui/react";
+import { FaCheck, FaEdit, FaTrash } from "react-icons/fa";
+import { Permission, Prisma, Role } from "@prisma/client";
 import { AgGridReact } from "ag-grid-react";
 import { userStatusList } from "../../../../../types/statusList";
 import { rolesList } from "../../../../../lib/nextauth/rolesList";
+import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
+import RolesEditForm from "./roles-edit-form";
+import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
+import { eliminate, restore } from "../actions/operations";
+import { toaster } from "../../../../../components/ui/toaster";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function RolesTable({
   props,
 }: {
   props: {
-    roles: Role[];
+    roles: Prisma.RoleGetPayload<{
+      include: {
+        role_permissions: {
+          include: {
+            permission: true;
+          };
+        };
+      };
+    }>[];
+    permissions: Permission[];
   };
 }) {
+  const editDialog = useDialog();
+  const [selectedRole, setselectedRole] = useState<
+    Prisma.RoleGetPayload<{
+      include: {
+        role_permissions: {
+          include: {
+            permission: true;
+          };
+        };
+      };
+    }>
+  >();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [rowData, setRowData] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
-    { field: "id", headerName: "ID", flex: 0.5 },
     { field: "role_name", headerName: "Nombre del Rol", filter: true },
     { field: "description", headerName: "Descripción", filter: true },
     {
@@ -41,6 +68,7 @@ export default function RolesTable({
       field: "actions",
       headerName: "Acciones",
       sortable: false,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: (params: any) => (
         <div className="flex flex-row items-center justify-center w-full">
           {params.data.role_name !== rolesList.ADMINISTRADOR && (
@@ -69,13 +97,13 @@ export default function RolesTable({
               {params.data.status === userStatusList.INACTIVO && (
                 <IconButton
                   size="sm"
-                  colorPalette="red"
+                  colorPalette="green"
                   variant="outline"
                   aria-label="Rehabilitar"
                   ml={2}
                   onClick={async () => handleRestore(params.data)}
                 >
-                  <FaTrash color="red" />
+                  <FaCheck color="green" />
                 </IconButton>
               )}
             </>
@@ -83,15 +111,67 @@ export default function RolesTable({
         </div>
       ),
     },
+    {
+      field: "created_at",
+      sort: "asc",
+      hide: true,
+    },
   ]);
   const handleEdit = async (e: Role) => {
-    console.log(e);
+    setselectedRole(
+      e as Prisma.RoleGetPayload<{
+        include: {
+          role_permissions: {
+            include: {
+              permission: true;
+            };
+          };
+        };
+      }>
+    );
+    editDialog.setOpen(true);
   };
   const handleDelete = async (e: Role) => {
-    console.log(e);
+    const isConfirmed = await mostrarAlertaConfirmacion({
+      mensaje: "Esta seguro de deshabilitar este rol?",
+    });
+    if (isConfirmed) {
+      const res = await eliminate({
+        id: e.id,
+      });
+      if (res.ok) {
+        toaster.create({
+          description: "Rol deshabilitado con éxito",
+          type: "success",
+        });
+      } else {
+        toaster.create({
+          description: "Error al deshabilitar el rol",
+          type: "success",
+        });
+      }
+    }
   };
   const handleRestore = async (e: Role) => {
-    console.log(e);
+    const isConfirmed = await mostrarAlertaConfirmacion({
+      mensaje: "Esta seguro de rehabilitar este rol?",
+    });
+    if (isConfirmed) {
+      const res = await restore({
+        id: e.id,
+      });
+      if (res.ok) {
+        toaster.create({
+          description: "Rol rehabilitado con éxito",
+          type: "success",
+        });
+      } else {
+        toaster.create({
+          description: "Error al rehabilitar el rol",
+          type: "success",
+        });
+      }
+    }
   };
   useEffect(() => {
     setRowData([...props.roles]);
@@ -122,6 +202,14 @@ export default function RolesTable({
           type: "fitGridWidth",
         }}
       />
+      <EditDialog dialog={editDialog}>
+        <RolesEditForm
+          props={{
+            role: selectedRole,
+            permissions: props.permissions,
+          }}
+        />
+      </EditDialog>
     </div>
   );
 }

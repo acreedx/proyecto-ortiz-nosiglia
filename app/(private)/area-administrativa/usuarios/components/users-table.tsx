@@ -23,7 +23,6 @@ export default function UsersTable({
 }) {
   const [rowData, setRowData] = useState<any[]>([]);
   const [colDefs, setColDefs] = useState<ColDef[]>([
-    { field: "id", headerName: "ID", flex: 0.5 },
     {
       field: "photo_url",
       headerName: "Foto",
@@ -83,27 +82,36 @@ export default function UsersTable({
       sortable: false,
       cellRenderer: (params: any) => (
         <div className="flex flex-row items-center justify-center w-full">
-          <IconButton
-            size="sm"
-            colorPalette="orange"
-            variant="outline"
-            aria-label="Editar"
-            //onClick={() => handleEdit(params.data)}
-          >
-            <FaEdit color="orange" />
-          </IconButton>
-          <IconButton
-            size="sm"
-            colorPalette="red"
-            variant="outline"
-            aria-label="Eliminar"
-            ml={2}
-            //onClick={() => handleDelete(params.data)}
-          >
-            <FaTrash color="red" />
-          </IconButton>
+          {!params.data.is_super_admin && (
+            <>
+              <IconButton
+                size="sm"
+                colorPalette="orange"
+                variant="outline"
+                aria-label="Editar"
+                //onClick={() => handleEdit(params.data)}
+              >
+                <FaEdit color="orange" />
+              </IconButton>
+              <IconButton
+                size="sm"
+                colorPalette="red"
+                variant="outline"
+                aria-label="Eliminar"
+                ml={2}
+                //onClick={() => handleDelete(params.data)}
+              >
+                <FaTrash color="red" />
+              </IconButton>
+            </>
+          )}
         </div>
       ),
+    },
+    {
+      field: "created_at",
+      sort: "asc",
+      hide: true,
     },
   ]);
   useEffect(() => {

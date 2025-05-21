@@ -31,7 +31,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new Error("Token inválido");
         }
         const captchaData = await verifyCaptchaToken(token);
-        console.log(captchaData);
         if (!captchaData) {
           throw new Error("Error al verificar el captcha");
         }

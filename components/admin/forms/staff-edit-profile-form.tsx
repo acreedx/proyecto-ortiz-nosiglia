@@ -12,6 +12,7 @@ import {
 import ProfileUploadField from "../../form/common/profileUploadField";
 import SubmitButton from "../../form/common/submitButton";
 import { toaster } from "../../ui/toaster";
+import formatDateLocal from "../../../types/dateFormatter";
 
 export default function EditProfileForm({ user }: { user: User }) {
   const fileUpload = useFileUpload({
@@ -26,7 +27,7 @@ export default function EditProfileForm({ user }: { user: User }) {
     mode: "onChange",
     defaultValues: {
       ...user,
-      birth_date: new Date(user.birth_date).toISOString().split("T")[0],
+      birth_date: formatDateLocal(user.birth_date),
     },
   });
   const onSubmit = async (data: TCreateUserSchema) => {

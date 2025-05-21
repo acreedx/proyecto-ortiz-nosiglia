@@ -1,27 +1,60 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "../../../../../lib/prisma/prisma";
+import {
+  CreateImagingStudySchema,
+  TCreateImagingStudySchema,
+} from "../../../../../lib/zod/z-imaging-study-schemas";
+import { fileUploader } from "../../../../../lib/firebase/file-uploader";
+import { userStatusList } from "../../../../../types/statusList";
+import { files } from "@prisma/client";
+import {
+  EditPatientSchema,
+  TEditPatientSchema,
+} from "../../../../../lib/zod/z-patient-schemas";
+import {
+  EditEmergencyContact,
+  TEditEmergencyContact,
+} from "../../../../../lib/zod/z-emergency-contact";
 
 export async function create({
   data,
+  files,
 }: {
-  data: any;
+  data: TCreateImagingStudySchema;
+  files: File[];
 }): Promise<{ ok: boolean }> {
   try {
-    //const tryParse = OrganizationSchema.safeParse(data);
-    //if (!tryParse.success) {
-    //  return {
-    //    ok: false,
-    //  };
-    //}
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
+    const tryParse = CreateImagingStudySchema.safeParse(data);
+    if (!tryParse.success) {
+      return {
+        ok: false,
+      };
+    }
+    const uploadedFiles: files[] = [];
+    for (const file of files) {
+      const url = await fileUploader(file);
+      uploadedFiles.push({
+        status: userStatusList.ACTIVO,
+        media: url,
+      } as files);
+    }
+    await prisma.imagingStudy.create({
+      data: {
+        description: data.description,
+        cost: Number(data.cost),
+        status: userStatusList.ACTIVO,
+        patient_id: data.patient_id,
+        files: {
+          createMany: {
+            data: uploadedFiles,
+          },
+        },
+      },
+    });
+    revalidatePath(
+      `/area-administrativa/pacientes/imaging-studies/${data.patient_id}`
+    );
     return { ok: true };
   } catch (e) {
     console.log(e);
@@ -63,20 +96,29 @@ export async function editRow({
   }
 }
 
-export async function eliminate({
-  id,
+export async function editPatient({
+  data,
 }: {
-  id: number;
+  data: TEditPatientSchema;
 }): Promise<{ ok: boolean }> {
   try {
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
+    const tryParse = EditPatientSchema.safeParse(data);
+    if (!tryParse.success) {
+      return {
+        ok: false,
+      };
+    }
+    await prisma.patient.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        allergies: data.allergies,
+        preconditions: data.preconditions,
+        organization_id: data.organization_id,
+      },
+    });
+    revalidatePath("/area-administrativa/pacientes");
     return { ok: true };
   } catch (e) {
     console.log(e);
@@ -84,20 +126,46 @@ export async function eliminate({
   }
 }
 
-export async function restore({
-  id,
+export async function editEmergencyContact({
+  data,
 }: {
-  id: number;
+  data: TEditEmergencyContact;
 }): Promise<{ ok: boolean }> {
   try {
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
+    const tryParse = EditEmergencyContact.safeParse(data);
+    if (!tryParse.success) {
+      return {
+        ok: false,
+      };
+    }
+    await prisma.patient.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        emergency_contact: {
+          upsert: {
+            update: {
+              relation: data.relation,
+              name: data.name,
+              phone: data.phone,
+              mobile: data.mobile,
+              address_line: data.address_line,
+              address_city: data.address_city,
+            },
+            create: {
+              relation: data.relation,
+              name: data.name,
+              phone: data.phone,
+              mobile: data.mobile,
+              address_line: data.address_line,
+              address_city: data.address_city,
+            },
+          },
+        },
+      },
+    });
+    revalidatePath("/area-administrativa/pacientes");
     return { ok: true };
   } catch (e) {
     console.log(e);

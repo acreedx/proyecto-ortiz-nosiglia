@@ -1,14 +1,18 @@
 "use client";
-import { Prisma } from "@prisma/client";
+import { Organization, Prisma } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import Image from "next/image";
-import { IconButton } from "@chakra-ui/react";
-import { FaEdit, FaEye, FaFile, FaTrash } from "react-icons/fa";
-import { useRouter } from "next/navigation";
+import { IconButton, useDialog } from "@chakra-ui/react";
+import { FaEdit, FaFile, FaXRay } from "react-icons/fa";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
+import NextLink from "next/link";
+import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
+import EditPatientForm from "./patient-edit-form";
+import { LuSiren } from "react-icons/lu";
+import EmergencyContactEditForm from "./emergency-contact-edit-form";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function PatientTable({
@@ -18,13 +22,28 @@ export default function PatientTable({
     pacientes: Prisma.UserGetPayload<{
       include: {
         role: true;
-        patient: true;
+        patient: {
+          include: {
+            emergency_contact: true;
+          };
+        };
       };
     }>[];
+    organizations: Organization[];
   };
 }) {
-  const router = useRouter();
+  const editDialog = useDialog();
+  const emergencyContactDialog = useDialog();
+  const [selectedPatient, setselectedPatient] = useState<
+    Prisma.PatientGetPayload<{
+      include: {
+        emergency_contact: true;
+      };
+    }>
+  >();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [rowData, setRowData] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
     {
       field: "photo_url",
@@ -33,6 +52,7 @@ export default function PatientTable({
       filter: false,
       sortable: false,
       flex: 1,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: (props: any) => {
         return (
           <Image
@@ -55,7 +75,6 @@ export default function PatientTable({
     { field: "phone", headerName: "Teléfono" },
     { field: "mobile", headerName: "Celular" },
     { field: "address_line", headerName: "Dirección" },
-    { field: "address_city", headerName: "Ciudad" },
     {
       field: "patient.allergies",
       headerName: "Alergias",
@@ -71,6 +90,7 @@ export default function PatientTable({
       headerName: "Acciones",
       filter: false,
       sortable: false,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: (params: any) => {
         return (
           <div>
@@ -78,50 +98,65 @@ export default function PatientTable({
               size="sm"
               colorPalette="orange"
               variant="outline"
-              aria-label="Ver"
+              aria-label="Editar paciente"
               mr={2}
-            >
-              <FaEye color="blue" />
-            </IconButton>
-            <IconButton
-              size="sm"
-              colorPalette="orange"
-              variant="outline"
-              aria-label="Editar"
-              mr={2}
-            >
-              <FaEdit color="orange" />
-            </IconButton>
-            <IconButton
-              size="sm"
-              colorPalette="orange"
-              variant="outline"
-              aria-label="Eliminar"
-              mr={2}
-            >
-              <FaTrash color="red" />
-            </IconButton>
-            <IconButton
-              size="sm"
-              colorPalette="orange"
-              variant="outline"
-              aria-label="Odontograma"
               onClick={() => {
-                router.push(
-                  `/area-administrativa/pacientes/odontograma/${params.data.id}`
-                );
+                editDialog.setOpen(true);
+                setselectedPatient(params.data.patient);
               }}
             >
-              <FaFile color="gray" />
+              <FaEdit color="blue" />
             </IconButton>
+
+            <IconButton
+              size="sm"
+              colorPalette="orange"
+              variant="outline"
+              aria-label="Contacto de emergencia"
+              mr={2}
+              onClick={() => {
+                emergencyContactDialog.setOpen(true);
+                setselectedPatient(params.data.patient);
+              }}
+            >
+              <LuSiren color="red" />
+            </IconButton>
+
+            <NextLink
+              href={`/area-administrativa/pacientes/odontograma/${params.data.id}`}
+            >
+              <IconButton
+                size="sm"
+                colorPalette="orange"
+                variant="outline"
+                aria-label="Odontograma"
+                mr={2}
+              >
+                <FaFile color="gray" />
+              </IconButton>
+            </NextLink>
+            <NextLink
+              href={`/area-administrativa/pacientes/imaging-studies/${params.data.id}`}
+            >
+              <IconButton
+                size="sm"
+                colorPalette="orange"
+                variant="outline"
+                aria-label="Radiografías"
+              >
+                <FaXRay color={"orange"} />
+              </IconButton>
+            </NextLink>
           </div>
         );
       },
     },
   ]);
+
   useEffect(() => {
     setRowData([...props.pacientes]);
   }, [props.pacientes]);
+
   return (
     <div className="w-full h-full mb-4">
       <AgGridReact
@@ -145,6 +180,21 @@ export default function PatientTable({
         suppressCellFocus
         cellSelection={false}
       />
+      <EditDialog dialog={editDialog}>
+        <EditPatientForm
+          props={{
+            patient: selectedPatient,
+            organizations: props.organizations,
+          }}
+        />
+      </EditDialog>
+      <EditDialog dialog={emergencyContactDialog}>
+        <EmergencyContactEditForm
+          props={{
+            patient: selectedPatient,
+          }}
+        />
+      </EditDialog>
     </div>
   );
 }

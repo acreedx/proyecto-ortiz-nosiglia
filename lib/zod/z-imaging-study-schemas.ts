@@ -4,11 +4,9 @@ export const CreateImagingStudySchema = z.object({
     .string()
     .min(1, "La descripción es obligatoria")
     .max(100, "Máximo 100 caracteres"),
-  media: z.string().max(255, "Máximo 255 caracteres").optional(),
   cost: z
-    .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "El costo debe ser un número válido")
-    .optional(),
+    .string({ message: "El costo debe ser válido" })
+    .regex(/^\d+(\.\d{1,2})?$/, "El costo debe ser un número válido"),
   patient_id: z.number({ required_error: "El ID del paciente es obligatorio" }),
 });
 
@@ -22,7 +20,6 @@ export const EditImagingStudySchema = z.object({
     .string()
     .min(1, "La descripción es obligatoria")
     .max(100, "Máximo 100 caracteres"),
-  media: z.string().max(255, "Máximo 255 caracteres").optional(),
   cost: z
     .string()
     .regex(/^\d+(\.\d{1,2})?$/, "El costo debe ser un número válido")

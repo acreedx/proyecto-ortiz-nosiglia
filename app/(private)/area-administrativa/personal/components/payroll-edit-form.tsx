@@ -1,11 +1,4 @@
 "use client";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import {
-  EditOrganizationSchema,
-  TEditOrganizationSchema,
-} from "../../../../../lib/zod/z-organization-schemas";
 import {
   Button,
   CloseButton,
@@ -14,14 +7,32 @@ import {
   Flex,
   Input,
 } from "@chakra-ui/react";
-import { editOrganization } from "../actions/operations";
+import { Prisma } from "@prisma/client";
+import React from "react";
+import { useForm } from "react-hook-form";
+import {
+  EditPayrollSchema,
+  TEditPayrollSchema,
+} from "../../../../../lib/zod/z-payroll-schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { editPayroll } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
-import { Organization } from "@prisma/client";
 
-export default function EditOrganizationsForm({
-  organization,
+export default function EditPayrollForm({
+  user,
 }: {
-  organization: Organization | undefined;
+  user:
+    | Prisma.UserGetPayload<{
+        include: {
+          staff: {
+            include: {
+              payroll: true;
+            };
+          };
+          role: true;
+        };
+      }>
+    | undefined;
 }) {
   const {
     register,
@@ -29,21 +40,24 @@ export default function EditOrganizationsForm({
     formState: { errors, isSubmitting },
     reset,
   } = useForm({
-    resolver: zodResolver(EditOrganizationSchema),
+    resolver: zodResolver(EditPayrollSchema),
     mode: "onChange",
-    defaultValues: organization,
+    defaultValues: {
+      ...user?.staff?.payroll,
+      user_id: user?.id.toString(),
+    },
   });
-  const onSubmit = async (data: TEditOrganizationSchema) => {
-    const res = await editOrganization({ data: data });
+  const onSubmit = async (data: TEditPayrollSchema) => {
+    const res = await editPayroll({ data: data });
     if (res.ok) {
       toaster.create({
-        description: "Organización creada con éxito",
+        description: "Nómina creada con éxito",
         type: "success",
       });
     }
     if (!res.ok) {
       toaster.create({
-        description: "Error al crear la organización",
+        description: "Error al actualizar la nómina",
         type: "error",
       });
       reset();
@@ -52,49 +66,49 @@ export default function EditOrganizationsForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Dialog.Header>
-        <Dialog.Title>Crea una organización</Dialog.Title>
+        <Dialog.Title>Editar la información del personal</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body>
         <Flex wrap="wrap" gapY={4} mb={4} w="full" flexDirection={"row"}>
-          <Input type="hidden" {...register("id")} />
+          <Input type="hidden" {...register("user_id")} />
           <Field.Root
-            invalid={!!errors.name}
+            invalid={!!errors.salary}
             required
             px={4}
             w={{ base: "100%", md: "100%" }}
           >
-            <Field.Label>Nombre</Field.Label>
+            <Field.Label>Salario en bs</Field.Label>
             <Input
               colorPalette="orange"
-              type="text"
+              type="number"
               variant="outline"
-              placeholder="Ingresa el nombre"
-              {...register("name", {
-                required: "El nombre es requerido",
+              placeholder="Ingresa el salario del personal"
+              {...register("salary", {
+                required: "El salario es requerido",
               })}
             />
             <Field.ErrorText className="text-sm">
-              {errors.name?.message}
+              {errors.salary?.message}
             </Field.ErrorText>
           </Field.Root>
           <Field.Root
-            invalid={!!errors.address}
+            invalid={!!errors.bonus}
             required
             px={4}
             w={{ base: "100%", md: "100%" }}
           >
-            <Field.Label>Dirección</Field.Label>
+            <Field.Label>Bonus en bs</Field.Label>
             <Input
               colorPalette="orange"
-              type="text"
+              type="number"
               variant="outline"
-              placeholder="Ingresa una dirección"
-              {...register("address", {
-                required: "La dirección es requerida",
+              placeholder="Ingresa la cantidad de bonus"
+              {...register("bonus", {
+                required: "El bonus es requerido",
               })}
             />
             <Field.ErrorText className="text-sm">
-              {errors.address?.message}
+              {errors.bonus?.message}
             </Field.ErrorText>
           </Field.Root>
         </Flex>

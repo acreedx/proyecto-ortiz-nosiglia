@@ -18,7 +18,12 @@ export default async function Page() {
       },
     },
     include: {
-      staff: true,
+      staff: {
+        include: {
+          payroll: true,
+        },
+      },
+      role: true,
     },
   });
   return (

@@ -13,9 +13,14 @@ export default async function Page() {
     },
     include: {
       role: true,
-      patient: true,
+      patient: {
+        include: {
+          emergency_contact: true,
+        },
+      },
     },
   });
+  const organizations = await prisma.organization.findMany();
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
@@ -23,7 +28,9 @@ export default async function Page() {
         <Heading size="lg" mb={4}>
           Pacientes
         </Heading>
-        <PatientTable props={{ pacientes: pacientes }} />
+        <PatientTable
+          props={{ pacientes: pacientes, organizations: organizations }}
+        />
       </main>
     </CanStaff>
   );

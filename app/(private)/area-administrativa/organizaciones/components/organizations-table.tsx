@@ -12,7 +12,7 @@ import { FaEdit, FaTrash, FaUndo } from "react-icons/fa";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { userStatusList } from "../../../../../types/statusList";
 import { toaster } from "../../../../../components/ui/toaster";
-import EditDialog from "./edit-dialog";
+import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import EditOrganizationsForm from "./organizations-edit-form";
 import {
   eliminateOrganization,
@@ -34,8 +34,8 @@ export default function OrganizationsTable({
 
   //Definición de la tabla
   const [rowData, setRowData] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
-    { field: "id", headerName: "Número" },
     { field: "name", headerName: "Nombre", filter: true },
     { field: "address", headerName: "Dirección", filter: true },
     {
@@ -87,6 +87,11 @@ export default function OrganizationsTable({
           </div>
         );
       },
+    },
+    {
+      field: "created_at",
+      sort: "asc",
+      hide: true,
     },
   ]);
 

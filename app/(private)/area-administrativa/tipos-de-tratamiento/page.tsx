@@ -9,10 +9,6 @@ import TreatmentTypeCreateForm from "./components/treatment-type-create-form";
 
 export default async function Page() {
   const treatments = await prisma.treatment.findMany({});
-  const serializedTreatments = treatments.map((t) => ({
-    ...t,
-    cost_estimation: t.cost_estimation.toNumber(),
-  }));
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
@@ -25,7 +21,7 @@ export default async function Page() {
         </div>
         <TreatmentTypeTable
           props={{
-            treatments: serializedTreatments,
+            treatments: treatments,
           }}
         />
       </main>
