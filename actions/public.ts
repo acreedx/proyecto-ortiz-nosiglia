@@ -28,7 +28,7 @@ export async function createUser({
 }: {
   data: TCreateUserSchema;
   image: File | undefined;
-}): Promise<{ ok: boolean }> {
+}): Promise<{ ok: boolean; message?: string }> {
   try {
     if (!data.token) {
       return {
@@ -39,6 +39,17 @@ export async function createUser({
     if (!tryParse.success) {
       return {
         ok: false,
+      };
+    }
+    const isAnyUserWithId = await prisma.user.findFirst({
+      where: {
+        identification: data.identification.toString(),
+      },
+    });
+    if (isAnyUserWithId) {
+      return {
+        ok: false,
+        message: "Ya existe un usuario con ese carnet de identidad",
       };
     }
     const generatedPassword = generateStrongPassword(12);

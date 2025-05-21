@@ -14,12 +14,23 @@ export async function create({
   data,
 }: {
   data: TRoleSchema;
-}): Promise<{ ok: boolean }> {
+}): Promise<{ ok: boolean; message?: string }> {
   try {
     const tryParse = RoleSchema.safeParse(data);
     if (!tryParse.success) {
       return {
         ok: false,
+      };
+    }
+    const isAnyRolWithSameName = await prisma.role.findFirst({
+      where: {
+        role_name: data.role_name,
+      },
+    });
+    if (isAnyRolWithSameName) {
+      return {
+        ok: false,
+        message: "Ya existe un rol con ese nombre",
       };
     }
     await prisma.$transaction(async (tx) => {
@@ -50,12 +61,26 @@ export async function edit({
   data,
 }: {
   data: TEditRoleSchema;
-}): Promise<{ ok: boolean }> {
+}): Promise<{ ok: boolean; message?: string }> {
   try {
     const tryParse = EditRoleSchema.safeParse(data);
     if (!tryParse.success) {
       return {
         ok: false,
+      };
+    }
+    const isAnyRolWithSameName = await prisma.role.findFirst({
+      where: {
+        role_name: data.role_name,
+        NOT: {
+          id: data.id,
+        },
+      },
+    });
+    if (isAnyRolWithSameName) {
+      return {
+        ok: false,
+        message: "Ya existe un rol con ese nombre",
       };
     }
     if (data.role_name === rolesList.ADMINISTRADOR && data.id === 3) {

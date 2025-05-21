@@ -1,56 +1,64 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import {
   Dialog,
   Flex,
+  Field,
   Button,
   CloseButton,
   Input,
-  Field,
   Textarea,
 } from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Treatment } from "@prisma/client";
 import React from "react";
+import { useForm } from "react-hook-form";
 import { toaster } from "../../../../../components/ui/toaster";
+import { edit } from "../actions/operations";
 import {
-  CreateTreatmentSchema,
-  TCreateTreatmentSchema,
+  EditTreatmentSchema,
+  TEditTreatmentSchema,
 } from "../../../../../lib/zod/z-treatment-schemas";
-import { create } from "../actions/operations";
 
-export default function TreatmentTypeCreateForm() {
+export default function TreatmentTypeEditForm({
+  props,
+}: {
+  props: {
+    treatment: Treatment | undefined;
+  };
+}) {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm({
-    resolver: zodResolver(CreateTreatmentSchema),
+  } = useForm<TEditTreatmentSchema>({
+    resolver: zodResolver(EditTreatmentSchema),
     mode: "onChange",
+    defaultValues: props.treatment,
   });
-  const onSubmit = async (data: TCreateTreatmentSchema) => {
-    const res = await create({ data: data });
+  const onSubmit = async (data: TEditTreatmentSchema) => {
+    const res = await edit({ data: data });
     if (res.ok) {
       toaster.create({
-        description: "Tratamiento creado con éxito",
+        description: "Rol editado con éxito",
         type: "success",
       });
-      reset();
-    }
-    if (!res.ok) {
+    } else {
       toaster.create({
-        description: "Error al crear el tratamiento",
+        description: "Error al editar el rol",
         type: "error",
       });
+      reset();
     }
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Dialog.Header>
-        <Dialog.Title>Crear un tipo de tratamiento</Dialog.Title>
+        <Dialog.Title>Editar un Rol</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body>
         <Flex wrap="wrap" gapY={4} mb={4} w="full">
+          <Input type="hidden" {...register("id")} />
           <Field.Root
             invalid={!!errors.treatment_type}
             required
@@ -168,7 +176,7 @@ export default function TreatmentTypeCreateForm() {
           <Button variant="outline">Cancelar</Button>
         </Dialog.ActionTrigger>
         <Button type="submit" loading={isSubmitting}>
-          Crear
+          Editar
         </Button>
       </Dialog.Footer>
       <Dialog.CloseTrigger asChild>

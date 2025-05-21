@@ -10,7 +10,15 @@ import { userStatusList } from "../../../../types/statusList";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
 
 export default async function Page() {
-  const carePlans = await prisma.carePlan.findMany({});
+  const carePlans = await prisma.carePlan.findMany({
+    include: {
+      patient: {
+        include: {
+          user: true,
+        },
+      },
+    },
+  });
   const pacientes = await prisma.user.findMany({
     where: {
       status: userStatusList.ACTIVO,
@@ -22,9 +30,9 @@ export default async function Page() {
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
-        <BreadCrumb pageName="Tratamientos" />
+        <BreadCrumb pageName="Tratamientos asignados" />
         <div className="flex flex-row w-full items-center justify-between">
-          <Heading>Tratamientos</Heading>
+          <Heading>Tratamientos asignados</Heading>
           <CreateDialog>
             <TreatmentsCreateForm props={{ pacientes: pacientes }} />
           </CreateDialog>

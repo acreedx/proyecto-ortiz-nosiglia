@@ -33,7 +33,7 @@ export default async function Page() {
             />
           </CreateLargeDialog>
         </div>
-        <UsersTable props={{ usuarios: usuarios }} />
+        <UsersTable props={{ usuarios: usuarios, roles: roles }} />
       </main>
     </CanStaff>
   );

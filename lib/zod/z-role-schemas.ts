@@ -14,7 +14,9 @@ export const RoleSchema = z.object({
     .min(1, "La descripción del rol es requerida")
     .max(100, "El tamaño máximo de carácteres es de 100"),
   permissions: z
-    .array(z.coerce.number())
+    .array(z.coerce.number(), {
+      message: "Debes seleccionar al menos un permiso",
+    })
     .min(1, "Debes seleccionar al menos un permiso"),
 });
 

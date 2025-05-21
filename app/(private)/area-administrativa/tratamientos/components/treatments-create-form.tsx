@@ -43,8 +43,7 @@ export default function TreatmentsCreateForm({
         type: "success",
       });
       reset();
-    }
-    if (!res.ok) {
+    } else {
       toaster.create({
         description: "Error al crear el tratamiento",
         type: "error",

@@ -3,11 +3,16 @@ import React, { useEffect, useState } from "react";
 import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { IconButton, Image } from "@chakra-ui/react";
-import { FaEdit, FaTrash } from "react-icons/fa";
-import { Prisma } from "@prisma/client";
+import { IconButton, Image, useDialog } from "@chakra-ui/react";
+import { FaCheck, FaEdit, FaTrash } from "react-icons/fa";
+import { Prisma, Role } from "@prisma/client";
 import { AgGridReact } from "ag-grid-react";
 import { userStatusList } from "../../../../../types/statusList";
+import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
+import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
+import { toaster } from "../../../../../components/ui/toaster";
+import { eliminate, restore } from "../actions/operations";
+import UsersEditForm from "./users-edit-form";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function UsersTable({
@@ -19,8 +24,17 @@ export default function UsersTable({
         role: true;
       };
     }>[];
+    roles: Role[];
   };
 }) {
+  const editDialog = useDialog();
+  const [selectedUser, setselectedUser] = useState<
+    Prisma.UserGetPayload<{
+      include: {
+        role: true;
+      };
+    }>
+  >();
   const [rowData, setRowData] = useState<any[]>([]);
   const [colDefs, setColDefs] = useState<ColDef[]>([
     {
@@ -47,7 +61,16 @@ export default function UsersTable({
       field: "birth_date",
       headerName: "Fecha de Nacimiento",
       valueFormatter: (params) =>
-        params.value ? new Date(params.value).toLocaleDateString() : "—",
+        params.value
+          ? new Intl.DateTimeFormat("es-ES", {
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+              timeZone: "UTC",
+            })
+              .format(new Date(params.value))
+              .toString()
+          : "—",
     },
     { field: "phone", headerName: "Teléfono" },
     { field: "mobile", headerName: "Celular" },
@@ -84,25 +107,44 @@ export default function UsersTable({
         <div className="flex flex-row items-center justify-center w-full">
           {!params.data.is_super_admin && (
             <>
-              <IconButton
-                size="sm"
-                colorPalette="orange"
-                variant="outline"
-                aria-label="Editar"
-                //onClick={() => handleEdit(params.data)}
-              >
-                <FaEdit color="orange" />
-              </IconButton>
-              <IconButton
-                size="sm"
-                colorPalette="red"
-                variant="outline"
-                aria-label="Eliminar"
-                ml={2}
-                //onClick={() => handleDelete(params.data)}
-              >
-                <FaTrash color="red" />
-              </IconButton>
+              {params.data.status === userStatusList.ACTIVO && (
+                <IconButton
+                  size="sm"
+                  colorPalette="orange"
+                  variant="outline"
+                  aria-label="Editar"
+                  onClick={() => {
+                    editDialog.setOpen(true);
+                    setselectedUser(params.data);
+                  }}
+                >
+                  <FaEdit color="orange" />
+                </IconButton>
+              )}
+              {params.data.status === userStatusList.ACTIVO && (
+                <IconButton
+                  size="sm"
+                  colorPalette="red"
+                  variant="outline"
+                  aria-label="Deshabilitar"
+                  ml={2}
+                  onClick={async () => handleDelete(params.data.id)}
+                >
+                  <FaTrash color="red" />
+                </IconButton>
+              )}
+              {params.data.status === userStatusList.INACTIVO && (
+                <IconButton
+                  size="sm"
+                  colorPalette="red"
+                  variant="outline"
+                  aria-label="Rehabilitar"
+                  ml={2}
+                  onClick={async () => handleRestore(params.data.id)}
+                >
+                  <FaCheck color="green" />
+                </IconButton>
+              )}
             </>
           )}
         </div>
@@ -117,7 +159,44 @@ export default function UsersTable({
   useEffect(() => {
     setRowData([...props.usuarios]);
   }, [props.usuarios]);
-
+  const handleDelete = async (id: number) => {
+    const isConfirmed = await mostrarAlertaConfirmacion({
+      mensaje: "Esta seguro de deshabilitar al usuario?",
+    });
+    if (isConfirmed) {
+      const res = await eliminate({ id: id });
+      if (res.ok) {
+        toaster.create({
+          description: "Usuario deshabilitado con éxito",
+          type: "success",
+        });
+      } else {
+        toaster.create({
+          description: "Error al deshabilitar al usuario",
+          type: "error",
+        });
+      }
+    }
+  };
+  const handleRestore = async (id: number) => {
+    const isConfirmed = await mostrarAlertaConfirmacion({
+      mensaje: "Esta seguro de rehabilitar al usuario?",
+    });
+    if (isConfirmed) {
+      const res = await restore({ id: id });
+      if (res.ok) {
+        toaster.create({
+          description: "Usuario deshabilitado con éxito",
+          type: "success",
+        });
+      } else {
+        toaster.create({
+          description: "Error al deshabilitar al usuario",
+          type: "error",
+        });
+      }
+    }
+  };
   return (
     <div className="w-full h-full mb-4 pt-4">
       <AgGridReact
@@ -144,6 +223,14 @@ export default function UsersTable({
           type: "fitGridWidth",
         }}
       />
+      <EditDialog dialog={editDialog}>
+        <UsersEditForm
+          props={{
+            user: selectedUser,
+            roles: props.roles,
+          }}
+        />
+      </EditDialog>
     </div>
   );
 }

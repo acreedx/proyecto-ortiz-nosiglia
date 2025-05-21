@@ -14,6 +14,10 @@ import { sendEmail } from "../../../../../lib/nodemailer/mailer";
 import { userStatusList } from "../../../../../types/statusList";
 import { rolesList } from "../../../../../lib/nextauth/rolesList";
 import { billingStatus } from "../../../../../types/billingStatus";
+import {
+  EditUserSchema,
+  TEditUserSchema,
+} from "../../../../../lib/zod/z-user-schemas";
 
 export async function create({
   data,
@@ -270,22 +274,55 @@ export async function create({
   }
 }
 
-export async function edit({ data }: { data: any }): Promise<{ ok: boolean }> {
+export async function edit({
+  data,
+  image,
+}: {
+  data: TEditUserSchema;
+  image: File | undefined;
+}): Promise<{ ok: boolean; errorMessage?: string }> {
   try {
-    //const tryParse = OrganizationSchema.safeParse(data);
-    //if (!tryParse.success) {
-    //  return {
-    //    ok: false,
-    //  };
-    //}
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
+    const tryParse = EditUserSchema.safeParse(data);
+    if (!tryParse.success) {
+      return {
+        ok: false,
+      };
+    }
+    const isAnyUserWithId = await prisma.user.findFirst({
+      where: {
+        identification: data.identification.toString(),
+        NOT: {
+          id: data.id,
+        },
+      },
+    });
+    if (isAnyUserWithId) {
+      return {
+        ok: false,
+        errorMessage: "Ya existe un usuario con ese Carnet de identidad",
+      };
+    }
+    await prisma.user.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        identification: data.identification.toString(),
+        first_name: data.first_name,
+        last_name: data.last_name,
+        birth_date: new Date(data.birth_date),
+        phone: data.phone.toString(),
+        mobile: data.mobile.toString(),
+        email: data.email,
+        address_line: data.address_line,
+        address_city: data.address_city,
+        ...(image && {
+          photo_url: await uploadProfileImage(image),
+        }),
+        role_id: data.rol_id,
+      },
+    });
+    revalidatePath("/area-administrativa/usuarios");
     return { ok: true };
   } catch (e) {
     console.log(e);
@@ -299,14 +336,15 @@ export async function eliminate({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
+    await prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: {
+        status: userStatusList.INACTIVO,
+      },
+    });
+    revalidatePath("/area-administrativa/usuarios");
     return { ok: true };
   } catch (e) {
     console.log(e);
@@ -320,14 +358,15 @@ export async function restore({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
+    await prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: {
+        status: userStatusList.ACTIVO,
+      },
+    });
+    revalidatePath("/area-administrativa/usuarios");
     return { ok: true };
   } catch (e) {
     console.log(e);

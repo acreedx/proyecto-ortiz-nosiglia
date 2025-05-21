@@ -3,10 +3,15 @@ import React, { useEffect, useState } from "react";
 import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { IconButton } from "@chakra-ui/react";
+import { IconButton, useDialog } from "@chakra-ui/react";
 import { FaEdit, FaTrash, FaUndo } from "react-icons/fa";
 import { CarePlan } from "@prisma/client";
 import { AgGridReact } from "ag-grid-react";
+import { userStatusList } from "../../../../../types/statusList";
+import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
+import { eliminate, restore } from "../actions/operations";
+import { toaster } from "../../../../../components/ui/toaster";
+import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function TreatmentsTable({
@@ -16,9 +21,12 @@ export default function TreatmentsTable({
     careplans: CarePlan[];
   };
 }) {
+  const editDialog = useDialog();
+  const [selectedTreatment, setselectedTreatment] = useState<CarePlan>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [rowData, setRowData] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
-    { field: "id", headerName: "ID" },
     {
       field: "treatment_type",
       headerName: "Tipo de Tratamiento",
@@ -60,6 +68,14 @@ export default function TreatmentsTable({
       valueFormatter: (params) => params.value ?? "—",
     },
     {
+      field: "patient.user.first_name",
+      headerName: "Paciente",
+      cellRenderer: (params: any) => {
+        return `
+          ${params.data.patient.user.first_name} ${params.data.patient.user.last_name}`;
+      },
+    },
+    {
       field: "cost",
       headerName: "Costo",
       valueFormatter: (params) =>
@@ -72,12 +88,10 @@ export default function TreatmentsTable({
       headerName: "Estado",
       valueFormatter: (params) => {
         switch (params.value) {
-          case "A":
+          case userStatusList.ACTIVO:
             return "Activo";
-          case "I":
+          case userStatusList.INACTIVO:
             return "Inactivo";
-          case "C":
-            return "Completado";
           default:
             return "—";
         }
@@ -87,38 +101,41 @@ export default function TreatmentsTable({
       field: "actions",
       headerName: "Acciones",
       sortable: false,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: (params: any) => {
         return (
           <div className="flex flex-row items-center justify-center w-full">
-            <IconButton
-              size="sm"
-              colorPalette="orange"
-              variant="outline"
-              aria-label="Editar"
-              onClick={() => handleEdit(params.data)}
-            >
-              <FaEdit color="orange" />
-            </IconButton>
-            {params.data.status === "A" && (
+            {params.data.status === userStatusList.ACTIVO && (
+              <IconButton
+                size="sm"
+                colorPalette="orange"
+                variant="outline"
+                aria-label="Editar"
+                onClick={() => handleEdit(params.data)}
+              >
+                <FaEdit color="orange" />
+              </IconButton>
+            )}
+            {params.data.status === userStatusList.ACTIVO && (
               <IconButton
                 size="sm"
                 colorPalette="red"
                 variant="outline"
                 aria-label="Desactivar"
                 ml={2}
-                onClick={() => handleDeactivate(params.data)}
+                onClick={async () => handleDelete(params.data.id)}
               >
                 <FaTrash color="red" />
               </IconButton>
             )}
-            {params.data.status === "I" && (
+            {params.data.status === userStatusList.INACTIVO && (
               <IconButton
                 size="sm"
                 colorPalette="green"
                 variant="outline"
                 aria-label="Reactivar"
                 ml={2}
-                onClick={() => handleReactivate(params.data)}
+                onClick={async () => handleRestore(params.data.id)}
               >
                 <FaUndo color="green" />
               </IconButton>
@@ -127,7 +144,58 @@ export default function TreatmentsTable({
         );
       },
     },
+    {
+      field: "created_at",
+      sort: "asc",
+      hide: true,
+    },
   ]);
+  const handleEdit = (tratamiento: CarePlan) => {
+    editDialog.setOpen(true);
+    setselectedTreatment(tratamiento);
+  };
+  const handleDelete = async (id: number) => {
+    const isConfirmed = await mostrarAlertaConfirmacion({
+      mensaje: "Esta seguro de deshabilitar este tratamiento?",
+    });
+    if (isConfirmed) {
+      const res = await eliminate({
+        id: id,
+      });
+      if (res.ok) {
+        toaster.create({
+          description: "Tratamiento deshabiltado con éxito",
+          type: "success",
+        });
+      } else {
+        toaster.create({
+          description: "Error al deshabilitar el tratamiento",
+          type: "error",
+        });
+      }
+    }
+  };
+  const handleRestore = async (id: number) => {
+    const isConfirmed = await mostrarAlertaConfirmacion({
+      mensaje: "Esta seguro de rehabilitar este tratamiento?",
+    });
+    if (isConfirmed) {
+      const res = await restore({
+        id: id,
+      });
+      if (res.ok) {
+        toaster.create({
+          description: "Tratamiento rehabilitado con éxito",
+          type: "success",
+        });
+      } else {
+        toaster.create({
+          description: "Error al rehabilitado el tratamiento",
+          type: "error",
+        });
+      }
+    }
+  };
   useEffect(() => {
     setRowData([...props.careplans]);
   }, [props.careplans]);
@@ -157,6 +225,9 @@ export default function TreatmentsTable({
           type: "fitGridWidth",
         }}
       />
+      <EditDialog dialog={editDialog}>
+        <div>{selectedTreatment?.title}</div>
+      </EditDialog>
     </div>
   );
 }

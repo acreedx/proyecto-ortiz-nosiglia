@@ -13,16 +13,22 @@ export const CreateTreatmentSchema = z.object({
     .string()
     .min(1, "La descripción del tratamiento es requerida")
     .max(200, "El tamaño máximo de carácteres es de 200"),
-  estimated_appointments: z
-    .number()
+  estimated_appointments: z.coerce
+    .number({
+      message: "Ingresa un número válido",
+    })
     .int("El número de citas estimadas debe ser un número entero")
     .positive("El número de citas estimadas debe ser positivo"),
-  days_between_appointments: z
-    .number()
+  days_between_appointments: z.coerce
+    .number({
+      message: "Ingresa un número válido",
+    })
     .int("El número de días entre citas debe ser un número entero")
     .positive("El número de días entre citas debe ser positivo"),
-  cost_estimation: z
-    .number()
+  cost_estimation: z.coerce
+    .number({
+      message: "Ingresa un número válido",
+    })
     .min(0, "La estimación de costos debe ser un número positivo"),
 });
 
@@ -42,21 +48,23 @@ export const EditTreatmentSchema = z.object({
     .string()
     .min(1, "La descripción del tratamiento es requerida")
     .max(200, "El tamaño máximo de carácteres es de 200"),
-  estimated_appointments: z
-    .number()
+  estimated_appointments: z.coerce
+    .number({
+      message: "Ingresa un número válido",
+    })
     .int("El número de citas estimadas debe ser un número entero")
     .positive("El número de citas estimadas debe ser positivo"),
-  days_between_appointments: z
-    .number()
+  days_between_appointments: z.coerce
+    .number({
+      message: "Ingresa un número válido",
+    })
     .int("El número de días entre citas debe ser un número entero")
     .positive("El número de días entre citas debe ser positivo"),
-  cost_estimation: z
-    .number()
+  cost_estimation: z.coerce
+    .number({
+      message: "Ingresa un número válido",
+    })
     .min(0, "La estimación de costos debe ser un número positivo"),
-  status: z
-    .string()
-    .max(1, "El tamaño máximo del estado es de 1 carácter")
-    .optional(),
 });
 
 export type TEditTreatmentSchema = z.infer<typeof EditTreatmentSchema>;

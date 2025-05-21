@@ -61,10 +61,9 @@ export default function CreatePatientForm({
         });
         reset();
         router.push("/login");
-      }
-      if (!res.ok) {
+      } else {
         toaster.create({
-          description: "Error al crear el usuario",
+          description: res.message ? res.message : "Error al crear el usuario",
           type: "error",
         });
       }

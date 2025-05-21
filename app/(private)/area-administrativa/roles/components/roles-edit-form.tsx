@@ -65,7 +65,7 @@ export default function RolesEditForm({
       });
     } else {
       toaster.create({
-        description: "Error al editar el rol",
+        description: res.message ? res.message : "Error al editar el rol",
         type: "error",
       });
       reset();

@@ -46,7 +46,7 @@ export default function RolesCreateForm({
     }
     if (!res.ok) {
       toaster.create({
-        description: "Error al crear el rol",
+        description: res.message ? res.message : "Error al crear el rol",
         type: "error",
       });
     }

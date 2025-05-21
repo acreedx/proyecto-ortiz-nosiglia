@@ -27,11 +27,13 @@ export const CreateCarePlanSchema = z.object({
     required_error: "Los días entre citas son obligatorios",
   }),
   total_appointments: z.number().optional(),
-  cost: z
-    .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "El costo debe ser un número válido"),
-  patient_id: z
-    .string({ message: "El paciente es obligatorio" })
-    .transform((val) => parseInt(val, 10)),
+  cost: z.coerce
+    .number({
+      message: "Ingresa un número válido",
+    })
+    .min(0, "El costo debe ser un número positivo"),
+  patient_id: z.coerce.number({
+    required_error: "El ID del paciente es obligatorio",
+  }),
 });
 export type TCreateCarePlanSchema = z.infer<typeof CreateCarePlanSchema>;
