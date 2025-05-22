@@ -10,7 +10,24 @@ import { userStatusList } from "../../../../types/statusList";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
 
 export default async function Page() {
-  const appointments = await prisma.appointment.findMany();
+  const appointments = await prisma.appointment.findMany({
+    include: {
+      patient: {
+        include: {
+          user: true,
+        },
+      },
+      doctor: {
+        include: {
+          staff: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      },
+    },
+  });
   const doctores = await prisma.user.findMany({
     where: {
       status: userStatusList.ACTIVO,
@@ -45,6 +62,7 @@ export default async function Page() {
         <AppointmentsTable
           props={{
             citas: appointments,
+            doctores: doctores,
           }}
         />
       </main>

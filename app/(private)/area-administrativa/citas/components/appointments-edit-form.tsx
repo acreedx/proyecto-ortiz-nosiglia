@@ -1,31 +1,34 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import {
   Dialog,
-  Flex,
   Button,
   CloseButton,
   Field,
+  Flex,
   Input,
   NativeSelect,
   Textarea,
 } from "@chakra-ui/react";
+import { Appointment, User } from "@prisma/client";
 import React from "react";
-import { toaster } from "../../../../../components/ui/toaster";
+import { useForm } from "react-hook-form";
 import {
-  CreateAppointmentSchema,
-  TCreateAppointmentSchema,
+  EditAppointmentSchema,
+  TEditAppointmentSchema,
 } from "../../../../../lib/zod/z-appointment-schemas";
-import { create } from "../actions/operations";
-import { User } from "@prisma/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { edit } from "../actions/operations";
+import { toaster } from "../../../../../components/ui/toaster";
+import formatDateLocal, {
+  formatDateTimeLocal,
+} from "../../../../../types/dateFormatter";
 
-export default function AppointmentsCreateForm({
+export default function AppointmentsEditForm({
   props,
 }: {
   props: {
+    selectedAppointment: Appointment | undefined;
     doctores: User[];
-    pacientes: User[];
   };
 }) {
   const {
@@ -34,32 +37,42 @@ export default function AppointmentsCreateForm({
     formState: { errors, isSubmitting },
     reset,
   } = useForm({
-    resolver: zodResolver(CreateAppointmentSchema),
+    resolver: zodResolver(EditAppointmentSchema),
     mode: "onChange",
+    defaultValues: {
+      ...props.selectedAppointment,
+      programed_date_time: props.selectedAppointment
+        ? formatDateTimeLocal(props.selectedAppointment?.programed_date_time)
+        : undefined,
+      note: props.selectedAppointment?.note ?? undefined,
+      patient_instruction:
+        props.selectedAppointment?.patient_instruction ?? undefined,
+    },
   });
-  const onSubmit = async (data: TCreateAppointmentSchema) => {
-    const res = await create({ data: data });
+  const onSubmit = async (data: TEditAppointmentSchema) => {
+    const res = await edit({ data: data });
     if (res.ok) {
       toaster.create({
-        description: "Cita creada con éxito",
+        description: "Cita editada con éxito",
         type: "success",
       });
-      reset();
     }
     if (!res.ok) {
       toaster.create({
-        description: "Error al crear la cita",
+        description: "Error al editar la cita",
         type: "error",
       });
+      reset();
     }
   };
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="h-full">
+    <form onSubmit={handleSubmit(onSubmit)}>
       <Dialog.Header>
-        <Dialog.Title>Crea una cita</Dialog.Title>
+        <Dialog.Title>Edita la información del paciente</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body>
         <Flex wrap="wrap" gapY={4} mb={4} w="full">
+          <Input type="hidden" {...register("id")} />
           {/* Fecha programada */}
           <Field.Root
             invalid={!!errors.programed_date_time}
@@ -151,35 +164,6 @@ export default function AppointmentsCreateForm({
             </Field.ErrorText>
           </Field.Root>
         </Flex>
-        {/* ID del paciente */}
-
-        <Field.Root
-          invalid={!!errors.patient_id}
-          px={4}
-          w={{ base: "100%", md: "100%" }}
-          required
-        >
-          <Field.Label>Pacientes</Field.Label>
-          <NativeSelect.Root size={"md"}>
-            <NativeSelect.Field
-              placeholder="Selecciona algún paciente registrado"
-              colorPalette={"orange"}
-              {...register("patient_id", {
-                required: "Escoja un paciente registrado",
-              })}
-            >
-              {props.pacientes.map((paciente) => (
-                <option key={paciente.id} value={paciente.id}>
-                  {paciente.first_name} {paciente.last_name}
-                </option>
-              ))}
-            </NativeSelect.Field>
-            <NativeSelect.Indicator />
-          </NativeSelect.Root>
-          <Field.ErrorText className="text-sm">
-            {errors.patient_id?.message}
-          </Field.ErrorText>
-        </Field.Root>
 
         <Field.Root
           invalid={!!errors.doctor_id}
@@ -215,7 +199,7 @@ export default function AppointmentsCreateForm({
           <Button variant="outline">Cancelar</Button>
         </Dialog.ActionTrigger>
         <Button type="submit" loading={isSubmitting}>
-          Crear
+          Editar
         </Button>
       </Dialog.Footer>
       <Dialog.CloseTrigger asChild>

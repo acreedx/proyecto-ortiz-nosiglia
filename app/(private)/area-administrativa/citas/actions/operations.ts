@@ -3,7 +3,9 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "../../../../../lib/prisma/prisma";
 import {
   CreateAppointmentSchema,
+  EditAppointmentSchema,
   TCreateAppointmentSchema,
+  TEditAppointmentSchema,
 } from "../../../../../lib/zod/z-appointment-schemas";
 import { appointmentStatusList } from "../../../../../types/statusList";
 
@@ -60,22 +62,44 @@ export async function create({
   }
 }
 
-export async function edit({ data }: { data: any }): Promise<{ ok: boolean }> {
+export async function edit({
+  data,
+}: {
+  data: TEditAppointmentSchema;
+}): Promise<{ ok: boolean }> {
   try {
-    //const tryParse = OrganizationSchema.safeParse(data);
-    //if (!tryParse.success) {
-    //  return {
-    //    ok: false,
-    //  };
-    //}
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
+    const tryParse = EditAppointmentSchema.safeParse(data);
+    if (!tryParse.success) {
+      return {
+        ok: false,
+      };
+    }
+    const userDoctor = await prisma.user.findUnique({
+      where: {
+        id: data.doctor_id,
+      },
+      include: {
+        staff: {
+          include: {
+            doctor: true,
+          },
+        },
+      },
+    });
+    await prisma.appointment.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        programed_date_time: new Date(data.programed_date_time),
+        specialty: data.specialty,
+        reason: data.reason,
+        note: data.note,
+        patient_instruction: data.patient_instruction,
+        doctor_id: userDoctor!.staff!.doctor!.id,
+      },
+    });
+    revalidatePath("/area-administrativa/citas");
     return { ok: true };
   } catch (e) {
     console.log(e);

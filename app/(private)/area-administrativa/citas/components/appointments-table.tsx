@@ -3,40 +3,63 @@ import React, { useEffect, useState } from "react";
 import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { IconButton } from "@chakra-ui/react";
-import { FaEye, FaEdit, FaBan } from "react-icons/fa";
+import { IconButton, useDialog } from "@chakra-ui/react";
+import {
+  FaEye,
+  FaEdit,
+  FaBan,
+  FaTrash,
+  FaPen,
+  FaCheck,
+  FaUserTimes,
+  FaCalendarCheck,
+} from "react-icons/fa";
 import { AgGridReact } from "ag-grid-react";
-import { Appointment } from "@prisma/client";
-import { userStatusList } from "../../../../../types/statusList";
+import { Appointment, Prisma, User } from "@prisma/client";
+import {
+  appointmentStatusList,
+  userStatusList,
+} from "../../../../../types/statusList";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
-import { cancel } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
+import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
+import {
+  cancelAppointment,
+  confirmAppointment,
+  markAppointmentNotAssisted,
+} from "../actions/operations";
+import AppointmentsEditForm from "./appointments-edit-form";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function AppointmentsTable({
   props,
 }: {
   props: {
-    citas: Appointment[];
+    citas: Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true;
+          };
+        };
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true;
+              };
+            };
+          };
+        };
+      };
+    }>[];
+    doctores: User[];
   };
 }) {
+  const editDialog = useDialog();
+  const [selectedAppointment, setselectedAppointment] = useState<Appointment>();
   const [rowData, setRowData] = useState<any[]>([]);
   const [colDefs, setColDefs] = useState<ColDef[]>([
-    {
-      field: "scheduled_on",
-      headerName: "Fecha de Registro",
-      valueFormatter: (params) =>
-        params.value
-          ? new Intl.DateTimeFormat("es-ES", {
-              day: "numeric",
-              month: "numeric",
-              year: "numeric",
-              timeZone: "UTC",
-            })
-              .format(new Date(params.value))
-              .toString()
-          : "",
-    },
     {
       field: "programed_date_time",
       headerName: "Fecha Programada",
@@ -46,7 +69,10 @@ export default function AppointmentsTable({
               day: "numeric",
               month: "numeric",
               year: "numeric",
-              timeZone: "UTC",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false, // para formato 24h
+              // timeZone: "UTC",  // eliminar si quieres hora local
             })
               .format(new Date(params.value))
               .toString()
@@ -67,21 +93,18 @@ export default function AppointmentsTable({
       valueFormatter: (params) => params.value ?? "—",
     },
     {
-      field: "cancellation_date",
-      headerName: "Fecha de Cancelación",
-      valueFormatter: (params) =>
-        params.value ? new Date(params.value).toLocaleString() : "—",
-    },
-    {
-      field: "cancellation_reason",
-      headerName: "Motivo Cancelación",
+      field: "doctor.staff.user.first_name",
+      headerName: "Doctor",
       filter: true,
-      valueFormatter: (params) => params.value ?? "—",
+      valueFormatter: (params) =>
+        params.value + " " + params.data.doctor.staff.user.last_name,
     },
     {
-      field: "is_cancelled",
-      headerName: "Cancelado",
-      valueFormatter: (params) => (params.value ? "Sí" : "No"),
+      field: "patient.user.first_name",
+      headerName: "Paciente",
+      filter: true,
+      valueFormatter: (params) =>
+        params.value + " " + params.data.patient.user.last_name,
     },
     {
       field: "status",
@@ -89,12 +112,16 @@ export default function AppointmentsTable({
       filter: true,
       valueFormatter: (params) => {
         switch (params.value) {
-          case userStatusList.ACTIVO:
-            return "Activo";
-          case userStatusList.BLOQUEADO:
-            return "Cancelado";
-          case userStatusList.INACTIVO:
-            return "Finalizado";
+          case appointmentStatusList.STATUS_CANCELADA:
+            return "Cancelada";
+          case appointmentStatusList.STATUS_PENDIENTE:
+            return "Pendiente";
+          case appointmentStatusList.STATUS_CONFIRMADA:
+            return "Confirmada";
+          case appointmentStatusList.STATUS_COMPLETADA:
+            return "Completada";
+          case appointmentStatusList.STATUS_NO_ASISTIDA:
+            return "No asistida";
           default:
             return "—";
         }
@@ -104,40 +131,83 @@ export default function AppointmentsTable({
       field: "actions",
       headerName: "Acciones",
       sortable: false,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: (params: any) => {
+        const estado = params.data.status;
+        const isEditable =
+          estado !== appointmentStatusList.STATUS_CANCELADA &&
+          estado !== appointmentStatusList.STATUS_COMPLETADA &&
+          estado !== appointmentStatusList.STATUS_NO_ASISTIDA;
         return (
-          <div className="flex flex-row items-center justify-center w-full">
-            <IconButton
-              size="sm"
-              colorPalette="blue"
-              variant="outline"
-              aria-label="Ver Detalles"
-              //onClick={async () => handleViewDetails(params.data)}
-            >
-              <FaEye color="blue" />
-            </IconButton>
-            {!params.data.is_cancelled && (
+          <div className="flex flex-row items-center justify-center w-full gap-1">
+            {isEditable && (
               <IconButton
                 size="sm"
                 colorPalette="orange"
                 variant="outline"
                 aria-label="Editar"
                 ml={2}
-                //onClick={async () => handleEdit(params.data)}
+                onClick={async () => handleEdit(params.data)}
               >
                 <FaEdit color="orange" />
               </IconButton>
             )}
-            {!params.data.is_cancelled && (
+
+            {estado === appointmentStatusList.STATUS_PENDIENTE && (
+              <IconButton
+                size="sm"
+                colorPalette="teal"
+                variant="outline"
+                aria-label="Confirmar cita"
+                onClick={async () => handleConfirm(params.data.id)}
+              >
+                <FaCalendarCheck color="teal" />
+              </IconButton>
+            )}
+
+            {estado === appointmentStatusList.STATUS_CONFIRMADA && (
+              <>
+                <IconButton
+                  size="sm"
+                  colorPalette="green"
+                  variant="outline"
+                  aria-label="Completar cita"
+                  onClick={async () => handleComplete(params.data.id)}
+                >
+                  <FaCheck color="green" />
+                </IconButton>
+                <IconButton
+                  size="sm"
+                  colorPalette="purple"
+                  variant="outline"
+                  aria-label="Marcar como no asistida"
+                  onClick={async () => handleMarkAsMissed(params.data.id)}
+                >
+                  <FaUserTimes color="purple" />
+                </IconButton>
+              </>
+            )}
+
+            {isEditable && (
               <IconButton
                 size="sm"
                 colorPalette="red"
                 variant="outline"
-                aria-label="Cancelar"
-                ml={2}
-                onClick={async () => handleCancel(params.data)}
+                aria-label="Cancelar cita"
+                onClick={async () => handleCancel(params.data.id)}
               >
-                <FaBan color="red" />
+                <FaTrash color="red" />
+              </IconButton>
+            )}
+            {!isEditable && (
+              <IconButton
+                size="sm"
+                colorPalette="blue"
+                variant="outline"
+                aria-label="Ver detalles de la cita"
+                onClick={async () => handleViewDetails(params.data)}
+              >
+                <FaEye color="blue" />
               </IconButton>
             )}
           </div>
@@ -150,13 +220,16 @@ export default function AppointmentsTable({
       hide: true,
     },
   ]);
-  const handleEdit = async () => {};
+  const handleEdit = async (appointment: Appointment) => {
+    setselectedAppointment(appointment);
+    editDialog.setOpen(true);
+  };
   const handleCancel = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
       mensaje: "Esta seguro de cancelar esta cita?",
     });
     if (isConfirmed) {
-      const res = await cancel({ id: id });
+      const res = await cancelAppointment({ id: id });
       if (res.ok) {
         toaster.create({
           description: "Éxito al cancelar la cita",
@@ -170,7 +243,69 @@ export default function AppointmentsTable({
       }
     }
   };
-  const handleViewDetails = async () => {};
+  const handleMarkAsMissed = async (id: number) => {
+    const isConfirmed = await mostrarAlertaConfirmacion({
+      mensaje: "Esta seguro de marcar la cita como no asistida?",
+    });
+    if (isConfirmed) {
+      const res = await markAppointmentNotAssisted({ id: id });
+      if (res.ok) {
+        toaster.create({
+          description: "Éxito al marcar la cita",
+          type: "success",
+        });
+      } else {
+        toaster.create({
+          description: "Error al marcar la cita",
+          type: "error",
+        });
+      }
+    }
+  };
+  const handleComplete = async (id: number) => {
+    const isConfirmed = await mostrarAlertaConfirmacion({
+      mensaje: "Esta seguro de completar esta cita?",
+    });
+    if (isConfirmed) {
+      const res = await cancelAppointment({ id: id });
+      if (res.ok) {
+        toaster.create({
+          description: "Éxito al completar la cita",
+          type: "success",
+        });
+      } else {
+        toaster.create({
+          description: "Error al completar la cita",
+          type: "error",
+        });
+      }
+    }
+  };
+  const handleConfirm = async (id: number) => {
+    const isConfirmed = await mostrarAlertaConfirmacion({
+      mensaje: "Esta seguro de confirmar esta cita?",
+    });
+    if (isConfirmed) {
+      const res = await confirmAppointment({ id: id });
+      if (res.ok) {
+        toaster.create({
+          description: "Éxito al confirmar la cita",
+          type: "success",
+        });
+      } else {
+        toaster.create({
+          description: "Error al confirmar la cita",
+          type: "error",
+        });
+      }
+    }
+  };
+  const handleViewDetails = async (appointment: Appointment) => {
+    toaster.create({
+      description: appointment.note,
+      type: "info",
+    });
+  };
   useEffect(() => {
     setRowData([...props.citas]);
   }, [props.citas]);
@@ -200,6 +335,14 @@ export default function AppointmentsTable({
           type: "fitGridWidth",
         }}
       />
+      <EditDialog dialog={editDialog}>
+        <AppointmentsEditForm
+          props={{
+            selectedAppointment: selectedAppointment,
+            doctores: props.doctores,
+          }}
+        />
+      </EditDialog>
     </div>
   );
 }
