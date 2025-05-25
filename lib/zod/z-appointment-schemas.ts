@@ -61,3 +61,27 @@ export const EditAppointmentSchema = z.object({
   }),
 });
 export type TEditAppointmentSchema = z.infer<typeof EditAppointmentSchema>;
+
+export const CompleteAppointmentSchema = z.object({
+  id: z.coerce.number({
+    required_error: "El ID es obligatorio",
+  }),
+  diagnosis: z
+    .string()
+    .min(1, "El diagnóstico es obligatorio")
+    .max(200, "Máximo 100 carácteres"),
+});
+export type TCompleteAppointmentSchema = z.infer<
+  typeof CompleteAppointmentSchema
+>;
+
+export const CancelAppointmentSchema = z.object({
+  id: z.coerce.number({
+    required_error: "El ID es obligatorio",
+  }),
+  cancellation_reason: z
+    .string()
+    .min(1, "La razón es obligatoria")
+    .max(200, "Máximo 100 carácteres"),
+});
+export type TCancelAppointmentSchema = z.infer<typeof CancelAppointmentSchema>;

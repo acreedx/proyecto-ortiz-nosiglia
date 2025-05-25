@@ -4,8 +4,19 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Accordion, Icon, Span } from "@chakra-ui/react";
+import { Session } from "next-auth";
 
-const SidebarItem = ({ item, pageName, setPageName }: any) => {
+const SidebarItem = ({
+  item,
+  pageName,
+  setPageName,
+  session,
+}: {
+  item: any;
+  pageName: any;
+  setPageName: any;
+  session: Session;
+}) => {
   const pathname = usePathname();
   const [isPageNameLikeItem, setIsPageNameLikeItem] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
@@ -52,18 +63,32 @@ const SidebarItem = ({ item, pageName, setPageName }: any) => {
               >
                 <Accordion.ItemBody p={0}>
                   <ul>
-                    {item.children.map((item: any, index: number) => (
-                      <li key={index} className="w-full ">
-                        <Link
-                          href={item.route}
-                          className={`relative flex items-center py-3 px-4 text-center font-medium text-white duration-150 ease-linear hover:bg-orange-700 ${
-                            pathname === item.route && "bg-orange-700"
-                          }`}
-                        >
-                          {item.label}
-                        </Link>
-                      </li>
-                    ))}
+                    {item.children.map(
+                      (
+                        child: {
+                          label: string;
+                          route: string;
+                          permissionCode: string[];
+                        },
+                        index: number
+                      ) =>
+                        child.permissionCode.some((code) =>
+                          session.user.permissions.some(
+                            (permission) => permission.code === code
+                          )
+                        ) && (
+                          <li key={index} className="w-full">
+                            <Link
+                              href={child.route}
+                              className={`relative flex items-center py-3 px-4 text-center font-medium text-white duration-150 ease-linear hover:bg-orange-700 ${
+                                pathname === child.route ? "bg-orange-700" : ""
+                              }`}
+                            >
+                              {child.label}
+                            </Link>
+                          </li>
+                        )
+                    )}
                   </ul>
                 </Accordion.ItemBody>
               </div>

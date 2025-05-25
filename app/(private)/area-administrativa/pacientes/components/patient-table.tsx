@@ -6,7 +6,7 @@ import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import Image from "next/image";
 import { IconButton, useDialog } from "@chakra-ui/react";
-import { FaEdit, FaFile, FaXRay } from "react-icons/fa";
+import { FaBookMedical, FaEdit, FaFile, FaXRay } from "react-icons/fa";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import NextLink from "next/link";
 import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
@@ -143,8 +143,22 @@ export default function PatientTable({
                 colorPalette="orange"
                 variant="outline"
                 aria-label="Radiografías"
+                mr={2}
               >
                 <FaXRay color={"orange"} />
+              </IconButton>
+            </NextLink>
+
+            <NextLink
+              href={`/area-administrativa/pacientes/historial/${params.data.id}`}
+            >
+              <IconButton
+                size="sm"
+                colorPalette="whiteAlpha"
+                variant="outline"
+                aria-label="Historial clínico del paciente"
+              >
+                <FaBookMedical color={"green"} />
               </IconButton>
             </NextLink>
           </div>

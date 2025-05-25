@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { FaHospitalUser } from "react-icons/fa";
 import {
   LuBookOpen,
@@ -8,7 +9,20 @@ import {
   LuMonitor,
   LuUser,
 } from "react-icons/lu";
-export const menuOptions = [
+export interface menu {
+  name: string;
+  menuItems: {
+    icon: JSX.Element;
+    label: string;
+    route: string;
+    children: {
+      label: string;
+      route: string;
+      permissionCode: string[];
+    }[];
+  }[];
+}
+export const menuOptions: menu[] = [
   {
     name: "MENU",
     menuItems: [
@@ -20,6 +34,7 @@ export const menuOptions = [
           {
             label: "Panel de control",
             route: "/area-administrativa/dashboard",
+            permissionCode: ["dsh_adm"],
           },
         ],
       },
@@ -31,14 +46,17 @@ export const menuOptions = [
           {
             label: "Pacientes",
             route: "/area-administrativa/pacientes",
+            permissionCode: ["dsh_pct_adm"],
           },
           {
             label: "Organizaciones",
             route: "/area-administrativa/organizaciones",
+            permissionCode: ["dsh_org_adm"],
           },
           {
             label: "Reportes",
             route: "/area-administrativa/reportes",
+            permissionCode: ["dsh_pct_adm", "dsh_org_adm"],
           },
         ],
       },
@@ -50,10 +68,12 @@ export const menuOptions = [
           {
             label: "Citas",
             route: "/area-administrativa/citas",
+            permissionCode: ["dsh_cts_adm"],
           },
           {
             label: "Reportes",
             route: "#",
+            permissionCode: ["dsh_cts_adm"],
           },
         ],
       },
@@ -65,18 +85,22 @@ export const menuOptions = [
           {
             label: "Usuarios",
             route: "/area-administrativa/usuarios",
+            permissionCode: ["dsh_usu_adm"],
           },
           {
             label: "Roles",
             route: "/area-administrativa/roles",
+            permissionCode: ["dsh_rol_adm"],
           },
           {
             label: "Eventos del sistema",
             route: "/area-administrativa/eventos-del-sistema",
+            permissionCode: ["dsh_log_adm"],
           },
           {
             label: "Reportes",
             route: "#",
+            permissionCode: ["dsh_usu_adm", "dsh_rol_adm", "dsh_log_adm"],
           },
         ],
       },
@@ -88,10 +112,12 @@ export const menuOptions = [
           {
             label: "Empleados",
             route: "/area-administrativa/personal",
+            permissionCode: [],
           },
           {
             label: "Reportes",
             route: "#",
+            permissionCode: [],
           },
         ],
       },
@@ -103,14 +129,17 @@ export const menuOptions = [
           {
             label: "Tratamientos asignados",
             route: "/area-administrativa/tratamientos",
+            permissionCode: ["dsh_trs_adm"],
           },
           {
             label: "Tipos de tratamiento",
             route: "/area-administrativa/tipos-de-tratamiento",
+            permissionCode: ["dsh_ttrs_adm"],
           },
           {
             label: "Reportes",
             route: "#",
+            permissionCode: ["dsh_trs_adm", "dsh_ttrs_adm"],
           },
         ],
       },
@@ -122,6 +151,7 @@ export const menuOptions = [
           {
             label: "Panel de deudas",
             route: "/area-administrativa/deudas",
+            permissionCode: [],
           },
         ],
       },
@@ -133,6 +163,7 @@ export const menuOptions = [
           {
             label: "Importar datos",
             route: "/area-administrativa/configuracion",
+            permissionCode: [],
           },
         ],
       },

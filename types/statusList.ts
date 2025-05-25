@@ -14,3 +14,7 @@ export enum appointmentStatusList {
   STATUS_COMPLETADA = "4",
   STATUS_NO_ASISTIDA = "5",
 }
+
+export enum encounterStatusList {
+  CITA = "cita",
+}

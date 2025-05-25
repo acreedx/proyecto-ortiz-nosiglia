@@ -136,7 +136,7 @@ export default function AppointmentsCreateForm({
           <Field.Root
             invalid={!!errors.patient_instruction}
             px={4}
-            w={{ base: "100%", md: "50%" }}
+            w={{ base: "100%", md: "100%" }}
           >
             <Field.Label>Instrucciones al paciente</Field.Label>
             <Textarea

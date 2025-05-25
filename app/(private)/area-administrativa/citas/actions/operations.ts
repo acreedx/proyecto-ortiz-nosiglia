@@ -4,10 +4,16 @@ import { prisma } from "../../../../../lib/prisma/prisma";
 import {
   CreateAppointmentSchema,
   EditAppointmentSchema,
+  TCancelAppointmentSchema,
+  TCompleteAppointmentSchema,
   TCreateAppointmentSchema,
   TEditAppointmentSchema,
 } from "../../../../../lib/zod/z-appointment-schemas";
-import { appointmentStatusList } from "../../../../../types/statusList";
+import {
+  appointmentStatusList,
+  encounterStatusList,
+  userStatusList,
+} from "../../../../../types/statusList";
 
 export async function create({
   data,
@@ -108,17 +114,20 @@ export async function edit({
 }
 
 export async function cancelAppointment({
-  id,
+  data,
 }: {
-  id: number;
+  data: TCancelAppointmentSchema;
 }): Promise<{ ok: boolean }> {
   try {
     await prisma.appointment.update({
       where: {
-        id: id,
+        id: data.id,
       },
       data: {
         status: appointmentStatusList.STATUS_CANCELADA,
+        is_cancelled: true,
+        cancellation_date: new Date(),
+        cancellation_reason: data.cancellation_reason,
       },
     });
     revalidatePath("/area-administrativa/citas");
@@ -130,17 +139,31 @@ export async function cancelAppointment({
 }
 
 export async function completeAppointment({
-  id,
+  data,
 }: {
-  id: number;
+  data: TCompleteAppointmentSchema;
 }): Promise<{ ok: boolean }> {
   try {
-    await prisma.appointment.update({
+    const updatedAppointment = await prisma.appointment.update({
       where: {
-        id: id,
+        id: data.id,
       },
       data: {
         status: appointmentStatusList.STATUS_COMPLETADA,
+      },
+    });
+    await prisma.encounter.create({
+      data: {
+        type: encounterStatusList.CITA,
+        performed_on: new Date(),
+        specialty: updatedAppointment.specialty,
+        reason: updatedAppointment.reason,
+        note: updatedAppointment.note,
+        patient_instruction: updatedAppointment.patient_instruction,
+        diagnosis: data.diagnosis,
+        status: userStatusList.ACTIVO,
+        patient_id: updatedAppointment.patient_id,
+        doctor_id: updatedAppointment.doctor_id,
       },
     });
     revalidatePath("/area-administrativa/citas");

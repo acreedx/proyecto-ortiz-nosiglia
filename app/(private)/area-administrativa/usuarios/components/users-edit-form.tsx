@@ -80,7 +80,7 @@ export default function UsersEditForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Dialog.Header>
-        <Dialog.Title>Editar un Rol</Dialog.Title>
+        <Dialog.Title>Editar un usuario</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body>
         <div className="flex flex-row justify-center items-center mt-4 mb-4">

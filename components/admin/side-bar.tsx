@@ -7,43 +7,16 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { menuOptions } from "../../types/side-bar-options";
-import ClickOutside from "./click-outside";
 import SidebarItem from "./side-bar-item";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { useSidebar } from "./side-bar-context";
+import { Session } from "next-auth";
 
-export default function Sidebar() {
+export default function Sidebar({ session }: { session: Session }) {
   const { sidebarOpen, setSidebarOpen } = useSidebar();
   const pathname = usePathname();
   const [accessibleMenu, setAccessibleMenu] = useState(menuOptions);
   const [pageName, setPageName] = useLocalStorage("selectedMenu", "dashboard");
-  //useEffect(() => {
-  //  //if (
-  //  //  session &&
-  //  //  session.user &&
-  //  //  "rol" in session.user &&
-  //  //  session.user.rol.permissions
-  //  //) {
-  //  //  const userPermissions = session.user.rol.permissions.map((e) => {
-  //  //    return e.code;
-  //  //  });
-  //  //
-  //  //  const filteredMenu = menuOptions.map((section) => ({
-  //  //    ...section,
-  //  //    menuItems: section.menuItems
-  //  //      .map((item) => ({
-  //  //        ...item,
-  //  //        children: item.children.filter(
-  //  //          (child) =>
-  //  //            userPermissions.includes(child.permission) ||
-  //  //            child.permission === permissionsList.SIN_PERMISO,
-  //  //        ),
-  //  //      }))
-  //  //      .filter((item) => item.children.length > 0),
-  //  //  }));
-  //  //  setAccessibleMenu(filteredMenu);
-  //  //}
-  //}, [session]);
   return (
     <aside
       className={`shadow-gray-500/50 fixed left-0 top-0 z-20 flex h-screen w-72.5 flex-col overflow-y-hidden bg-slate-50 shadow-lg duration-300 ease-linear dark:bg-boxdark ${
@@ -78,6 +51,7 @@ export default function Sidebar() {
                     item={menuItem}
                     pageName={pageName}
                     setPageName={setPageName}
+                    session={session}
                   />
                 ))}
               </ul>

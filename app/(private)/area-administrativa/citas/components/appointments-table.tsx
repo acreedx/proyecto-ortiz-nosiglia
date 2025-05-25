@@ -7,28 +7,25 @@ import { IconButton, useDialog } from "@chakra-ui/react";
 import {
   FaEye,
   FaEdit,
-  FaBan,
   FaTrash,
-  FaPen,
   FaCheck,
   FaUserTimes,
   FaCalendarCheck,
 } from "react-icons/fa";
 import { AgGridReact } from "ag-grid-react";
 import { Appointment, Prisma, User } from "@prisma/client";
-import {
-  appointmentStatusList,
-  userStatusList,
-} from "../../../../../types/statusList";
+import { appointmentStatusList } from "../../../../../types/statusList";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
 import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import {
-  cancelAppointment,
   confirmAppointment,
   markAppointmentNotAssisted,
 } from "../actions/operations";
 import AppointmentsEditForm from "./appointments-edit-form";
+import AppointmentsCompleteForm from "./appointments-complete-form";
+import AppointmentsCancelForm from "./appointments-cancel-form";
+import AppointmentsViewForm from "./appointments-view-form";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function AppointmentsTable({
@@ -57,8 +54,13 @@ export default function AppointmentsTable({
   };
 }) {
   const editDialog = useDialog();
+  const completeAppointmentDialog = useDialog();
+  const cancelAppointmentDialog = useDialog();
+  const viewAppointmentDialog = useDialog();
   const [selectedAppointment, setselectedAppointment] = useState<Appointment>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [rowData, setRowData] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
     {
       field: "programed_date_time",
@@ -172,7 +174,7 @@ export default function AppointmentsTable({
                   colorPalette="green"
                   variant="outline"
                   aria-label="Completar cita"
-                  onClick={async () => handleComplete(params.data.id)}
+                  onClick={async () => handleComplete(params.data)}
                 >
                   <FaCheck color="green" />
                 </IconButton>
@@ -194,7 +196,7 @@ export default function AppointmentsTable({
                 colorPalette="red"
                 variant="outline"
                 aria-label="Cancelar cita"
-                onClick={async () => handleCancel(params.data.id)}
+                onClick={async () => handleCancel(params.data)}
               >
                 <FaTrash color="red" />
               </IconButton>
@@ -224,24 +226,9 @@ export default function AppointmentsTable({
     setselectedAppointment(appointment);
     editDialog.setOpen(true);
   };
-  const handleCancel = async (id: number) => {
-    const isConfirmed = await mostrarAlertaConfirmacion({
-      mensaje: "Esta seguro de cancelar esta cita?",
-    });
-    if (isConfirmed) {
-      const res = await cancelAppointment({ id: id });
-      if (res.ok) {
-        toaster.create({
-          description: "Éxito al cancelar la cita",
-          type: "success",
-        });
-      } else {
-        toaster.create({
-          description: "Error al cancelar la cita",
-          type: "error",
-        });
-      }
-    }
+  const handleCancel = async (appointment: Appointment) => {
+    setselectedAppointment(appointment);
+    cancelAppointmentDialog.setOpen(true);
   };
   const handleMarkAsMissed = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
@@ -262,24 +249,9 @@ export default function AppointmentsTable({
       }
     }
   };
-  const handleComplete = async (id: number) => {
-    const isConfirmed = await mostrarAlertaConfirmacion({
-      mensaje: "Esta seguro de completar esta cita?",
-    });
-    if (isConfirmed) {
-      const res = await cancelAppointment({ id: id });
-      if (res.ok) {
-        toaster.create({
-          description: "Éxito al completar la cita",
-          type: "success",
-        });
-      } else {
-        toaster.create({
-          description: "Error al completar la cita",
-          type: "error",
-        });
-      }
-    }
+  const handleComplete = async (appointment: Appointment) => {
+    setselectedAppointment(appointment);
+    completeAppointmentDialog.setOpen(true);
   };
   const handleConfirm = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
@@ -301,10 +273,8 @@ export default function AppointmentsTable({
     }
   };
   const handleViewDetails = async (appointment: Appointment) => {
-    toaster.create({
-      description: appointment.note,
-      type: "info",
-    });
+    setselectedAppointment(appointment);
+    viewAppointmentDialog.setOpen(true);
   };
   useEffect(() => {
     setRowData([...props.citas]);
@@ -340,6 +310,27 @@ export default function AppointmentsTable({
           props={{
             selectedAppointment: selectedAppointment,
             doctores: props.doctores,
+          }}
+        />
+      </EditDialog>
+      <EditDialog dialog={completeAppointmentDialog}>
+        <AppointmentsCompleteForm
+          props={{
+            selectedAppointment: selectedAppointment,
+          }}
+        />
+      </EditDialog>
+      <EditDialog dialog={cancelAppointmentDialog}>
+        <AppointmentsCancelForm
+          props={{
+            selectedAppointment: selectedAppointment,
+          }}
+        />
+      </EditDialog>
+      <EditDialog dialog={viewAppointmentDialog}>
+        <AppointmentsViewForm
+          props={{
+            selectedAppointment: selectedAppointment,
           }}
         />
       </EditDialog>

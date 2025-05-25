@@ -19,9 +19,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { edit } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
-import formatDateLocal, {
-  formatDateTimeLocal,
-} from "../../../../../types/dateFormatter";
+import { formatDateTimeLocal } from "../../../../../types/dateFormatter";
 
 export default function AppointmentsEditForm({
   props,
