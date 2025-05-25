@@ -71,6 +71,11 @@ export const menuOptions: menu[] = [
             permissionCode: ["dsh_cts_adm"],
           },
           {
+            label: "Citas del dentista",
+            route: "/area-administrativa/citas-dentista",
+            permissionCode: ["dsh_cts_adm_dent"],
+          },
+          {
             label: "Reportes",
             route: "#",
             permissionCode: ["dsh_cts_adm"],

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Accordion, Icon, Span } from "@chakra-ui/react";
 import { Session } from "next-auth";
+import { rolesList } from "../../lib/nextauth/rolesList";
 
 const SidebarItem = ({
   item,
