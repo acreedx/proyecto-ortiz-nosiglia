@@ -1,28 +1,22 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import type { ColDef } from "ag-grid-community";
-import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { IconButton } from "@chakra-ui/react";
-import { FaFileContract } from "react-icons/fa";
-import { Prisma } from "@prisma/client";
+import { Invoice } from "@prisma/client";
+import { ColDef } from "ag-grid-community";
+import React, { useEffect, useState } from "react";
+import { FaFileContract, FaFileInvoice, FaPrint } from "react-icons/fa";
+import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AgGridReact } from "ag-grid-react";
-import NextLink from "next/link";
+import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
+import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
+import { toaster } from "../../../../../components/ui/toaster";
+import { userStatusList } from "../../../../../types/statusList";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-export default function DebtsTable({
+export default function InvoicesTable({
   props,
 }: {
   props: {
-    accounts: Prisma.AccountGetPayload<{
-      include: {
-        patient: {
-          include: {
-            user: true;
-          };
-        };
-      };
-    }>[];
+    invoices: Invoice[];
   };
 }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,21 +24,16 @@ export default function DebtsTable({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
     {
-      field: "balance",
-      headerName: "Deuda total",
-      valueFormatter: (params) =>
-        params.value
-          ? `Bs. ${parseFloat(params.value).toFixed(2)}`
-          : "Bs. 0.00",
+      field: "type",
+      headerName: "Tipo de recibo",
     },
     {
-      field: "billing_status",
-      headerName: "Estado",
-      filter: true,
+      field: "note",
+      headerName: "Nota",
     },
     {
-      field: "calculated_at",
-      headerName: "Fecha de cálculo",
+      field: "date_issued",
+      headerName: "Fecha",
       valueFormatter: (params) =>
         params.value
           ? new Intl.DateTimeFormat("es-ES", {
@@ -61,10 +50,23 @@ export default function DebtsTable({
           : "—",
     },
     {
-      field: "patient.user.first_name",
-      headerName: "Paciente",
-      valueFormatter: (params) =>
-        params.value + " " + params.data.patient.user.last_name,
+      field: "total",
+      headerName: "Total",
+    },
+    {
+      field: "status",
+      headerName: "Estado",
+      filter: true,
+      valueFormatter: (params) => {
+        switch (params.value) {
+          case userStatusList.ACTIVO:
+            return "Activo";
+          case userStatusList.INACTIVO:
+            return "Activo";
+          default:
+            return "-";
+        }
+      },
     },
     {
       field: "actions",
@@ -74,18 +76,41 @@ export default function DebtsTable({
       cellRenderer: (params: any) => {
         return (
           <div className="flex flex-row items-center justify-center w-full">
-            <NextLink
-              href={`/area-administrativa/deudas/pagos/${params.data.patient.user.id}`}
-            >
+            {params.data.status === userStatusList.ACTIVO && (
               <IconButton
                 size="sm"
-                colorPalette="white"
+                colorPalette="green"
                 variant="outline"
-                aria-label="Deudas"
+                aria-label="Pagar deudas"
+                mr={2}
+                onClick={async () => {
+                  const isConfirmed = await mostrarAlertaConfirmacion({
+                    mensaje: "Esta seguro de confirmar el pago?",
+                  });
+                  if (isConfirmed) {
+                    toaster.create({
+                      description: "Pago registrado con éxito",
+                      type: "success",
+                    });
+                  }
+                }}
               >
-                <FaFileContract color="gray" />
+                <FaFileInvoice color="green" />
               </IconButton>
-            </NextLink>
+            )}
+            <IconButton
+              size="sm"
+              colorPalette="gray"
+              variant="outline"
+              aria-label="Imprimir recibo"
+              onClick={async () => {
+                const isConfirmed = await mostrarAlertaConfirmacion({
+                  mensaje: "Quiere imprimir el recibo?",
+                });
+              }}
+            >
+              <FaPrint color="gray" />
+            </IconButton>
           </div>
         );
       },
@@ -98,9 +123,8 @@ export default function DebtsTable({
   ]);
 
   useEffect(() => {
-    setRowData([...props.accounts]);
-  }, [props.accounts]);
-
+    setRowData([...props.invoices]);
+  }, [props.invoices]);
   return (
     <div className="w-full h-full mb-4 pt-4">
       <AgGridReact

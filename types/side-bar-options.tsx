@@ -55,7 +55,7 @@ export const menuOptions: menu[] = [
           },
           {
             label: "Reportes",
-            route: "/area-administrativa/reportes",
+            route: "/area-administrativa/pacientes/reportes",
             permissionCode: ["dsh_pct_adm", "dsh_org_adm"],
           },
         ],
@@ -77,7 +77,7 @@ export const menuOptions: menu[] = [
           },
           {
             label: "Reportes",
-            route: "#",
+            route: "/area-administrativa/citas/reportes",
             permissionCode: ["dsh_cts_adm"],
           },
         ],
@@ -104,7 +104,7 @@ export const menuOptions: menu[] = [
           },
           {
             label: "Reportes",
-            route: "#",
+            route: "/area-administrativa/usuarios/reportes",
             permissionCode: ["dsh_usu_adm", "dsh_rol_adm", "dsh_log_adm"],
           },
         ],
@@ -117,12 +117,12 @@ export const menuOptions: menu[] = [
           {
             label: "Empleados",
             route: "/area-administrativa/personal",
-            permissionCode: [],
+            permissionCode: ["dsh_per_adm"],
           },
           {
             label: "Reportes",
-            route: "#",
-            permissionCode: [],
+            route: "/area-administrativa/personal/reportes",
+            permissionCode: ["dsh_per_adm"],
           },
         ],
       },
@@ -143,7 +143,7 @@ export const menuOptions: menu[] = [
           },
           {
             label: "Reportes",
-            route: "#",
+            route: "/area-administrativa/tratamientos/reportes",
             permissionCode: ["dsh_trs_adm", "dsh_ttrs_adm"],
           },
         ],
@@ -156,7 +156,7 @@ export const menuOptions: menu[] = [
           {
             label: "Panel de deudas",
             route: "/area-administrativa/deudas",
-            permissionCode: [],
+            permissionCode: ["dsh_deu_adm"],
           },
         ],
       },
@@ -168,7 +168,7 @@ export const menuOptions: menu[] = [
           {
             label: "Importar datos",
             route: "/area-administrativa/configuracion",
-            permissionCode: [],
+            permissionCode: ["dsh_conf_adm"],
           },
         ],
       },

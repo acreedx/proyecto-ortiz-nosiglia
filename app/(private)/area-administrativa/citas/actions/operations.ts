@@ -11,9 +11,11 @@ import {
 } from "../../../../../lib/zod/z-appointment-schemas";
 import {
   appointmentStatusList,
+  debtsStatusList,
   encounterStatusList,
   userStatusList,
 } from "../../../../../types/statusList";
+import { appointmentCost } from "../../../../../types/consts";
 
 export async function create({
   data,
@@ -35,6 +37,10 @@ export async function create({
         patient: true,
       },
     });
+    if (!userPatient)
+      return {
+        ok: false,
+      };
     const userDoctor = await prisma.user.findUnique({
       where: {
         id: data.doctor_id,
@@ -47,6 +53,10 @@ export async function create({
         },
       },
     });
+    if (!userDoctor)
+      return {
+        ok: false,
+      };
     await prisma.appointment.create({
       data: {
         scheduled_on: new Date(),
@@ -55,8 +65,8 @@ export async function create({
         reason: data.reason,
         note: data.note,
         patient_instruction: data.patient_instruction,
-        patient_id: userPatient!.patient!.id,
-        doctor_id: userDoctor!.staff!.doctor!.id,
+        patient_id: userPatient.patient!.id,
+        doctor_id: userDoctor.staff!.doctor!.id,
         status: appointmentStatusList.STATUS_PENDIENTE,
       },
     });
@@ -150,6 +160,45 @@ export async function completeAppointment({
       },
       data: {
         status: appointmentStatusList.STATUS_COMPLETADA,
+        patient: {
+          update: {
+            account: {
+              update: {
+                data: {
+                  billing_status: debtsStatusList.CON_DEUDA,
+                  calculated_at: new Date(),
+                  balance: {
+                    increment: appointmentCost.COSTO_CITA,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      include: {
+        doctor: {
+          include: {
+            staff: true,
+          },
+        },
+        patient: {
+          include: {
+            account: true,
+          },
+        },
+      },
+    });
+
+    await prisma.invoice.create({
+      data: {
+        account_id: updatedAppointment.patient.account.id,
+        date_issued: new Date(),
+        type: encounterStatusList.CITA,
+        total: appointmentCost.COSTO_CITA,
+        note: updatedAppointment.note ?? "ninguna",
+        status: userStatusList.ACTIVO,
+        staff_id: updatedAppointment.doctor.staff.id,
       },
     });
     await prisma.encounter.create({

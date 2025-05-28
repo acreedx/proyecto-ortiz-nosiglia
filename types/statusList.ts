@@ -18,3 +18,7 @@ export enum appointmentStatusList {
 export enum encounterStatusList {
   CITA = "cita",
 }
+export enum debtsStatusList {
+  CON_DEUDA = "con-deuda",
+  SIN_DEUDA = "sin-deuda",
+}

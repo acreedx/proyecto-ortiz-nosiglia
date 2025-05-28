@@ -1,13 +1,4 @@
-import {
-  Accordion,
-  Box,
-  Stack,
-  Card,
-  CardBody,
-  Icon,
-  Badge,
-  Text,
-} from "@chakra-ui/react";
+import { Accordion, Box, Stack, Card, Badge, Text } from "@chakra-ui/react";
 import React from "react";
 import { FaCalendar } from "react-icons/fa";
 interface Appointment {

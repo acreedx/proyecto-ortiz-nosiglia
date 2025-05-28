@@ -28,6 +28,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const { username, password, token } =
           await signInSchema.parseAsync(credentials);
         if (!token) {
+          console.log(token);
           throw new Error("Token inválido");
         }
         const captchaData = await verifyCaptchaToken(token);
