@@ -7,7 +7,7 @@ import {
 } from "../../../../../lib/zod/z-imaging-study-schemas";
 import { fileUploader } from "../../../../../lib/firebase/file-uploader";
 import { userStatusList } from "../../../../../types/statusList";
-import { files } from "@prisma/client";
+import { Files, Organization, Prisma } from "@prisma/client";
 import {
   EditPatientSchema,
   TEditPatientSchema,
@@ -16,6 +16,8 @@ import {
   EditEmergencyContact,
   TEditEmergencyContact,
 } from "../../../../../lib/zod/z-emergency-contact";
+import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
+import { rolesList } from "../../../../../lib/nextauth/rolesList";
 
 export async function create({
   data,
@@ -31,13 +33,13 @@ export async function create({
         ok: false,
       };
     }
-    const uploadedFiles: files[] = [];
+    const uploadedFiles: Files[] = [];
     for (const file of files) {
       const url = await fileUploader(file);
       uploadedFiles.push({
         status: userStatusList.ACTIVO,
         media: url,
-      } as files);
+      } as Files);
     }
     await prisma.imagingStudy.create({
       data: {
@@ -170,5 +172,111 @@ export async function editEmergencyContact({
   } catch (e) {
     console.log(e);
     return { ok: false };
+  }
+}
+
+export async function patientReportData({
+  data,
+}: {
+  data: TGenerateReportSchema;
+}): Promise<{
+  pacientes: Prisma.PatientGetPayload<{
+    include: {
+      user: {
+        include: {
+          role: true;
+        };
+      };
+    };
+  }>[];
+  ok?: boolean;
+}> {
+  try {
+    const userDateFilter: {
+      created_at?: {
+        gte?: Date;
+        lte?: Date;
+      };
+    } = {};
+
+    if (data.from) {
+      userDateFilter.created_at = {
+        ...userDateFilter.created_at,
+        gte: new Date(data.from),
+      };
+    }
+
+    if (data.to) {
+      userDateFilter.created_at = {
+        ...userDateFilter.created_at,
+        lte: new Date(data.to),
+      };
+    }
+    const pacientes = await prisma.patient.findMany({
+      where: {
+        user: {
+          ...userDateFilter,
+          role: {
+            role_name: rolesList.PACIENTE,
+          },
+        },
+      },
+      include: {
+        user: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
+    return {
+      pacientes: pacientes,
+      ok: true,
+    };
+  } catch (e) {
+    console.log(e);
+    return { pacientes: [], ok: false };
+  }
+}
+
+export async function organizationReportData({
+  data,
+}: {
+  data: TGenerateReportSchema;
+}): Promise<{
+  organizations: Organization[];
+  ok?: boolean;
+}> {
+  try {
+    const whereClause: {
+      created_at?: {
+        gte?: Date;
+        lte?: Date;
+      };
+    } = {};
+    if (data.from || data.to) {
+      whereClause.created_at = {};
+      if (data.from) {
+        whereClause.created_at.gte = data.from;
+      }
+      if (data.to) {
+        whereClause.created_at.lte = data.to;
+      }
+    }
+    const organizations = await prisma.organization.findMany({
+      where: {
+        created_at: {
+          gte: data.from,
+          lte: data.to,
+        },
+      },
+    });
+    return {
+      organizations: organizations,
+      ok: true,
+    };
+  } catch (e) {
+    console.log(e);
+    return { organizations: [], ok: false };
   }
 }

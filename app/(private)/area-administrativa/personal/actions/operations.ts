@@ -12,6 +12,8 @@ import {
   TEditQualificationSchema,
 } from "../../../../../lib/zod/z-qualification-schemas";
 import { userStatusList } from "../../../../../types/statusList";
+import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
+import { Prisma } from "@prisma/client";
 
 export async function createQualification({
   data,
@@ -174,5 +176,41 @@ export async function restore({
   } catch (e) {
     console.log(e);
     return { ok: false };
+  }
+}
+
+export async function staffReportData({
+  data,
+}: {
+  data: TGenerateReportSchema;
+}): Promise<{
+  personal: Prisma.UserGetPayload<{
+    include: {
+      staff: true;
+      role: true;
+    };
+  }>[];
+  ok?: boolean;
+}> {
+  try {
+    const personal = await prisma.user.findMany({
+      where: {
+        created_at: {
+          gte: data.from,
+          lte: data.to,
+        },
+      },
+      include: {
+        staff: true,
+        role: true,
+      },
+    });
+    return {
+      personal: personal,
+      ok: true,
+    };
+  } catch (e) {
+    console.log(e);
+    return { personal: [], ok: false };
   }
 }

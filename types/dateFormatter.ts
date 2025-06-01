@@ -20,3 +20,8 @@ export function parseLocalDateTime(dateTimeStr: string): Date {
 
   return new Date(year, month - 1, day, hours, minutes);
 }
+export const timeFormatter = (date: Date): string => {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+};

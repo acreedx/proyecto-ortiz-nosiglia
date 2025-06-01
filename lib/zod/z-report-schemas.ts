@@ -1,29 +1,37 @@
 import { z } from "zod";
 
-export const GenerateReportSchema = z.object({
-  from: z
-    .string({ message: "La fecha no es válida" })
-    .refine(
-      (val) => {
-        const date = new Date(val);
-        return !isNaN(date.getTime());
-      },
-      {
+export const GenerateReportSchema = z
+  .object({
+    from: z.coerce
+      .string()
+      .trim()
+      .optional()
+      .refine((val) => !val || !isNaN(new Date(val).getTime()), {
         message: "La fecha no es válida",
-      }
-    )
-    .optional(),
-  to: z
-    .string({ message: "La fecha no es válida" })
-    .refine(
-      (val) => {
-        const date = new Date(val);
-        return !isNaN(date.getTime());
-      },
-      {
+      })
+      .transform((val) => (val ? new Date(val) : undefined)),
+
+    to: z.coerce
+      .string()
+      .trim()
+      .optional()
+      .refine((val) => !val || !isNaN(new Date(val).getTime()), {
         message: "La fecha no es válida",
+      })
+      .transform((val) => (val ? new Date(val) : undefined)),
+  })
+  .refine(
+    (data) => {
+      if (data.from && data.to) {
+        const fromDate = new Date(data.from);
+        const toDate = new Date(data.to);
+        return fromDate <= toDate;
       }
-    )
-    .optional(),
-});
+      return true;
+    },
+    {
+      message: "La fecha de fin no puede ser menor que la fecha fin",
+      path: ["to"],
+    }
+  );
 export type TGenerateReportSchema = z.infer<typeof GenerateReportSchema>;

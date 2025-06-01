@@ -16,6 +16,8 @@ import {
   userStatusList,
 } from "../../../../../types/statusList";
 import { appointmentCost } from "../../../../../types/consts";
+import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
+import { Prisma } from "@prisma/client";
 
 export async function create({
   data,
@@ -286,5 +288,65 @@ export async function pendingAppointment({
   } catch (e) {
     console.log(e);
     return { ok: false };
+  }
+}
+
+export async function appointmentReportData({
+  data,
+}: {
+  data: TGenerateReportSchema;
+}): Promise<{
+  citas: Prisma.AppointmentGetPayload<{
+    include: {
+      patient: {
+        include: {
+          user: true;
+        };
+      };
+      doctor: {
+        include: {
+          staff: {
+            include: {
+              user: true;
+            };
+          };
+        };
+      };
+    };
+  }>[];
+  ok?: boolean;
+}> {
+  try {
+    const citas = await prisma.appointment.findMany({
+      where: {
+        created_at: {
+          gte: data.from,
+          lte: data.to,
+        },
+      },
+      include: {
+        patient: {
+          include: {
+            user: true,
+          },
+        },
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return {
+      citas: citas,
+      ok: true,
+    };
+  } catch (e) {
+    console.log(e);
+    return { citas: [], ok: false };
   }
 }

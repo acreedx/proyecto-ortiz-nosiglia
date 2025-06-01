@@ -12,12 +12,13 @@ import { hashPassword } from "../../../../../lib/bcrypt/hasher";
 import { uploadProfileImage } from "../../../../../lib/firebase/image-uploader";
 import { sendEmail } from "../../../../../lib/nodemailer/mailer";
 import { userStatusList } from "../../../../../types/statusList";
-import { rolesList } from "../../../../../lib/nextauth/rolesList";
 import { billingStatus } from "../../../../../types/billingStatus";
 import {
   EditUserSchema,
   TEditUserSchema,
 } from "../../../../../lib/zod/z-user-schemas";
+import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
+import { Prisma, Role } from "@prisma/client";
 
 export async function create({
   data,
@@ -371,5 +372,66 @@ export async function restore({
   } catch (e) {
     console.log(e);
     return { ok: false };
+  }
+}
+
+export async function usersReportData({
+  data,
+}: {
+  data: TGenerateReportSchema;
+}): Promise<{
+  usuarios: Prisma.UserGetPayload<{
+    include: {
+      role: true;
+    };
+  }>[];
+  ok?: boolean;
+}> {
+  try {
+    const usuarios = await prisma.user.findMany({
+      where: {
+        created_at: {
+          gte: data.from,
+          lte: data.to,
+        },
+      },
+      include: {
+        role: true,
+      },
+    });
+    return {
+      usuarios: usuarios,
+      ok: true,
+    };
+  } catch (e) {
+    console.log(e);
+    return { usuarios: [], ok: false };
+  }
+}
+
+export async function rolesReportData({
+  data,
+}: {
+  data: TGenerateReportSchema;
+}): Promise<{
+  roles: Role[];
+  ok?: boolean;
+}> {
+  try {
+    const roles = await prisma.role.findMany({
+      where: {
+        created_at: {
+          gte: data.from,
+          lte: data.to,
+        },
+      },
+    });
+    return {
+      roles: roles,
+      ok: true,
+    };
+  } catch (e) {
+    console.log(e);
+    return { roles: [], ok: false };
   }
 }

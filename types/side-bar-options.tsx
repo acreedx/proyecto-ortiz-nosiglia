@@ -158,6 +158,11 @@ export const menuOptions: menu[] = [
             route: "/area-administrativa/deudas",
             permissionCode: ["dsh_deu_adm"],
           },
+          {
+            label: "Reportes",
+            route: "/area-administrativa/deudas/reportes",
+            permissionCode: ["dsh_deu_adm"],
+          },
         ],
       },
       {

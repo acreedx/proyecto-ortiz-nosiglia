@@ -11,6 +11,8 @@ import {
   TCreateCarePlanSchema,
   TEditCarePlanSchema,
 } from "../../../../../lib/zod/z-care-plan-schemas";
+import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
+import { Prisma, Treatment } from "@prisma/client";
 
 export async function create({
   data,
@@ -144,5 +146,66 @@ export async function complete({
   } catch (e) {
     console.log(e);
     return { ok: false };
+  }
+}
+
+export async function treatmentsReportData({
+  data,
+}: {
+  data: TGenerateReportSchema;
+}): Promise<{
+  tratamientos: Treatment[];
+  ok?: boolean;
+}> {
+  try {
+    const tratamientos = await prisma.treatment.findMany({
+      where: {
+        created_at: {
+          gte: data.from,
+          lte: data.to,
+        },
+      },
+    });
+    return {
+      tratamientos: tratamientos,
+      ok: true,
+    };
+  } catch (e) {
+    console.log(e);
+    return { tratamientos: [], ok: false };
+  }
+}
+
+export async function treatmentTypesReportData({
+  data,
+}: {
+  data: TGenerateReportSchema;
+}): Promise<{
+  tiposDeTratamiento: Prisma.CarePlanGetPayload<{
+    include: {
+      patient: true;
+    };
+  }>[];
+  ok?: boolean;
+}> {
+  try {
+    const tiposDeTratamiento = await prisma.carePlan.findMany({
+      where: {
+        created_at: {
+          gte: data.from,
+          lte: data.to,
+        },
+      },
+      include: {
+        patient: true,
+      },
+    });
+    return {
+      tiposDeTratamiento: tiposDeTratamiento,
+      ok: true,
+    };
+  } catch (e) {
+    console.log(e);
+    return { tiposDeTratamiento: [], ok: false };
   }
 }
