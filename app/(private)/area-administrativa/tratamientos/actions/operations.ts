@@ -158,13 +158,23 @@ export async function treatmentsReportData({
   ok?: boolean;
 }> {
   try {
+    const whereClause: {
+      created_at?: {
+        gte?: Date;
+        lte?: Date;
+      };
+    } = {};
+    if (data.from || data.to) {
+      whereClause.created_at = {};
+      if (data.from) {
+        whereClause.created_at.gte = data.from;
+      }
+      if (data.to) {
+        whereClause.created_at.lte = data.to;
+      }
+    }
     const tratamientos = await prisma.treatment.findMany({
-      where: {
-        created_at: {
-          gte: data.from,
-          lte: data.to,
-        },
-      },
+      where: whereClause,
     });
     return {
       tratamientos: tratamientos,
@@ -189,13 +199,23 @@ export async function treatmentTypesReportData({
   ok?: boolean;
 }> {
   try {
+    const whereClause: {
+      created_at?: {
+        gte?: Date;
+        lte?: Date;
+      };
+    } = {};
+    if (data.from || data.to) {
+      whereClause.created_at = {};
+      if (data.from) {
+        whereClause.created_at.gte = data.from;
+      }
+      if (data.to) {
+        whereClause.created_at.lte = data.to;
+      }
+    }
     const tiposDeTratamiento = await prisma.carePlan.findMany({
-      where: {
-        created_at: {
-          gte: data.from,
-          lte: data.to,
-        },
-      },
+      where: whereClause,
       include: {
         patient: true,
       },

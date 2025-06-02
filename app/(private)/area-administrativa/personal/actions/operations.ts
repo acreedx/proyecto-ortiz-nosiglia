@@ -193,13 +193,23 @@ export async function staffReportData({
   ok?: boolean;
 }> {
   try {
+    const whereClause: {
+      created_at?: {
+        gte?: Date;
+        lte?: Date;
+      };
+    } = {};
+    if (data.from || data.to) {
+      whereClause.created_at = {};
+      if (data.from) {
+        whereClause.created_at.gte = data.from;
+      }
+      if (data.to) {
+        whereClause.created_at.lte = data.to;
+      }
+    }
     const personal = await prisma.user.findMany({
-      where: {
-        created_at: {
-          gte: data.from,
-          lte: data.to,
-        },
-      },
+      where: whereClause,
       include: {
         staff: true,
         role: true,

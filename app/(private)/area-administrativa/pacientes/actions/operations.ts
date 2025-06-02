@@ -264,12 +264,7 @@ export async function organizationReportData({
       }
     }
     const organizations = await prisma.organization.findMany({
-      where: {
-        created_at: {
-          gte: data.from,
-          lte: data.to,
-        },
-      },
+      where: whereClause,
     });
     return {
       organizations: organizations,
