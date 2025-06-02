@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
+import { usersReportData } from "../actions/operations";
+import { reporteUsuarios } from "../../../../../lib/jspdf/usuarios";
 
 export default function CreateUsersReportForm() {
   const {
@@ -27,28 +29,28 @@ export default function CreateUsersReportForm() {
     });
     if (isConfirmed) {
       //todo cambiar para la server action de usuarios
-      //const res = await patientReportData({
-      //  data: data,
-      //});
-      //if (res.ok) {
-      //  await reportePacientes({ data: data, pacientes: res.pacientes });
-      //  toaster.create({
-      //    description: "Reporte creado con éxito",
-      //    type: "success",
-      //  });
-      //  reset();
-      //} else {
-      //  toaster.create({
-      //    description: "Error al generar el reporte",
-      //    type: "error",
-      //  });
-      //}
+      const res = await usersReportData({
+        data: data,
+      });
+      if (res.ok) {
+        await reporteUsuarios({ data: data, usuarios: res.usuarios });
+        toaster.create({
+          description: "Reporte creado con éxito",
+          type: "success",
+        });
+        reset();
+      } else {
+        toaster.create({
+          description: "Error al generar el reporte",
+          type: "error",
+        });
+      }
     }
   };
   return (
     <Box borderBottom="1px solid" borderColor="orange.300" p={4}>
       <Heading size={"md"} mb={4}>
-        Reporte de citas
+        Reporte de usuarios
       </Heading>
       <form onSubmit={handleSubmit(onSubmit)}>
         <HStack gap={4} mb={4} alignItems={"flex-start"}>

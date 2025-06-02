@@ -154,44 +154,7 @@ export async function treatmentsReportData({
 }: {
   data: TGenerateReportSchema;
 }): Promise<{
-  tratamientos: Treatment[];
-  ok?: boolean;
-}> {
-  try {
-    const whereClause: {
-      created_at?: {
-        gte?: Date;
-        lte?: Date;
-      };
-    } = {};
-    if (data.from || data.to) {
-      whereClause.created_at = {};
-      if (data.from) {
-        whereClause.created_at.gte = data.from;
-      }
-      if (data.to) {
-        whereClause.created_at.lte = data.to;
-      }
-    }
-    const tratamientos = await prisma.treatment.findMany({
-      where: whereClause,
-    });
-    return {
-      tratamientos: tratamientos,
-      ok: true,
-    };
-  } catch (e) {
-    console.log(e);
-    return { tratamientos: [], ok: false };
-  }
-}
-
-export async function treatmentTypesReportData({
-  data,
-}: {
-  data: TGenerateReportSchema;
-}): Promise<{
-  tiposDeTratamiento: Prisma.CarePlanGetPayload<{
+  tratamientos: Prisma.CarePlanGetPayload<{
     include: {
       patient: true;
     };
@@ -214,11 +177,48 @@ export async function treatmentTypesReportData({
         whereClause.created_at.lte = data.to;
       }
     }
-    const tiposDeTratamiento = await prisma.carePlan.findMany({
+    const tratamientos = await prisma.carePlan.findMany({
       where: whereClause,
       include: {
         patient: true,
       },
+    });
+    return {
+      tratamientos: tratamientos,
+      ok: true,
+    };
+  } catch (e) {
+    console.log(e);
+    return { tratamientos: [], ok: false };
+  }
+}
+
+export async function treatmentTypesReportData({
+  data,
+}: {
+  data: TGenerateReportSchema;
+}): Promise<{
+  tiposDeTratamiento: Treatment[];
+  ok?: boolean;
+}> {
+  try {
+    const whereClause: {
+      created_at?: {
+        gte?: Date;
+        lte?: Date;
+      };
+    } = {};
+    if (data.from || data.to) {
+      whereClause.created_at = {};
+      if (data.from) {
+        whereClause.created_at.gte = data.from;
+      }
+      if (data.to) {
+        whereClause.created_at.lte = data.to;
+      }
+    }
+    const tiposDeTratamiento = await prisma.treatment.findMany({
+      where: whereClause,
     });
     return {
       tiposDeTratamiento: tiposDeTratamiento,

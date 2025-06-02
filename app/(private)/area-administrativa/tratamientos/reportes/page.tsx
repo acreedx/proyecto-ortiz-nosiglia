@@ -3,7 +3,7 @@ import CanStaff from "../../../../../lib/rbac/can-staff";
 import BreadCrumb from "../../../../../components/admin/breadcrumb";
 import { Heading } from "@chakra-ui/react";
 import CreateTreatmentsReportForm from "../components/create-treatments-report-form";
-import CreateTreatmentTypeReportForm from "../components/create-treatment-type-report-form copy";
+import CreateTreatmentTypeReportForm from "../components/create-treatment-type-report-form";
 
 export default function Page() {
   return (

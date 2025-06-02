@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
+import { staffReportData } from "../actions/operations";
+import { reportePersonal } from "../../../../../lib/jspdf/personal";
 
 export default function CreateStaffReportForm() {
   const {
@@ -27,22 +29,22 @@ export default function CreateStaffReportForm() {
     });
     if (isConfirmed) {
       //todo cambiar para la server action de personal
-      //const res = await patientReportData({
-      //  data: data,
-      //});
-      //if (res.ok) {
-      //  await reportePacientes({ data: data, pacientes: res.pacientes });
-      //  toaster.create({
-      //    description: "Reporte creado con éxito",
-      //    type: "success",
-      //  });
-      //  reset();
-      //} else {
-      //  toaster.create({
-      //    description: "Error al generar el reporte",
-      //    type: "error",
-      //  });
-      //}
+      const res = await staffReportData({
+        data: data,
+      });
+      if (res.ok) {
+        await reportePersonal({ data: data, staff: res.personal });
+        toaster.create({
+          description: "Reporte creado con éxito",
+          type: "success",
+        });
+        reset();
+      } else {
+        toaster.create({
+          description: "Error al generar el reporte",
+          type: "error",
+        });
+      }
     }
   };
   return (

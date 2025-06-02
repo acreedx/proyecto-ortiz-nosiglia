@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
+import { accountsReportData } from "../actions/operations";
+import { reporteDeudas } from "../../../../../lib/jspdf/deudas";
 
 export default function CreateAccountsReportForm() {
   const {
@@ -27,22 +29,22 @@ export default function CreateAccountsReportForm() {
     });
     if (isConfirmed) {
       //todo cambiar para la server action de deudas
-      //const res = await patientReportData({
-      //  data: data,
-      //});
-      //if (res.ok) {
-      //  await reportePacientes({ data: data, pacientes: res.pacientes });
-      //  toaster.create({
-      //    description: "Reporte creado con éxito",
-      //    type: "success",
-      //  });
-      //  reset();
-      //} else {
-      //  toaster.create({
-      //    description: "Error al generar el reporte",
-      //    type: "error",
-      //  });
-      //}
+      const res = await accountsReportData({
+        data: data,
+      });
+      if (res.ok) {
+        await reporteDeudas({ data: data, accounts: res.deudas });
+        toaster.create({
+          description: "Reporte creado con éxito",
+          type: "success",
+        });
+        reset();
+      } else {
+        toaster.create({
+          description: "Error al generar el reporte",
+          type: "error",
+        });
+      }
     }
   };
   return (

@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
+import { reporteTiposDeTratamiento } from "../../../../../lib/jspdf/tipos-de-tratamiento";
+import { treatmentTypesReportData } from "../actions/operations";
 
 export default function CreateTreatmentTypeReportForm() {
   const {
@@ -27,22 +29,25 @@ export default function CreateTreatmentTypeReportForm() {
     });
     if (isConfirmed) {
       //todo cambiar para la server action de tipos de tratamientos
-      //const res = await patientReportData({
-      //  data: data,
-      //});
-      //if (res.ok) {
-      //  await reportePacientes({ data: data, pacientes: res.pacientes });
-      //  toaster.create({
-      //    description: "Reporte creado con éxito",
-      //    type: "success",
-      //  });
-      //  reset();
-      //} else {
-      //  toaster.create({
-      //    description: "Error al generar el reporte",
-      //    type: "error",
-      //  });
-      //}
+      const res = await treatmentTypesReportData({
+        data: data,
+      });
+      if (res.ok) {
+        await reporteTiposDeTratamiento({
+          data: data,
+          treatmentTypes: res.tiposDeTratamiento,
+        });
+        toaster.create({
+          description: "Reporte creado con éxito",
+          type: "success",
+        });
+        reset();
+      } else {
+        toaster.create({
+          description: "Error al generar el reporte",
+          type: "error",
+        });
+      }
     }
   };
   return (

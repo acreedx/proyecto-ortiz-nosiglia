@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "../../../../../lib/prisma/prisma";
 import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
 import { Prisma } from "@prisma/client";
+import { rolesList } from "../../../../../lib/nextauth/rolesList";
 
 export async function create({
   data,
@@ -103,7 +104,11 @@ export async function accountsReportData({
 }): Promise<{
   deudas: Prisma.AccountGetPayload<{
     include: {
-      patient: true;
+      patient: {
+        include: {
+          user: true;
+        };
+      };
     };
   }>[];
   ok?: boolean;
@@ -125,9 +130,22 @@ export async function accountsReportData({
       }
     }
     const deudas = await prisma.account.findMany({
-      where: whereClause,
+      where: {
+        ...whereClause,
+        patient: {
+          user: {
+            role: {
+              role_name: rolesList.PACIENTE,
+            },
+          },
+        },
+      },
       include: {
-        patient: true,
+        patient: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
     return {

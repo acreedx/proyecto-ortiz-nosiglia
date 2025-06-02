@@ -9,7 +9,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
-import { patientReportData } from "../actions/operations";
+import {
+  organizationReportData,
+  patientReportData,
+} from "../actions/operations";
+import { reporteOrganizaciones } from "../../../../../lib/jspdf/organizaciones";
 
 export default function CreateOrganizationsReportForm() {
   const {
@@ -27,25 +31,27 @@ export default function CreateOrganizationsReportForm() {
       mensaje: "Esta seguro de generar este reporte?",
     });
     //todo cambiar para la server action de organizations
-    //if (isConfirmed) {
-    //  const res = await patientReportData({
-    //    data: data,
-    //  });
-    //  if (res.ok) {
-    //
-    //    await reportePacientes({ data: data, pacientes: res.pacientes });
-    //    toaster.create({
-    //      description: "Reporte creado con éxito",
-    //      type: "success",
-    //    });
-    //    reset();
-    //  } else {
-    //    toaster.create({
-    //      description: "Error al generar el reporte",
-    //      type: "error",
-    //    });
-    //  }
-    //}
+    if (isConfirmed) {
+      const res = await organizationReportData({
+        data: data,
+      });
+      if (res.ok) {
+        await reporteOrganizaciones({
+          data: data,
+          organizations: res.organizations,
+        });
+        toaster.create({
+          description: "Reporte creado con éxito",
+          type: "success",
+        });
+        reset();
+      } else {
+        toaster.create({
+          description: "Error al generar el reporte",
+          type: "error",
+        });
+      }
+    }
   };
   return (
     <Box borderBottom="1px solid" borderColor="orange.300" p={4}>

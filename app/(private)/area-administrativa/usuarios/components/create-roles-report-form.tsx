@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
+import { rolesReportData } from "../actions/operations";
+import { reporteRoles } from "../../../../../lib/jspdf/roles";
 
 export default function CreateRolesReportForm() {
   const {
@@ -27,22 +29,22 @@ export default function CreateRolesReportForm() {
     });
     if (isConfirmed) {
       //todo cambiar para la server action de roles
-      //const res = await patientReportData({
-      //  data: data,
-      //});
-      //if (res.ok) {
-      //  await reportePacientes({ data: data, pacientes: res.pacientes });
-      //  toaster.create({
-      //    description: "Reporte creado con éxito",
-      //    type: "success",
-      //  });
-      //  reset();
-      //} else {
-      //  toaster.create({
-      //    description: "Error al generar el reporte",
-      //    type: "error",
-      //  });
-      //}
+      const res = await rolesReportData({
+        data: data,
+      });
+      if (res.ok) {
+        await reporteRoles({ data: data, roles: res.roles });
+        toaster.create({
+          description: "Reporte creado con éxito",
+          type: "success",
+        });
+        reset();
+      } else {
+        toaster.create({
+          description: "Error al generar el reporte",
+          type: "error",
+        });
+      }
     }
   };
   return (
