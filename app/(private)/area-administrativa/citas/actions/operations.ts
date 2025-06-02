@@ -55,6 +55,55 @@ export async function create({
         },
       },
     });
+    /*
+    todo validar si el dentista tiene alguna cita en ese horario
+    const start = new Date(`${fecha}T${hora}`);
+    const end = new Date(start.getTime() + 30 * 60 * 1000);
+    const citaExistente = await prisma.appointment.findFirst({
+      where: {
+        practitionerId: session.user.id,
+        AND: [
+          {
+            OR: [
+              { start: { lte: start }, end: { gt: start } },
+              { start: { lt: end }, end: { gte: end } },
+              { start: { gte: start }, end: { lte: end } },
+            ],
+          },
+        ],
+      },
+    });
+    if (citaExistente) {
+      return {
+        success: false,
+        error:
+          "Seleccione otro horario para la cita, ya hay una reservada en esa fecha y hora.",
+      };
+    }
+    todo validar si el paciente tiene una cita en ese horario
+    const citaExistentePaciente = await prisma.appointment.findFirst({
+      where: {
+        subjectId: paciente,
+        AND: [
+          {
+            OR: [
+              { start: { lte: start }, end: { gt: start } },
+              { start: { lt: end }, end: { gte: end } },
+              { start: { gte: start }, end: { lte: end } },
+            ],
+          },
+        ],
+      },
+    });
+
+    if (citaExistentePaciente) {
+      return {
+        success: false,
+        error:
+          "Seleccione otro horario para la cita, ya tiene una reservada en esa fecha y hora.",
+      };
+    }
+    */
     if (!userDoctor)
       return {
         ok: false,
@@ -326,10 +375,14 @@ export async function appointmentReportData({
     if (data.from || data.to) {
       whereClause.created_at = {};
       if (data.from) {
-        whereClause.created_at.gte = data.from;
+        const fromDate = new Date(data.from);
+        fromDate.setUTCHours(0, 0, 0, 0);
+        whereClause.created_at.gte = fromDate;
       }
       if (data.to) {
-        whereClause.created_at.lte = data.to;
+        const toDate = new Date(data.to);
+        toDate.setUTCHours(23, 59, 59, 999);
+        whereClause.created_at.lte = toDate;
       }
     }
     const citas = await prisma.appointment.findMany({

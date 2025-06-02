@@ -49,6 +49,7 @@ export default function PatientTable({
       field: "photo_url",
       headerName: "Foto",
       width: 100,
+      autoHeight: false,
       filter: false,
       sortable: false,
       flex: 1,
@@ -60,7 +61,7 @@ export default function PatientTable({
             src={`${props.value}`}
             width={50}
             height={50}
-            className="rounded-full shadow-lg border border-black"
+            className="h-[50px] rounded-full shadow-lg border border-black"
           />
         );
       },

@@ -200,16 +200,20 @@ export async function patientReportData({
     } = {};
 
     if (data.from) {
+      const fromDate = new Date(data.from);
+      fromDate.setUTCHours(0, 0, 0, 0);
       userDateFilter.created_at = {
         ...userDateFilter.created_at,
-        gte: new Date(data.from),
+        gte: fromDate,
       };
     }
 
     if (data.to) {
+      const toDate = new Date(data.to);
+      toDate.setUTCHours(23, 59, 59, 999);
       userDateFilter.created_at = {
         ...userDateFilter.created_at,
-        lte: new Date(data.to),
+        lte: toDate,
       };
     }
     const pacientes = await prisma.patient.findMany({
@@ -257,10 +261,14 @@ export async function organizationReportData({
     if (data.from || data.to) {
       whereClause.created_at = {};
       if (data.from) {
-        whereClause.created_at.gte = data.from;
+        const fromDate = new Date(data.from);
+        fromDate.setUTCHours(0, 0, 0, 0);
+        whereClause.created_at.gte = fromDate;
       }
       if (data.to) {
-        whereClause.created_at.lte = data.to;
+        const toDate = new Date(data.to);
+        toDate.setUTCHours(23, 59, 59, 999);
+        whereClause.created_at.lte = toDate;
       }
     }
     const organizations = await prisma.organization.findMany({
@@ -273,5 +281,55 @@ export async function organizationReportData({
   } catch (e) {
     console.log(e);
     return { organizations: [], ok: false };
+  }
+}
+
+export async function odontogramReportData({
+  odontogramId,
+}: {
+  odontogramId: number;
+}): Promise<{
+  odontogram?: Prisma.OdontogramGetPayload<{
+    include: {
+      patient: {
+        include: {
+          user: true;
+        };
+      };
+      odontogram_row: true;
+    };
+  }>;
+  ok?: boolean;
+}> {
+  try {
+    const odontogram = await prisma.odontogram.findUnique({
+      where: {
+        id: odontogramId,
+      },
+      include: {
+        patient: {
+          include: {
+            user: true,
+          },
+        },
+        odontogram_row: {
+          orderBy: {
+            created_at: "asc",
+          },
+        },
+      },
+    });
+    if (!odontogram) {
+      return {
+        ok: false,
+      };
+    }
+    return {
+      odontogram: odontogram,
+      ok: true,
+    };
+  } catch (e) {
+    console.log(e);
+    return { ok: false };
   }
 }

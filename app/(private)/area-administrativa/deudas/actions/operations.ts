@@ -123,10 +123,14 @@ export async function accountsReportData({
     if (data.from || data.to) {
       whereClause.created_at = {};
       if (data.from) {
-        whereClause.created_at.gte = data.from;
+        const fromDate = new Date(data.from);
+        fromDate.setUTCHours(0, 0, 0, 0);
+        whereClause.created_at.gte = fromDate;
       }
       if (data.to) {
-        whereClause.created_at.lte = data.to;
+        const toDate = new Date(data.to);
+        toDate.setUTCHours(23, 59, 59, 999);
+        whereClause.created_at.lte = toDate;
       }
     }
     const deudas = await prisma.account.findMany({

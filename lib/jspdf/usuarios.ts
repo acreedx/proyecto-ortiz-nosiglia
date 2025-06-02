@@ -38,60 +38,90 @@ export async function reporteUsuarios({
     14,
     46
   );
-  if (data.from && data.to) {
-    doc.text(`Período: ${data.from} a ${data.to}`, 14, 54);
+  if (data.from || data.to) {
+    doc.text(
+      `Período: ${
+        data.from
+          ? "Desde " +
+            new Intl.DateTimeFormat("es-ES", {
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+              timeZone: "UTC",
+            })
+              .format(new Date(data.from))
+              .toString() +
+            " "
+          : ""
+      } ${
+        data.to
+          ? "hasta " +
+            new Intl.DateTimeFormat("es-ES", {
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+              timeZone: "UTC",
+            })
+              .format(new Date(data.to))
+              .toString()
+          : ""
+      }`,
+      14,
+      54
+    );
   } else {
     doc.text("Período: Todos los registros", 14, 54);
   }
-  /*
-  const tableData = pacientes.map((paciente, index) => [
-    index + 1,
-    `${paciente.user.first_name} ${paciente.user.last_name || ""}`,
-    paciente.user.identification,
-    paciente.user.status === userStatusList.ACTIVO
-      ? "activo"
-      : paciente.user.status === userStatusList.INACTIVO
-        ? "inactivo"
-        : paciente.user.status === userStatusList.NUEVO
-          ? "nuevo"
-          : paciente.user.status === userStatusList.BLOQUEADO
-            ? "bloqueado"
-            : "-",
-    paciente.user.phone || "N/A",
-    paciente.user.email || "N/A",
-    paciente.user.role.role_name,
-    paciente.user.created_at?.toLocaleDateString(),
-  ]) as RowInput[];
-  autoTable(doc, {
-    head: [
-      [
-        "#",
-        "Nombre",
-        "Identificación",
-        "Estado",
-        "Teléfono",
-        "Correo Electrónico",
-        "Rol",
-        "Fecha de Registro",
+  if (usuarios.length > 0) {
+    const tableData = usuarios.map((usuario, index) => [
+      index + 1,
+      `${usuario.first_name} ${usuario.last_name || ""}`,
+      usuario.identification,
+      usuario.status === userStatusList.ACTIVO
+        ? "activo"
+        : usuario.status === userStatusList.INACTIVO
+          ? "inactivo"
+          : usuario.status === userStatusList.NUEVO
+            ? "nuevo"
+            : usuario.status === userStatusList.BLOQUEADO
+              ? "bloqueado"
+              : "-",
+      usuario.phone || "N/A",
+      usuario.email || "N/A",
+      usuario.role.role_name,
+      usuario.created_at?.toLocaleDateString(),
+    ]) as RowInput[];
+    autoTable(doc, {
+      head: [
+        [
+          "#",
+          "Nombre",
+          "Identificación",
+          "Estado",
+          "Teléfono",
+          "Correo Electrónico",
+          "Rol",
+          "Fecha de Registro",
+        ],
       ],
-    ],
-    body: tableData,
-    startY: 62,
-    theme: "grid",
-    headStyles: {
-      fillColor: [255, 87, 34],
-      textColor: [255, 255, 255],
-      fontSize: 12,
-      fontStyle: "bold",
-    },
-    styles: {
-      fontSize: 10,
-      textColor: [51, 51, 51],
-    },
-    alternateRowStyles: {
-      fillColor: [255, 245, 235],
-    },
-    margin: { left: 14, right: 14 },
-  });*/
+      body: tableData,
+      startY: 62,
+      theme: "grid",
+      headStyles: {
+        fillColor: [255, 87, 34],
+        textColor: [255, 255, 255],
+        fontSize: 12,
+        fontStyle: "bold",
+      },
+      styles: {
+        fontSize: 10,
+        textColor: [51, 51, 51],
+      },
+      alternateRowStyles: {
+        fillColor: [255, 245, 235],
+      },
+      margin: { left: 14, right: 14 },
+    });
+  }
   doc.save("reporte_usuarios.pdf");
 }

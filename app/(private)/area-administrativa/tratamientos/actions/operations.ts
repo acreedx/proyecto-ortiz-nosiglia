@@ -156,7 +156,11 @@ export async function treatmentsReportData({
 }): Promise<{
   tratamientos: Prisma.CarePlanGetPayload<{
     include: {
-      patient: true;
+      patient: {
+        include: {
+          user: true;
+        };
+      };
     };
   }>[];
   ok?: boolean;
@@ -171,16 +175,24 @@ export async function treatmentsReportData({
     if (data.from || data.to) {
       whereClause.created_at = {};
       if (data.from) {
-        whereClause.created_at.gte = data.from;
+        const fromDate = new Date(data.from);
+        fromDate.setUTCHours(0, 0, 0, 0);
+        whereClause.created_at.gte = fromDate;
       }
       if (data.to) {
-        whereClause.created_at.lte = data.to;
+        const toDate = new Date(data.to);
+        toDate.setUTCHours(23, 59, 59, 999);
+        whereClause.created_at.lte = toDate;
       }
     }
     const tratamientos = await prisma.carePlan.findMany({
       where: whereClause,
       include: {
-        patient: true,
+        patient: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
     return {
@@ -211,10 +223,14 @@ export async function treatmentTypesReportData({
     if (data.from || data.to) {
       whereClause.created_at = {};
       if (data.from) {
-        whereClause.created_at.gte = data.from;
+        const fromDate = new Date(data.from);
+        fromDate.setUTCHours(0, 0, 0, 0);
+        whereClause.created_at.gte = fromDate;
       }
       if (data.to) {
-        whereClause.created_at.lte = data.to;
+        const toDate = new Date(data.to);
+        toDate.setUTCHours(23, 59, 59, 999);
+        whereClause.created_at.lte = toDate;
       }
     }
     const tiposDeTratamiento = await prisma.treatment.findMany({

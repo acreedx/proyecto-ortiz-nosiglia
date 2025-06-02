@@ -6,6 +6,7 @@ import PatientOdontogram from "../../components/patient-odontogram";
 import { prisma } from "../../../../../../lib/prisma/prisma";
 import { rolesList } from "../../../../../../lib/nextauth/rolesList";
 import { FaArrowCircleLeft } from "react-icons/fa";
+import CreateOdontogramButton from "../../components/create-odontogram-button";
 
 export default async function Page({
   params,
@@ -37,6 +38,12 @@ export default async function Page({
   if (!paciente) {
     return <div>No encontrado</div>;
   }
+  if (!paciente.patient) {
+    return <div>No encontrado</div>;
+  }
+  if (!paciente.patient.odontogram) {
+    return <div>No encontrado</div>;
+  }
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
@@ -60,6 +67,7 @@ export default async function Page({
             odontogramRows: paciente.patient?.odontogram?.odontogram_row,
           }}
         />
+        <CreateOdontogramButton odontogramId={paciente.patient.odontogram.id} />
       </main>
     </CanStaff>
   );

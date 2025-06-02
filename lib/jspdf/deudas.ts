@@ -39,8 +39,37 @@ export async function reporteDeudas({
     14,
     46
   );
-  if (data.from && data.to) {
-    doc.text(`Período: ${data.from} a ${data.to}`, 14, 54);
+  if (data.from || data.to) {
+    doc.text(
+      `Período: ${
+        data.from
+          ? "Desde " +
+            new Intl.DateTimeFormat("es-ES", {
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+              timeZone: "UTC",
+            })
+              .format(new Date(data.from))
+              .toString() +
+            " "
+          : ""
+      } ${
+        data.to
+          ? "hasta " +
+            new Intl.DateTimeFormat("es-ES", {
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+              timeZone: "UTC",
+            })
+              .format(new Date(data.to))
+              .toString()
+          : ""
+      }`,
+      14,
+      54
+    );
   } else {
     doc.text("Período: Todos los registros", 14, 54);
   }
