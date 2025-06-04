@@ -1,45 +1,43 @@
 import { Accordion, Box, Stack, Card, Badge, Text } from "@chakra-ui/react";
 import React from "react";
 import { FaCalendar } from "react-icons/fa";
-interface Appointment {
-  id: string;
-  patientName: string;
-  date: string;
-  time: string;
-  reason: string;
-  status: "Pendiente" | "Completada" | "Cancelada";
-}
-export default function AppointmentAccordion() {
-  const appointments: Appointment[] = [
-    {
-      id: "1",
-      patientName: "Juan Pérez",
-      date: "2025-05-15",
-      time: "10:00",
-      reason: "Control dental",
-      status: "Pendiente",
-    },
-    {
-      id: "2",
-      patientName: "María Gómez",
-      date: "2025-05-15",
-      time: "11:30",
-      reason: "Dolor de muela",
-      status: "Completada",
-    },
-    {
-      id: "3",
-      patientName: "Luis Ortega",
-      date: "2025-05-16",
-      time: "09:00",
-      reason: "Extracción",
-      status: "Cancelada",
-    },
-  ];
+import { MockAppointment } from "../../../(private)/area-administrativa/citas-dentista/page";
+import { appointmentStatusList } from "../../../../types/statusList";
+export const statusColorMap: Record<string, string> = {
+  [appointmentStatusList.STATUS_CANCELADA]: "red",
+  [appointmentStatusList.STATUS_COMPLETADA]: "green",
+  [appointmentStatusList.STATUS_CONFIRMADA]: "blue",
+  [appointmentStatusList.STATUS_NO_ASISTIDA]: "gray",
+  [appointmentStatusList.STATUS_PENDIENTE]: "yellow",
+};
+export const statusLabelMap: Record<string, string> = {
+  [appointmentStatusList.STATUS_CANCELADA]: "Cancelada",
+  [appointmentStatusList.STATUS_COMPLETADA]: "Completada",
+  [appointmentStatusList.STATUS_CONFIRMADA]: "Confirmada",
+  [appointmentStatusList.STATUS_NO_ASISTIDA]: "No Asistida",
+  [appointmentStatusList.STATUS_PENDIENTE]: "Pendiente",
+};
+export default function AppointmentAccordion({
+  MockAppointments,
+}: {
+  MockAppointments: MockAppointment[];
+}) {
   const grouped = {
-    Pendiente: appointments.filter((a) => a.status === "Pendiente"),
-    Completada: appointments.filter((a) => a.status === "Completada"),
-    Cancelada: appointments.filter((a) => a.status === "Cancelada"),
+    Pendiente: MockAppointments.filter(
+      (a) => a.status === appointmentStatusList.STATUS_PENDIENTE
+    ),
+    Completada: MockAppointments.filter(
+      (a) => a.status === appointmentStatusList.STATUS_COMPLETADA
+    ),
+    Cancelada: MockAppointments.filter(
+      (a) => a.status === appointmentStatusList.STATUS_CANCELADA
+    ),
+    NoAsistida: MockAppointments.filter(
+      (a) => a.status === appointmentStatusList.STATUS_NO_ASISTIDA
+    ),
+    Confirmada: MockAppointments.filter(
+      (a) => a.status === appointmentStatusList.STATUS_CONFIRMADA
+    ),
   };
   return (
     <Accordion.Root multiple defaultValue={["Pendiente"]}>
@@ -79,15 +77,9 @@ export default function AppointmentAccordion() {
                         </Text>
                         <Text color="gray.600">Motivo: {appt.reason}</Text>
                         <Badge
-                          colorScheme={
-                            appt.status === "Pendiente"
-                              ? "yellow"
-                              : appt.status === "Completada"
-                                ? "green"
-                                : "red"
-                          }
+                          colorPalette={statusColorMap[appt.status] || "gray"}
                         >
-                          {appt.status}
+                          {statusLabelMap[appt.status] || "-"}
                         </Badge>
                       </Stack>
                     </Card.Body>
