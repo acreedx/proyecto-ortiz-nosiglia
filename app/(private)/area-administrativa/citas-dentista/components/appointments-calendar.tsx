@@ -9,99 +9,81 @@ import {
   DateSelectArg,
   EventChangeArg,
   EventClickArg,
-  EventInput,
 } from "@fullcalendar/core/index.js";
-import { useState } from "react";
+import { SetStateAction } from "react";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
-import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
-import { useDialog } from "@chakra-ui/react";
-import AppointmentsCreateCalendarForm from "../../citas/components/appointments-create-calendar-form";
-import { MockAppointment } from "../page";
-import { statusColorMap } from "../../../../(public)/citas/components/appointments-accordion";
-import { User } from "@prisma/client";
-function convertirAppointmentsAEventos(
-  appointments: MockAppointment[]
-): EventInput[] {
-  return appointments.map((appt) => {
-    const start = new Date(`${appt.date}T${appt.time}`);
-    const end = new Date(start.getTime() + 30 * 60 * 1000);
-    return {
-      id: appt.id,
-      title: `${appt.patientName}`,
-      start,
-      end,
-      allDay: false,
-      color: statusColorMap[appt.status] || "gray",
-    };
-  });
-}
+import { UseDialogReturn } from "@chakra-ui/react";
+import { Appointment, Prisma } from "@prisma/client";
+import { convertirAppointmentsAEventos } from "../../../../../types/appointmentStatusMaps";
 export default function AppointmentsCalendar({
-  MockAppointments,
-  patients,
+  props,
 }: {
-  MockAppointments: MockAppointment[];
-  patients: User[];
+  props: {
+    appointments: Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true;
+          };
+        };
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true;
+              };
+            };
+          };
+        };
+      };
+    }>[];
+    setselectedDate: React.Dispatch<SetStateAction<Date | undefined>>;
+    createAppointmentDialog: UseDialogReturn;
+    editAppointmentDialog: UseDialogReturn;
+    completeAppointmentDialog: UseDialogReturn;
+    cancelAppointmentDialog: UseDialogReturn;
+    viewAppointmentDialog: UseDialogReturn;
+    setselectedAppointment: React.Dispatch<
+      React.SetStateAction<Appointment | undefined>
+    >;
+  };
 }) {
-  const [selectedDate, setselectedDate] = useState<Date>();
-  const createAppointmentDialog = useDialog();
-  const viewAppointmentDialog = useDialog();
-  const [MockEvents, setMockEvents] = useState<EventInput[]>(
-    convertirAppointmentsAEventos(MockAppointments)
-  );
   const handleEventChange = async (e: EventChangeArg) => {
-    const evento = e.event;
+    //const evento = e.event;
     const isConfirmed = await mostrarAlertaConfirmacion({
       mensaje: "Desea cambiar la fecha de esta cita?",
     });
     if (isConfirmed) {
-      setMockEvents((prevEvents) =>
-        prevEvents.map((ev) =>
-          ev.id === evento.id
-            ? {
-                ...ev,
-                start: evento.start!,
-                end: evento.end!,
-              }
-            : ev
-        )
-      );
+      //todo actualizar la fecha de la cita
     } else {
       e.revert();
     }
   };
   const handleDateSelect = async (e: DateSelectArg) => {
     const fechaElegida = e.start;
-    fechaElegida.setHours(16, 0, 0, 0);
-    setselectedDate(fechaElegida);
-    createAppointmentDialog.setOpen(true);
-    /*
-    const nuevoEvento = {
-      id: `evt-${Date.now()}`,
-      title: "Evento nuevo",
-      allDay: false,
-      start: fechaElegida,
-      end: new Date(fechaElegida.getTime() + 30 * 60 * 1000),
-    };
-    setMockEvents((prevEvents) => [...prevEvents, nuevoEvento]);
-    console.log(MockEvents);*/
-    //todo crear un nuevo evento
+    fechaElegida.setUTCHours(16, 0, 0, 0);
+    props.setselectedDate(fechaElegida);
+    props.createAppointmentDialog.setOpen(true);
   };
   const handleClickEvent = async (event: EventClickArg) => {
-    const eventoEncontrado = MockEvents.find((e) => e.id === event.event.id);
-    viewAppointmentDialog.setOpen(true);
-    console.log(eventoEncontrado);
+    const eventoEncontrado = props.appointments.find(
+      (e) => e.id === Number(event.event.id)
+    );
+    props.setselectedAppointment(eventoEncontrado);
+    props.viewAppointmentDialog.setOpen(true);
     //todo mostrar evento del calendario
   };
   return (
     <div className="w-3/4">
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+        timeZone="UTC"
         headerToolbar={{
           left: "prev,next today",
           center: "title",
           right: "timeGridDay,timeGridWeek,dayGridMonth,listMonth",
         }}
-        height={"100%"}
+        height={"auto"}
         initialView="dayGridMonth"
         selectable={true}
         editable={true}
@@ -112,17 +94,9 @@ export default function AppointmentsCalendar({
         locale={esLocale}
         slotMinTime="08:00:00"
         slotMaxTime="17:00:00"
-        events={MockEvents}
+        events={convertirAppointmentsAEventos(props.appointments)}
         eventClick={handleClickEvent}
       />
-      <EditDialog dialog={createAppointmentDialog}>
-        <AppointmentsCreateCalendarForm
-          props={{ pacientes: patients, selectedDate: selectedDate }}
-        />
-      </EditDialog>
-      <EditDialog dialog={viewAppointmentDialog}>
-        Ver información de la cita
-      </EditDialog>
     </div>
   );
 }

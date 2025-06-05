@@ -4,6 +4,7 @@ import AppointmentAccordion from "./components/appointments-accordion";
 import { auth } from "../../../lib/nextauth/auth";
 import { rolesList } from "../../../lib/nextauth/rolesList";
 import Banner from "../../../components/index/banner";
+import { prisma } from "../../../lib/prisma/prisma";
 
 export default async function Page() {
   const session = await auth();
@@ -20,23 +21,41 @@ export default async function Page() {
         </div>
       </main>
     );
-  {
-    return (
-      session.user.role === rolesList.PACIENTE && (
-        <main className="flex-grow p-4">
-          <Flex direction={{ base: "column", md: "row" }} w="100%" gap={2}>
-            <div className="w-full md:w-1/2">
-              <Heading>Pantalla de citas</Heading>
-              <Box p={1}>
-                <AppointmentAccordion />
-              </Box>
-            </div>
-            <div className="flex flex-col w-full h-fit md:w-1/2 ">
-              <CalendarioDeCitas />
-            </div>
-          </Flex>
-        </main>
-      )
-    );
+  const userId = await prisma.user.findUnique({
+    where: {
+      id: session.user.id_db,
+    },
+    select: {
+      patient: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+  if (!userId || !userId.patient) {
+    return <div>No encontrado</div>;
   }
+  const appointments = await prisma.appointment.findMany({
+    where: {
+      patient_id: userId.patient.id,
+    },
+  });
+  return (
+    session.user.role === rolesList.PACIENTE && (
+      <main className="flex-grow p-4">
+        <Flex direction={{ base: "column", md: "row" }} w="100%" gap={2}>
+          <div className="w-full md:w-1/2">
+            <Heading>Pantalla de citas</Heading>
+            <Box p={1}>
+              <AppointmentAccordion appointments={appointments} />
+            </Box>
+          </div>
+          <div className="flex flex-col w-full h-fit md:w-1/2 ">
+            <CalendarioDeCitas />
+          </div>
+        </Flex>
+      </main>
+    )
+  );
 }

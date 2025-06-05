@@ -13,16 +13,14 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { toaster } from "../../../../../components/ui/toaster";
+import { horariosDisponibles } from "../../citas/actions/operations";
+import { User } from "@prisma/client";
+import formatDateLocal from "../../../../../types/dateFormatter";
+import { createDentistAppointment } from "../actions/operations";
 import {
   CreateAppointmentCalendarSchema,
   TCreateAppointmentCalendarSchema,
-} from "../../../../../lib/zod/z-appointment-schemas";
-import {
-  createDentistAppointment,
-  horariosDisponibles,
-} from "../actions/operations";
-import { User } from "@prisma/client";
-import formatDateLocal from "../../../../../types/dateFormatter";
+} from "../../../../../lib/zod/z-appointment-calendar.schemas";
 
 export default function AppointmentsCreateCalendarForm({
   props,

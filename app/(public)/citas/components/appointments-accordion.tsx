@@ -1,8 +1,9 @@
 import { Accordion, Box, Stack, Card, Badge, Text } from "@chakra-ui/react";
 import React from "react";
 import { FaCalendar } from "react-icons/fa";
-import { MockAppointment } from "../../../(private)/area-administrativa/citas-dentista/page";
 import { appointmentStatusList } from "../../../../types/statusList";
+import { Prisma } from "@prisma/client";
+import { timeFormatter } from "../../../../types/dateFormatter";
 export const statusColorMap: Record<string, string> = {
   [appointmentStatusList.STATUS_CANCELADA]: "red",
   [appointmentStatusList.STATUS_COMPLETADA]: "green",
@@ -18,26 +19,63 @@ export const statusLabelMap: Record<string, string> = {
   [appointmentStatusList.STATUS_PENDIENTE]: "Pendiente",
 };
 export default function AppointmentAccordion({
-  MockAppointments,
+  appointments,
 }: {
-  MockAppointments: MockAppointment[];
+  appointments: Prisma.AppointmentGetPayload<{
+    include: {
+      patient: {
+        include: {
+          user: true;
+        };
+      };
+      doctor: {
+        include: {
+          staff: {
+            include: {
+              user: true;
+            };
+          };
+        };
+      };
+    };
+  }>[];
 }) {
   const grouped = {
-    Pendiente: MockAppointments.filter(
-      (a) => a.status === appointmentStatusList.STATUS_PENDIENTE
-    ),
-    Completada: MockAppointments.filter(
-      (a) => a.status === appointmentStatusList.STATUS_COMPLETADA
-    ),
-    Cancelada: MockAppointments.filter(
-      (a) => a.status === appointmentStatusList.STATUS_CANCELADA
-    ),
-    NoAsistida: MockAppointments.filter(
-      (a) => a.status === appointmentStatusList.STATUS_NO_ASISTIDA
-    ),
-    Confirmada: MockAppointments.filter(
-      (a) => a.status === appointmentStatusList.STATUS_CONFIRMADA
-    ),
+    Pendiente: appointments
+      .filter((a) => a.status === appointmentStatusList.STATUS_PENDIENTE)
+      .sort(
+        (a, b) =>
+          new Date(a.programed_date_time).getTime() -
+          new Date(b.programed_date_time).getTime()
+      ),
+    Completada: appointments
+      .filter((a) => a.status === appointmentStatusList.STATUS_COMPLETADA)
+      .sort(
+        (a, b) =>
+          new Date(a.programed_date_time).getTime() -
+          new Date(b.programed_date_time).getTime()
+      ),
+    Cancelada: appointments
+      .filter((a) => a.status === appointmentStatusList.STATUS_CANCELADA)
+      .sort(
+        (a, b) =>
+          new Date(a.programed_date_time).getTime() -
+          new Date(b.programed_date_time).getTime()
+      ),
+    NoAsistida: appointments
+      .filter((a) => a.status === appointmentStatusList.STATUS_NO_ASISTIDA)
+      .sort(
+        (a, b) =>
+          new Date(a.programed_date_time).getTime() -
+          new Date(b.programed_date_time).getTime()
+      ),
+    Confirmada: appointments
+      .filter((a) => a.status === appointmentStatusList.STATUS_CONFIRMADA)
+      .sort(
+        (a, b) =>
+          new Date(a.programed_date_time).getTime() -
+          new Date(b.programed_date_time).getTime()
+      ),
   };
   return (
     <Accordion.Root multiple defaultValue={["Pendiente"]}>
@@ -63,23 +101,38 @@ export default function AppointmentAccordion({
           </Accordion.ItemTrigger>
           <Accordion.ItemContent px={4} pb={4}>
             {list.length === 0 ? (
-              <Text color="gray.500">No hay citas</Text>
+              <Text color="gray.500" className="pt-4">
+                No hay citas
+              </Text>
             ) : (
               <Stack gap={4} mt={2}>
                 {list.map((appt) => (
                   <Card.Root key={appt.id} variant="outline">
                     <Card.Body>
                       <Stack gap={1}>
-                        <Text fontWeight="bold">{appt.patientName}</Text>
+                        <Text fontWeight="bold">
+                          {appt.patient.user.first_name}{" "}
+                          {appt.patient.user.last_name}
+                        </Text>
                         <Text>
                           <FaCalendar color="orange" />
-                          {appt.date} a las {appt.time}
+                          {new Intl.DateTimeFormat("es-ES", {
+                            day: "numeric",
+                            month: "numeric",
+                            year: "numeric",
+                            timeZone: "UTC",
+                          })
+                            .format(appt.programed_date_time)
+                            .toString()}{" "}
+                          a las {timeFormatter(appt.programed_date_time)}
                         </Text>
                         <Text color="gray.600">Motivo: {appt.reason}</Text>
                         <Badge
-                          colorPalette={statusColorMap[appt.status] || "gray"}
+                          colorPalette={
+                            appt.status ? statusColorMap[appt.status] : "gray"
+                          }
                         >
-                          {statusLabelMap[appt.status] || "-"}
+                          {appt.status ? statusLabelMap[appt.status] : "-"}
                         </Badge>
                       </Stack>
                     </Card.Body>

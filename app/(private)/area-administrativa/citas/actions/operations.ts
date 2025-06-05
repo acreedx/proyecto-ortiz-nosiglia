@@ -2,12 +2,10 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "../../../../../lib/prisma/prisma";
 import {
-  CreateAppointmentCalendarSchema,
   CreateAppointmentSchema,
   EditAppointmentSchema,
   TCancelAppointmentSchema,
   TCompleteAppointmentSchema,
-  TCreateAppointmentCalendarSchema,
   TCreateAppointmentSchema,
   TEditAppointmentSchema,
 } from "../../../../../lib/zod/z-appointment-schemas";
@@ -20,7 +18,6 @@ import {
 import { appointmentCost } from "../../../../../types/consts";
 import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
 import { Prisma } from "@prisma/client";
-import { auth } from "../../../../../lib/nextauth/auth";
 
 export async function create({
   data,
@@ -363,125 +360,6 @@ export async function horariosDisponibles({
   }
 }
 
-export async function createDentistAppointment({
-  data,
-}: {
-  data: TCreateAppointmentCalendarSchema;
-}): Promise<{ ok: boolean }> {
-  try {
-    const tryParse = CreateAppointmentCalendarSchema.safeParse(data);
-    if (!tryParse.success) {
-      return {
-        ok: false,
-      };
-    }
-    const session = await auth();
-    if (!session) {
-      return {
-        ok: false,
-      };
-    }
-    const userPatient = await prisma.user.findUnique({
-      where: {
-        id: data.patient_id,
-      },
-      include: {
-        patient: true,
-      },
-    });
-    if (!userPatient) {
-      return {
-        ok: false,
-      };
-    }
-    const userDoctor = await prisma.user.findUnique({
-      where: {
-        id: session.user.id_db,
-      },
-      include: {
-        staff: {
-          include: {
-            doctor: true,
-          },
-        },
-      },
-    });
-    if (!userDoctor)
-      return {
-        ok: false,
-      };
-    /*
-    todo validar si el dentista tiene alguna cita en ese horario
-    const start = new Date(`${fecha}T${hora}`);
-    const end = new Date(start.getTime() + 30 * 60 * 1000);
-    const citaExistente = await prisma.appointment.findFirst({
-      where: {
-        practitionerId: session.user.id,
-        AND: [
-          {
-            OR: [
-              { start: { lte: start }, end: { gt: start } },
-              { start: { lt: end }, end: { gte: end } },
-              { start: { gte: start }, end: { lte: end } },
-            ],
-          },
-        ],
-      },
-    });
-    if (citaExistente) {
-      return {
-        success: false,
-        error:
-          "Seleccione otro horario para la cita, ya hay una reservada en esa fecha y hora.",
-      };
-    }
-    todo validar si el paciente tiene una cita en ese horario
-    const citaExistentePaciente = await prisma.appointment.findFirst({
-      where: {
-        subjectId: paciente,
-        AND: [
-          {
-            OR: [
-              { start: { lte: start }, end: { gt: start } },
-              { start: { lt: end }, end: { gte: end } },
-              { start: { gte: start }, end: { lte: end } },
-            ],
-          },
-        ],
-      },
-    });
-
-    if (citaExistentePaciente) {
-      return {
-        success: false,
-        error:
-          "Seleccione otro horario para la cita, ya tiene una reservada en esa fecha y hora.",
-      };
-    }
-    */
-    const [horaStr, minutoStr] = data.hora_cita.split(":");
-    const fechaConHora = new Date(data.programed_date_time);
-    fechaConHora.setHours(parseInt(horaStr, 10), parseInt(minutoStr, 10), 0, 0);
-    await prisma.appointment.create({
-      data: {
-        scheduled_on: new Date(),
-        programed_date_time: fechaConHora,
-        specialty: data.specialty,
-        reason: data.reason,
-        note: data.note,
-        patient_instruction: data.patient_instruction,
-        patient_id: userPatient.patient!.id,
-        doctor_id: userDoctor.staff!.doctor!.id,
-        status: appointmentStatusList.STATUS_PENDIENTE,
-      },
-    });
-    revalidatePath("/area-administrativa/citas-dentista");
-    return { ok: true };
-  } catch (e) {
-    console.log(e);
-    return { ok: false };
-  }
-}
 export async function appointmentReportData({
   data,
 }: {

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const CreateAppointmentSchema = z.object({
+export const CreateAppointmentCalendarSchema = z.object({
   programed_date_time: z
     .string({ required_error: "La fecha programada es obligatoria" })
     .refine(
@@ -12,6 +12,7 @@ export const CreateAppointmentSchema = z.object({
         message: "La fecha no es válida",
       }
     ),
+  hora_cita: z.string(),
   specialty: z
     .string()
     .min(1, "La especialidad es obligatoria")
@@ -25,11 +26,10 @@ export const CreateAppointmentSchema = z.object({
   patient_id: z.coerce.number({
     required_error: "El ID del paciente es obligatorio",
   }),
-  doctor_id: z.coerce.number({
-    required_error: "El ID del doctor es obligatorio",
-  }),
 });
-export type TCreateAppointmentSchema = z.infer<typeof CreateAppointmentSchema>;
+export type TCreateAppointmentCalendarSchema = z.infer<
+  typeof CreateAppointmentCalendarSchema
+>;
 
 export const EditAppointmentSchema = z.object({
   id: z.coerce.number({
