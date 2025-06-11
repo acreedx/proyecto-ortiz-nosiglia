@@ -18,13 +18,21 @@ import {
 import { appointmentCost } from "../../../../../types/consts";
 import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
 import { Prisma } from "@prisma/client";
+import { auth } from "../../../../../lib/nextauth/auth";
+import { registerLog } from "../../../../../lib/logs/logger";
 
 export async function create({
   data,
 }: {
   data: TCreateAppointmentSchema;
-}): Promise<{ ok: boolean }> {
+}): Promise<{ ok: boolean; mensaje?: string }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = CreateAppointmentSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -55,23 +63,41 @@ export async function create({
         },
       },
     });
-    if (!userDoctor)
+    if (!userDoctor) {
       return {
         ok: false,
       };
-    /*
-    todo validar si el dentista tiene alguna cita en ese horario
-    const start = new Date(`${fecha}T${hora}`);
-    const end = new Date(start.getTime() + 30 * 60 * 1000);
+    }
+    const [horaStr, minutoStr] = data.hora_cita.split(":");
+    const fechaConHora = new Date(data.programed_date_time);
+    fechaConHora.setUTCHours(
+      parseInt(horaStr, 10),
+      parseInt(minutoStr, 10),
+      0,
+      0
+    );
+    const fechaFin = new Date(fechaConHora.getTime() + 30 * 60 * 1000);
+
+    const start = fechaConHora;
+    const end = fechaFin;
     const citaExistente = await prisma.appointment.findFirst({
       where: {
-        practitionerId: session.user.id,
+        doctor_id: userDoctor.staff!.doctor!.id,
         AND: [
           {
             OR: [
-              { start: { lte: start }, end: { gt: start } },
-              { start: { lt: end }, end: { gte: end } },
-              { start: { gte: start }, end: { lte: end } },
+              {
+                programed_date_time: { lte: start },
+                programed_end_date_time: { gt: start },
+              },
+              {
+                programed_date_time: { lt: end },
+                programed_end_date_time: { gte: end },
+              },
+              {
+                programed_date_time: { gte: start },
+                programed_end_date_time: { lte: end },
+              },
             ],
           },
         ],
@@ -79,39 +105,46 @@ export async function create({
     });
     if (citaExistente) {
       return {
-        success: false,
-        error:
+        ok: false,
+        mensaje:
           "Seleccione otro horario para la cita, ya hay una reservada en esa fecha y hora.",
       };
     }
-    todo validar si el paciente tiene una cita en ese horario
     const citaExistentePaciente = await prisma.appointment.findFirst({
       where: {
-        subjectId: paciente,
+        patient_id: userPatient.patient!.id,
         AND: [
           {
             OR: [
-              { start: { lte: start }, end: { gt: start } },
-              { start: { lt: end }, end: { gte: end } },
-              { start: { gte: start }, end: { lte: end } },
+              {
+                programed_date_time: { lte: start },
+                programed_end_date_time: { gt: start },
+              },
+              {
+                programed_date_time: { lt: end },
+                programed_end_date_time: { gte: end },
+              },
+              {
+                programed_date_time: { gte: start },
+                programed_end_date_time: { lte: end },
+              },
             ],
           },
         ],
       },
     });
-
     if (citaExistentePaciente) {
       return {
-        success: false,
-        error:
+        ok: false,
+        mensaje:
           "Seleccione otro horario para la cita, ya tiene una reservada en esa fecha y hora.",
       };
     }
-    */
     await prisma.appointment.create({
       data: {
         scheduled_on: new Date(),
-        programed_date_time: new Date(data.programed_date_time),
+        programed_date_time: fechaConHora,
+        programed_end_date_time: fechaFin,
         specialty: data.specialty,
         reason: data.reason,
         note: data.note,
@@ -120,6 +153,13 @@ export async function create({
         doctor_id: userDoctor.staff!.doctor!.id,
         status: appointmentStatusList.STATUS_PENDIENTE,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "crear",
+      module: "citas",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/citas");
     return { ok: true };
@@ -135,6 +175,12 @@ export async function edit({
   data: TEditAppointmentSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = EditAppointmentSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -153,18 +199,40 @@ export async function edit({
         },
       },
     });
+    if (!userDoctor) {
+      return {
+        ok: false,
+      };
+    }
+    const [horaStr, minutoStr] = data.hora_cita.split(":");
+    const fechaConHora = new Date(data.programed_date_time);
+    fechaConHora.setUTCHours(
+      parseInt(horaStr, 10),
+      parseInt(minutoStr, 10),
+      0,
+      0
+    );
+    const fechaFin = new Date(fechaConHora.getTime() + 30 * 60 * 1000);
     await prisma.appointment.update({
       where: {
         id: data.id,
       },
       data: {
-        programed_date_time: new Date(data.programed_date_time),
+        programed_date_time: fechaConHora,
+        programed_end_date_time: fechaFin,
         specialty: data.specialty,
         reason: data.reason,
         note: data.note,
         patient_instruction: data.patient_instruction,
-        doctor_id: userDoctor!.staff!.doctor!.id,
+        doctor_id: userDoctor.staff!.doctor!.id,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "citas",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/citas");
     return { ok: true };
@@ -180,6 +248,12 @@ export async function cancelAppointment({
   data: TCancelAppointmentSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.appointment.update({
       where: {
         id: data.id,
@@ -190,6 +264,13 @@ export async function cancelAppointment({
         cancellation_date: new Date(),
         cancellation_reason: data.cancellation_reason,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "citas",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/citas");
     return { ok: true };
@@ -205,6 +286,12 @@ export async function completeAppointment({
   data: TCompleteAppointmentSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const updatedAppointment = await prisma.appointment.update({
       where: {
         id: data.id,
@@ -240,7 +327,6 @@ export async function completeAppointment({
         },
       },
     });
-
     await prisma.invoice.create({
       data: {
         account_id: updatedAppointment.patient.account.id,
@@ -266,6 +352,13 @@ export async function completeAppointment({
         doctor_id: updatedAppointment.doctor_id,
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "citas",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/citas");
     return { ok: true };
   } catch (e) {
@@ -280,6 +373,12 @@ export async function confirmAppointment({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.appointment.update({
       where: {
         id: id,
@@ -287,6 +386,13 @@ export async function confirmAppointment({
       data: {
         status: appointmentStatusList.STATUS_CONFIRMADA,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "citas",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/citas");
     return { ok: true };
@@ -302,6 +408,12 @@ export async function markAppointmentNotAssisted({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.appointment.update({
       where: {
         id: id,
@@ -309,6 +421,13 @@ export async function markAppointmentNotAssisted({
       data: {
         status: appointmentStatusList.STATUS_NO_ASISTIDA,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "citas",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/citas");
     return { ok: true };
@@ -324,6 +443,12 @@ export async function pendingAppointment({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.appointment.update({
       where: {
         id: id,
@@ -331,6 +456,13 @@ export async function pendingAppointment({
       data: {
         status: appointmentStatusList.STATUS_PENDIENTE,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "citas",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/citas");
     return { ok: true };
@@ -346,7 +478,6 @@ export async function horariosDisponibles({
   date: Date;
 }): Promise<{ horarios: string[]; ok: boolean }> {
   try {
-    console.log(date);
     const intervalosHora = Array.from({ length: 18 }, (_, i) => {
       const hora = 8 + Math.floor(i / 2);
       const minutos = i % 2 === 0 ? "00" : "30";
@@ -386,6 +517,13 @@ export async function appointmentReportData({
   ok?: boolean;
 }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        citas: [],
+        ok: false,
+      };
+    }
     const whereClause: {
       created_at?: {
         gte?: Date;
@@ -423,6 +561,13 @@ export async function appointmentReportData({
           },
         },
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "citas",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     return {
       citas: citas,

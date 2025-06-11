@@ -73,8 +73,8 @@ export default function AppointmentsTable({
               year: "numeric",
               hour: "2-digit",
               minute: "2-digit",
-              hour12: false, // para formato 24h
-              // timeZone: "UTC",  // eliminar si quieres hora local
+              hour12: false,
+              timeZone: "UTC",
             })
               .format(new Date(params.value))
               .toString()

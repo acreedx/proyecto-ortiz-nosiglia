@@ -27,6 +27,9 @@ export default async function Page() {
     },
   });
   const appointments = await prisma.appointment.findMany({
+    orderBy: {
+      programed_date_time: "desc",
+    },
     include: {
       patient: {
         include: {

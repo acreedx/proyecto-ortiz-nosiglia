@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "../../../../../lib/prisma/prisma";
 import {
+  encounterStatusList,
   treatmentStatusList,
   userStatusList,
 } from "../../../../../types/statusList";
@@ -13,6 +14,8 @@ import {
 } from "../../../../../lib/zod/z-care-plan-schemas";
 import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
 import { Prisma, Treatment } from "@prisma/client";
+import { auth } from "../../../../../lib/nextauth/auth";
+import { registerLog } from "../../../../../lib/logs/logger";
 
 export async function create({
   data,
@@ -20,6 +23,12 @@ export async function create({
   data: TCreateCarePlanSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = CreateCarePlanSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -39,6 +48,13 @@ export async function create({
         patient_id: data.patient_id,
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "crear",
+      module: "tratamientos",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/tratamientos");
     return { ok: true };
   } catch (e) {
@@ -53,6 +69,12 @@ export async function edit({
   data: TEditCarePlanSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = EditCarePlanSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -74,6 +96,13 @@ export async function edit({
         patient_id: data.patient_id,
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "tratamientos",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/tratamientos");
     return { ok: true };
   } catch (e) {
@@ -88,6 +117,12 @@ export async function eliminate({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.carePlan.update({
       where: {
         id: id,
@@ -95,6 +130,13 @@ export async function eliminate({
       data: {
         status: userStatusList.INACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "deshabilitar",
+      module: "tratamientos",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/tratamientos");
     return { ok: true };
@@ -110,6 +152,12 @@ export async function restore({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.carePlan.update({
       where: {
         id: id,
@@ -117,6 +165,13 @@ export async function restore({
       data: {
         status: userStatusList.ACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "restaurar",
+      module: "tratamientos",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/tratamientos");
     return { ok: true };
@@ -132,7 +187,11 @@ export async function complete({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
-    await prisma.carePlan.update({
+    const session = await auth();
+    if (!session) {
+      return { ok: false };
+    }
+    const updatedCarePlan = await prisma.carePlan.update({
       where: {
         id: id,
       },
@@ -140,6 +199,32 @@ export async function complete({
         end_date: new Date(),
         status: treatmentStatusList.COMPLETADO,
       },
+      include: {
+        patient: {
+          include: {
+            account: true,
+          },
+        },
+      },
+    });
+
+    await prisma.invoice.create({
+      data: {
+        account_id: updatedCarePlan.patient.account.id,
+        date_issued: new Date(),
+        type: encounterStatusList.TRATAMIENTO,
+        total: updatedCarePlan.cost,
+        note: "ninguna",
+        status: userStatusList.ACTIVO,
+        staff_id: session.user.id_db,
+      },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "tratamientos",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/tratamientos");
     return { ok: true };
@@ -166,6 +251,13 @@ export async function treatmentsReportData({
   ok?: boolean;
 }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        tratamientos: [],
+        ok: false,
+      };
+    }
     const whereClause: {
       created_at?: {
         gte?: Date;
@@ -195,6 +287,13 @@ export async function treatmentsReportData({
         },
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "crear informe",
+      module: "tratamientos",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     return {
       tratamientos: tratamientos,
       ok: true,
@@ -214,6 +313,13 @@ export async function treatmentTypesReportData({
   ok?: boolean;
 }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        tiposDeTratamiento: [],
+        ok: false,
+      };
+    }
     const whereClause: {
       created_at?: {
         gte?: Date;
@@ -235,6 +341,13 @@ export async function treatmentTypesReportData({
     }
     const tiposDeTratamiento = await prisma.treatment.findMany({
       where: whereClause,
+    });
+    await registerLog({
+      type: "sistema",
+      action: "crear informe",
+      module: "tipos de tratamientos",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     return {
       tiposDeTratamiento: tiposDeTratamiento,

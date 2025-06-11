@@ -1,6 +1,6 @@
 import { Heading } from "@chakra-ui/react";
 import BreadCrumb from "../../../../components/admin/breadcrumb";
-import DropZone from "../deudas/components/drop-zone";
+import DropZone from "./components/drop-zone";
 import CanStaff from "../../../../lib/rbac/can-staff";
 
 export default function Page() {

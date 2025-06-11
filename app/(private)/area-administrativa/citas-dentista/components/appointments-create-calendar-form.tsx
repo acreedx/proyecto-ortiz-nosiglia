@@ -76,7 +76,7 @@ export default function AppointmentsCreateCalendarForm({
     }
     if (!res.ok) {
       toaster.create({
-        description: "Error al crear la cita",
+        description: res.mensaje ? res.mensaje : "Error al crear la cita",
         type: "error",
       });
     }

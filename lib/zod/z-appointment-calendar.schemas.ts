@@ -46,6 +46,7 @@ export const EditAppointmentSchema = z.object({
         message: "La fecha no es válida",
       }
     ),
+  hora_cita: z.string(),
   specialty: z
     .string()
     .min(1, "La especialidad es obligatoria")
@@ -56,9 +57,6 @@ export const EditAppointmentSchema = z.object({
     .max(100, "Máximo 100 caracteres"),
   note: z.string().max(200, "Máximo 200 caracteres").optional(),
   patient_instruction: z.string().max(200, "Máximo 200 caracteres").optional(),
-  doctor_id: z.coerce.number({
-    required_error: "El ID del doctor es obligatorio",
-  }),
 });
 export type TEditAppointmentSchema = z.infer<typeof EditAppointmentSchema>;
 

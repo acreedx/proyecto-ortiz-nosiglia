@@ -12,6 +12,7 @@ export const CreateAppointmentSchema = z.object({
         message: "La fecha no es válida",
       }
     ),
+  hora_cita: z.string(),
   specialty: z
     .string()
     .min(1, "La especialidad es obligatoria")
@@ -46,6 +47,7 @@ export const EditAppointmentSchema = z.object({
         message: "La fecha no es válida",
       }
     ),
+  hora_cita: z.string(),
   specialty: z
     .string()
     .min(1, "La especialidad es obligatoria")

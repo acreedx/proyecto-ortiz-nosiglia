@@ -52,6 +52,7 @@ export default async function Page({
         <InvoicesTable
           props={{
             invoices: user.patient.account.invoice,
+            accountId: Number(id),
           }}
         />
       </main>

@@ -74,6 +74,7 @@ export async function createUser({
         role_id: 6,
         staff: {
           create: {
+            status: userStatusList.ACTIVO,
             contratation_date: new Date(),
             payroll: {
               create: {},
@@ -89,153 +90,186 @@ export async function createUser({
           create: {
             odontogram: {
               create: {
+                status: userStatusList.ACTIVO,
                 odontogram_row: {
                   createMany: {
                     data: [
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ICSI",
                         temp: "61",
                         pieza: "21",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ILSI",
                         temp: "62",
                         pieza: "22",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "CSI",
                         temp: "63",
                         pieza: "23",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1PMSI",
                         temp: "64",
                         pieza: "24",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2PMSI",
                         temp: "65",
                         pieza: "25",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1MSI",
                         pieza: "26",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2MSI",
                         pieza: "27",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "3MSI",
                         pieza: "28",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "3MII",
                         pieza: "38",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2MII",
                         pieza: "37",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1MII",
                         pieza: "36",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2PMII",
                         temp: "75",
                         pieza: "35",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1PMII",
                         temp: "74",
                         pieza: "34",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "CII",
                         temp: "73",
                         pieza: "33",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ILII",
                         temp: "72",
                         pieza: "32",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ICII",
                         temp: "71",
                         pieza: "31",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ICSD",
                         temp: "51",
                         pieza: "11",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ILSD",
                         temp: "52",
                         pieza: "12",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "CSD",
                         temp: "53",
                         pieza: "13",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1PMSD",
                         temp: "54",
                         pieza: "14",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2PMSD",
                         temp: "55",
                         pieza: "15",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1MSD",
                         pieza: "16",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2MSD",
                         pieza: "17",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "3MSD",
                         pieza: "18",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "3MID",
                         pieza: "48",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2MID",
                         pieza: "47",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1MID",
                         pieza: "46",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2PMID",
                         temp: "85",
                         pieza: "45",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1PMID",
                         temp: "84",
                         pieza: "44",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "CID",
                         temp: "83",
                         pieza: "43",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ILID",
                         temp: "82",
                         pieza: "42",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ICID",
                         temp: "81",
                         pieza: "41",
@@ -284,7 +318,6 @@ export async function createUser({
   
         ¡Gracias por unirte a Ortiz Nosiglia!!`,
     });
-
     await signIn("credentials", {
       username: newUser.identification,
       password: generatedPassword,
@@ -366,6 +399,7 @@ export async function changePassword({
     `,
     });
     return { ok: true };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     console.log(e);
     return { ok: false };
@@ -451,7 +485,9 @@ export async function forgotPassword({
     `,
     });
     return { ok: true };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
+    console.log(e);
     return { ok: false };
   }
 }

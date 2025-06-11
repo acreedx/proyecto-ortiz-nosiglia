@@ -19,6 +19,8 @@ import {
 } from "../../../../../lib/zod/z-user-schemas";
 import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
 import { Prisma, Role } from "@prisma/client";
+import { registerLog } from "../../../../../lib/logs/logger";
+import { auth } from "../../../../../lib/nextauth/auth";
 
 export async function create({
   data,
@@ -28,6 +30,12 @@ export async function create({
   image: File | undefined;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = createUserSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -66,6 +74,7 @@ export async function create({
         role_id: data.rol_id,
         staff: {
           create: {
+            status: userStatusList.ACTIVO,
             contratation_date: new Date(),
             payroll: {
               create: {},
@@ -81,153 +90,186 @@ export async function create({
           create: {
             odontogram: {
               create: {
+                status: userStatusList.ACTIVO,
                 odontogram_row: {
                   createMany: {
                     data: [
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ICSI",
                         temp: "61",
                         pieza: "21",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ILSI",
                         temp: "62",
                         pieza: "22",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "CSI",
                         temp: "63",
                         pieza: "23",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1PMSI",
                         temp: "64",
                         pieza: "24",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2PMSI",
                         temp: "65",
                         pieza: "25",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1MSI",
                         pieza: "26",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2MSI",
                         pieza: "27",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "3MSI",
                         pieza: "28",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "3MII",
                         pieza: "38",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2MII",
                         pieza: "37",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1MII",
                         pieza: "36",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2PMII",
                         temp: "75",
                         pieza: "35",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1PMII",
                         temp: "74",
                         pieza: "34",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "CII",
                         temp: "73",
                         pieza: "33",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ILII",
                         temp: "72",
                         pieza: "32",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ICII",
                         temp: "71",
                         pieza: "31",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ICSD",
                         temp: "51",
                         pieza: "11",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ILSD",
                         temp: "52",
                         pieza: "12",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "CSD",
                         temp: "53",
                         pieza: "13",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1PMSD",
                         temp: "54",
                         pieza: "14",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2PMSD",
                         temp: "55",
                         pieza: "15",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1MSD",
                         pieza: "16",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2MSD",
                         pieza: "17",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "3MSD",
                         pieza: "18",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "3MID",
                         pieza: "48",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2MID",
                         pieza: "47",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1MID",
                         pieza: "46",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "2PMID",
                         temp: "85",
                         pieza: "45",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "1PMID",
                         temp: "84",
                         pieza: "44",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "CID",
                         temp: "83",
                         pieza: "43",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ILID",
                         temp: "82",
                         pieza: "42",
                       },
                       {
+                        status: userStatusList.ACTIVO,
                         msc: "ICID",
                         temp: "81",
                         pieza: "41",
@@ -267,6 +309,13 @@ export async function create({
       
             ¡Gracias por unirte a Ortiz Nosiglia!!`,
     });
+    await registerLog({
+      type: "sistema",
+      action: "crear",
+      module: "usuarios",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/organizaciones");
     return { ok: true };
   } catch (e) {
@@ -283,6 +332,12 @@ export async function edit({
   image: File | undefined;
 }): Promise<{ ok: boolean; errorMessage?: string }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = EditUserSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -323,6 +378,13 @@ export async function edit({
         role_id: data.rol_id,
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "usuarios",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/usuarios");
     return { ok: true };
   } catch (e) {
@@ -337,6 +399,12 @@ export async function eliminate({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.user.update({
       where: {
         id: id,
@@ -344,6 +412,13 @@ export async function eliminate({
       data: {
         status: userStatusList.INACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "deshabilitar",
+      module: "usuarios",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/usuarios");
     return { ok: true };
@@ -359,6 +434,12 @@ export async function restore({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.user.update({
       where: {
         id: id,
@@ -366,6 +447,13 @@ export async function restore({
       data: {
         status: userStatusList.ACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "restaurar",
+      module: "usuarios",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/usuarios");
     return { ok: true };
@@ -388,6 +476,13 @@ export async function usersReportData({
   ok?: boolean;
 }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        usuarios: [],
+        ok: false,
+      };
+    }
     const whereClause: {
       created_at?: {
         gte?: Date;
@@ -413,6 +508,13 @@ export async function usersReportData({
         role: true,
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "crear informe",
+      module: "usuarios",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     return {
       usuarios: usuarios,
       ok: true,
@@ -432,6 +534,13 @@ export async function rolesReportData({
   ok?: boolean;
 }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        roles: [],
+        ok: false,
+      };
+    }
     const whereClause: {
       created_at?: {
         gte?: Date;
@@ -453,6 +562,13 @@ export async function rolesReportData({
     }
     const roles = await prisma.role.findMany({
       where: whereClause,
+    });
+    await registerLog({
+      type: "sistema",
+      action: "crear informe",
+      module: "roles",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     return {
       roles: roles,

@@ -9,6 +9,8 @@ import {
 } from "../../../../../lib/zod/z-role-schemas";
 import { userStatusList } from "../../../../../types/statusList";
 import { rolesList } from "../../../../../lib/nextauth/rolesList";
+import { auth } from "../../../../../lib/nextauth/auth";
+import { registerLog } from "../../../../../lib/logs/logger";
 
 export async function create({
   data,
@@ -16,6 +18,12 @@ export async function create({
   data: TRoleSchema;
 }): Promise<{ ok: boolean; message?: string }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = RoleSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -49,6 +57,13 @@ export async function create({
         })),
       });
     });
+    await registerLog({
+      type: "sistema",
+      action: "crear",
+      module: "roles",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/roles");
     return { ok: true };
   } catch (e) {
@@ -63,6 +78,12 @@ export async function edit({
   data: TEditRoleSchema;
 }): Promise<{ ok: boolean; message?: string }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = EditRoleSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -106,6 +127,13 @@ export async function edit({
         })),
       }),
     ]);
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "roles",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/roles");
     return { ok: true };
   } catch (e) {
@@ -120,6 +148,12 @@ export async function eliminate({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.role.update({
       where: {
         id: id,
@@ -127,6 +161,13 @@ export async function eliminate({
       data: {
         status: userStatusList.INACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "deshabilitar",
+      module: "roles",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/roles");
     return { ok: true };
@@ -142,6 +183,12 @@ export async function restore({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.role.update({
       where: {
         id: id,
@@ -149,6 +196,13 @@ export async function restore({
       data: {
         status: userStatusList.ACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "restaurar",
+      module: "roles",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/roles");
     return { ok: true };

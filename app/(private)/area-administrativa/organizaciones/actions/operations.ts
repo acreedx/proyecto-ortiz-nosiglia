@@ -8,6 +8,8 @@ import {
   TOrganizationSchema,
 } from "../../../../../lib/zod/z-organization-schemas";
 import { userStatusList } from "../../../../../types/statusList";
+import { auth } from "../../../../../lib/nextauth/auth";
+import { registerLog } from "../../../../../lib/logs/logger";
 
 export async function createOrganization({
   data,
@@ -15,6 +17,12 @@ export async function createOrganization({
   data: TOrganizationSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = OrganizationSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -27,6 +35,13 @@ export async function createOrganization({
         address: data.address,
         status: userStatusList.ACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "crear",
+      module: "organizaciones",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/organizaciones");
     return { ok: true };
@@ -42,6 +57,12 @@ export async function editOrganization({
   data: TEditOrganizationSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = EditOrganizationSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -57,6 +78,13 @@ export async function editOrganization({
         address: data.address,
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "organizaciones",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/organizaciones");
     return { ok: true };
   } catch (e) {
@@ -71,6 +99,12 @@ export async function eliminateOrganization({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.organization.update({
       where: {
         id: id,
@@ -78,6 +112,13 @@ export async function eliminateOrganization({
       data: {
         status: userStatusList.INACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "deshabilitar",
+      module: "organizaciones",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/organizaciones");
     return { ok: true };
@@ -93,6 +134,12 @@ export async function rehabilitateOrganization({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.organization.update({
       where: {
         id: id,
@@ -100,6 +147,13 @@ export async function rehabilitateOrganization({
       data: {
         status: userStatusList.ACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "restaurar",
+      module: "organizaciones",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/organizaciones");
     return { ok: true };

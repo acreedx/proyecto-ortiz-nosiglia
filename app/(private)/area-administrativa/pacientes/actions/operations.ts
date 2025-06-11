@@ -6,7 +6,10 @@ import {
   TCreateImagingStudySchema,
 } from "../../../../../lib/zod/z-imaging-study-schemas";
 import { fileUploader } from "../../../../../lib/firebase/file-uploader";
-import { userStatusList } from "../../../../../types/statusList";
+import {
+  encounterStatusList,
+  userStatusList,
+} from "../../../../../types/statusList";
 import { Files, Organization, Prisma } from "@prisma/client";
 import {
   EditPatientSchema,
@@ -18,6 +21,8 @@ import {
 } from "../../../../../lib/zod/z-emergency-contact";
 import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
 import { rolesList } from "../../../../../lib/nextauth/rolesList";
+import { auth } from "../../../../../lib/nextauth/auth";
+import { registerLog } from "../../../../../lib/logs/logger";
 
 export async function create({
   data,
@@ -27,6 +32,12 @@ export async function create({
   files: File[];
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = CreateImagingStudySchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -41,7 +52,7 @@ export async function create({
         media: url,
       } as Files);
     }
-    await prisma.imagingStudy.create({
+    const createdImagingStudy = await prisma.imagingStudy.create({
       data: {
         description: data.description,
         cost: Number(data.cost),
@@ -53,6 +64,31 @@ export async function create({
           },
         },
       },
+      include: {
+        patient: {
+          include: {
+            account: true,
+          },
+        },
+      },
+    });
+    await prisma.invoice.create({
+      data: {
+        account_id: createdImagingStudy.patient.account.id,
+        date_issued: new Date(),
+        type: encounterStatusList.ESTUDIO_RADIOGRAFICO,
+        total: createdImagingStudy.cost || 0,
+        note: "ninguna",
+        status: userStatusList.ACTIVO,
+        staff_id: session.user.id_db,
+      },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "crear",
+      module: "pacientes",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath(
       `/area-administrativa/pacientes/imaging-studies/${data.patient_id}`
@@ -75,6 +111,12 @@ export async function editRow({
   };
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     //const tryParse = OrganizationSchema.safeParse(data);
     //if (!tryParse.success) {
     //  return {
@@ -91,6 +133,13 @@ export async function editRow({
         tratamiento: data.tratamiento,
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "pacientes",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     return { ok: true };
   } catch (e) {
     console.log(e);
@@ -104,6 +153,12 @@ export async function editPatient({
   data: TEditPatientSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = EditPatientSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -120,6 +175,13 @@ export async function editPatient({
         organization_id: data.organization_id,
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "pacientes",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/pacientes");
     return { ok: true };
   } catch (e) {
@@ -134,6 +196,12 @@ export async function editEmergencyContact({
   data: TEditEmergencyContact;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = EditEmergencyContact.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -156,6 +224,7 @@ export async function editEmergencyContact({
               address_city: data.address_city,
             },
             create: {
+              status: userStatusList.ACTIVO,
               relation: data.relation,
               name: data.name,
               phone: data.phone,
@@ -166,6 +235,13 @@ export async function editEmergencyContact({
           },
         },
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "pacientes",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/pacientes");
     return { ok: true };
@@ -192,6 +268,13 @@ export async function patientReportData({
   ok?: boolean;
 }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        pacientes: [],
+        ok: false,
+      };
+    }
     const userDateFilter: {
       created_at?: {
         gte?: Date;
@@ -233,6 +316,13 @@ export async function patientReportData({
         },
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "crear informe",
+      module: "pacientes",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     return {
       pacientes: pacientes,
       ok: true,
@@ -252,6 +342,13 @@ export async function organizationReportData({
   ok?: boolean;
 }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        organizations: [],
+        ok: false,
+      };
+    }
     const whereClause: {
       created_at?: {
         gte?: Date;
@@ -273,6 +370,13 @@ export async function organizationReportData({
     }
     const organizations = await prisma.organization.findMany({
       where: whereClause,
+    });
+    await registerLog({
+      type: "sistema",
+      action: "crear informe",
+      module: "organizaciones",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     return {
       organizations: organizations,
@@ -302,6 +406,12 @@ export async function odontogramReportData({
   ok?: boolean;
 }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const odontogram = await prisma.odontogram.findUnique({
       where: {
         id: odontogramId,
@@ -324,6 +434,13 @@ export async function odontogramReportData({
         ok: false,
       };
     }
+    await registerLog({
+      type: "sistema",
+      action: "crear informe",
+      module: "pacientes",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     return {
       odontogram: odontogram,
       ok: true,

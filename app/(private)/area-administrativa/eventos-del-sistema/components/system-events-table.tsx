@@ -1,9 +1,7 @@
 "use client";
 import type { ColDef } from "ag-grid-community";
-import { IconButton } from "@chakra-ui/react";
 import { AuditEvents } from "@prisma/client";
 import React, { useEffect, useState } from "react";
-import { FaEye } from "react-icons/fa";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
@@ -14,7 +12,9 @@ export default function SystemEventsTable({
 }: {
   props: { eventos: AuditEvents[] };
 }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [rowData, setRowData] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
     { field: "id", headerName: "ID" },
     { field: "type", headerName: "Tipo", filter: true },
@@ -32,31 +32,22 @@ export default function SystemEventsTable({
       field: "occurred_date_time",
       headerName: "Fecha y Hora",
       valueFormatter: (params) =>
-        params.value ? new Date(params.value).toLocaleString() : "",
+        params.value
+          ? new Intl.DateTimeFormat("es-ES", {
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })
+              .format(new Date(params.value))
+              .toString()
+          : "",
     },
     { field: "network", headerName: "Red", filter: true },
     { field: "person_name", headerName: "Nombre Persona", filter: true },
     { field: "person_role", headerName: "Rol", filter: true },
-    {
-      field: "actions",
-      headerName: "Acciones",
-      sortable: false,
-      cellRenderer: (params: any) => {
-        return (
-          <div className="flex flex-row items-center justify-center w-full">
-            <IconButton
-              size="sm"
-              colorPalette="orange"
-              variant="outline"
-              aria-label="Ver Detalles"
-              //onClick={() => handleViewDetails(params.data)}
-            >
-              <FaEye color="blue" />
-            </IconButton>
-          </div>
-        );
-      },
-    },
   ]);
   useEffect(() => {
     setRowData([...props.eventos]);

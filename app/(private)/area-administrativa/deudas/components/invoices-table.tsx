@@ -3,13 +3,14 @@ import { IconButton } from "@chakra-ui/react";
 import { Invoice } from "@prisma/client";
 import { ColDef } from "ag-grid-community";
 import React, { useEffect, useState } from "react";
-import { FaFileContract, FaFileInvoice, FaPrint } from "react-icons/fa";
+import { FaFileInvoice, FaPrint } from "react-icons/fa";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AgGridReact } from "ag-grid-react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
 import { userStatusList } from "../../../../../types/statusList";
+import { completePayment } from "../actions/operations";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function InvoicesTable({
@@ -17,6 +18,7 @@ export default function InvoicesTable({
 }: {
   props: {
     invoices: Invoice[];
+    accountId: number;
   };
 }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,8 +44,7 @@ export default function InvoicesTable({
               year: "numeric",
               hour: "2-digit",
               minute: "2-digit",
-              hour12: false, // para formato 24h
-              // timeZone: "UTC",  // eliminar si quieres hora local
+              hour12: false,
             })
               .format(new Date(params.value))
               .toString()
@@ -60,9 +61,9 @@ export default function InvoicesTable({
       valueFormatter: (params) => {
         switch (params.value) {
           case userStatusList.ACTIVO:
-            return "Activo";
+            return "Pendiente";
           case userStatusList.INACTIVO:
-            return "Activo";
+            return "Pagado";
           default:
             return "-";
         }
@@ -88,10 +89,21 @@ export default function InvoicesTable({
                     mensaje: "Esta seguro de confirmar el pago?",
                   });
                   if (isConfirmed) {
-                    toaster.create({
-                      description: "Pago registrado con éxito",
-                      type: "success",
+                    const res = await completePayment({
+                      accountId: props.accountId,
+                      invoiceId: params.data.id,
                     });
+                    if (res.ok) {
+                      toaster.create({
+                        description: "Éxito al completar el pago",
+                        type: "success",
+                      });
+                    } else {
+                      toaster.create({
+                        description: "Error al completar el pago",
+                        type: "error",
+                      });
+                    }
                   }
                 }}
               >
@@ -107,6 +119,12 @@ export default function InvoicesTable({
                 const isConfirmed = await mostrarAlertaConfirmacion({
                   mensaje: "Quiere imprimir el recibo?",
                 });
+                if (isConfirmed) {
+                  toaster.create({
+                    description: "Recibo creado con éxito",
+                    type: "success",
+                  });
+                }
               }}
             >
               <FaPrint color="gray" />

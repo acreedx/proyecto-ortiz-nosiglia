@@ -20,21 +20,28 @@ export async function registerLog({
     | "leer"
     | "crear"
     | "editar"
-    | "eliminar"
+    | "deshabilitar"
+    | "restaurar"
     | "inicio de sesion"
     | "cerrado de sesion"
     | "cambio de password"
-    | "recuperar password";
+    | "recuperar password"
+    | "crear informe";
   severity?: "baja" | "media" | "alta";
   outcome?: "éxito" | "error" | "desconocido";
   module:
     | "pacientes"
+    | "organizaciones"
     | "citas"
+    | "citas por dentista"
     | "usuarios"
+    | "tipos de tratamientos"
     | "tratamientos"
     | "deudas"
     | "aplicación móvil"
-    | "página web";
+    | "página web"
+    | "personal"
+    | "roles";
   detail?: string;
   requestor?: boolean;
   occurred_date_time?: Date;
@@ -62,6 +69,7 @@ export async function registerLog({
         patient_id: patient_id,
       },
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     console.log(e);
   }

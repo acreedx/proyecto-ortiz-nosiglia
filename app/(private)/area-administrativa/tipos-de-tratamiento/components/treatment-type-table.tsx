@@ -52,7 +52,9 @@ export default function TreatmentTypeTable({
       field: "cost_estimation",
       headerName: "Costo Estimado",
       valueFormatter: (params) =>
-        params.value ? `${parseFloat(params.value).toFixed(2)} bs` : "—",
+        params.value
+          ? `${parseFloat(params.value.toString()).toFixed(2)} bs`
+          : "—",
     },
     {
       field: "status",

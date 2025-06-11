@@ -4,98 +4,12 @@ import { prisma } from "../../../../../lib/prisma/prisma";
 import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
 import { Prisma } from "@prisma/client";
 import { rolesList } from "../../../../../lib/nextauth/rolesList";
-
-export async function create({
-  data,
-}: {
-  data: any;
-}): Promise<{ ok: boolean }> {
-  try {
-    //const tryParse = OrganizationSchema.safeParse(data);
-    //if (!tryParse.success) {
-    //  return {
-    //    ok: false,
-    //  };
-    //}
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
-    return { ok: true };
-  } catch (e) {
-    console.log(e);
-    return { ok: false };
-  }
-}
-
-export async function edit({ data }: { data: any }): Promise<{ ok: boolean }> {
-  try {
-    //const tryParse = OrganizationSchema.safeParse(data);
-    //if (!tryParse.success) {
-    //  return {
-    //    ok: false,
-    //  };
-    //}
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
-    return { ok: true };
-  } catch (e) {
-    console.log(e);
-    return { ok: false };
-  }
-}
-
-export async function eliminate({
-  id,
-}: {
-  id: number;
-}): Promise<{ ok: boolean }> {
-  try {
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
-    return { ok: true };
-  } catch (e) {
-    console.log(e);
-    return { ok: false };
-  }
-}
-
-export async function restore({
-  id,
-}: {
-  id: number;
-}): Promise<{ ok: boolean }> {
-  try {
-    //await prisma.organization.create({
-    //  data: {
-    //    name: data.name,
-    //    address: data.address,
-    //    status: userStatusList.ACTIVO,
-    //  },
-    //});
-    //revalidatePath("/area-administrativa/organizaciones");
-    return { ok: true };
-  } catch (e) {
-    console.log(e);
-    return { ok: false };
-  }
-}
+import {
+  debtsStatusList,
+  userStatusList,
+} from "../../../../../types/statusList";
+import { auth } from "../../../../../lib/nextauth/auth";
+import { registerLog } from "../../../../../lib/logs/logger";
 
 export async function accountsReportData({
   data,
@@ -114,6 +28,13 @@ export async function accountsReportData({
   ok?: boolean;
 }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        deudas: [],
+        ok: false,
+      };
+    }
     const whereClause: {
       created_at?: {
         gte?: Date;
@@ -152,6 +73,13 @@ export async function accountsReportData({
         },
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "crear informe",
+      module: "deudas",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     return {
       deudas: deudas,
       ok: true,
@@ -159,5 +87,65 @@ export async function accountsReportData({
   } catch (e) {
     console.log(e);
     return { deudas: [], ok: false };
+  }
+}
+
+export async function completePayment({
+  invoiceId,
+  accountId,
+}: {
+  invoiceId: number;
+  accountId: number;
+}): Promise<{ ok: boolean }> {
+  try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
+    const updatedInvoice = await prisma.invoice.update({
+      where: {
+        id: invoiceId,
+      },
+      data: {
+        status: userStatusList.INACTIVO,
+      },
+    });
+    const checkAccount = await prisma.account.findUnique({
+      where: {
+        id: accountId,
+      },
+    });
+    if (!checkAccount) {
+      return { ok: false };
+    }
+    await prisma.account.update({
+      where: {
+        id: accountId,
+      },
+      data: {
+        balance: {
+          decrement: updatedInvoice.total,
+        },
+        calculated_at: new Date(),
+        billing_status:
+          checkAccount.balance - updatedInvoice.total > 0
+            ? debtsStatusList.CON_DEUDA
+            : debtsStatusList.SIN_DEUDA,
+      },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "deudas",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
+    revalidatePath(`/area-administrativa/deudas/pagos/${accountId}`);
+    return { ok: true };
+  } catch (e) {
+    console.log(e);
+    return { ok: false };
   }
 }

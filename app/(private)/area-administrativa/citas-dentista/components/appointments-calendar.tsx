@@ -11,10 +11,15 @@ import {
   EventClickArg,
 } from "@fullcalendar/core/index.js";
 import { SetStateAction } from "react";
-import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
+import {
+  mostrarAlertaConfirmacion,
+  mostrarAlertaError,
+} from "../../../../../lib/sweetalert/alerts";
 import { UseDialogReturn } from "@chakra-ui/react";
 import { Appointment, Prisma } from "@prisma/client";
 import { convertirAppointmentsAEventos } from "../../../../../types/appointmentStatusMaps";
+import { updateAppointmentDateTime } from "../actions/operations";
+import { toaster } from "../../../../../components/ui/toaster";
 export default function AppointmentsCalendar({
   props,
 }: {
@@ -49,21 +54,50 @@ export default function AppointmentsCalendar({
   };
 }) {
   const handleEventChange = async (e: EventChangeArg) => {
-    //const evento = e.event;
-    const isConfirmed = await mostrarAlertaConfirmacion({
-      mensaje: "Desea cambiar la fecha de esta cita?",
-    });
-    if (isConfirmed) {
-      //todo actualizar la fecha de la cita
-    } else {
-      e.revert();
+    //todo validar que el estado de la cita sea el correcto y que la fecha no sea anterior
+    const eventoEncontrado = props.appointments.find(
+      (e) => e.id === Number(e.id)
+    );
+    if (e.event.start) {
+      const isConfirmed = await mostrarAlertaConfirmacion({
+        mensaje: "Desea cambiar la fecha de esta cita?",
+      });
+      if (isConfirmed) {
+        const res = await updateAppointmentDateTime({
+          appointmentId: Number(e.event.id),
+          newDate: e.event.start,
+        });
+        if (res.ok) {
+          toaster.create({
+            description: "Éxito al actualizar la fecha de la cita",
+            type: "success",
+          });
+        } else {
+          toaster.create({
+            description: "Error al actualizar la fecha de la cita",
+            type: "error",
+          });
+        }
+      } else {
+        e.revert();
+      }
     }
   };
+  const isTodayOrFuture = (date: Date) => {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    date.setUTCHours(0, 0, 0, 0);
+    return date.getTime() >= today.getTime();
+  };
   const handleDateSelect = async (e: DateSelectArg) => {
-    const fechaElegida = e.start;
-    fechaElegida.setUTCHours(16, 0, 0, 0);
-    props.setselectedDate(fechaElegida);
-    props.createAppointmentDialog.setOpen(true);
+    if (isTodayOrFuture(e.start)) {
+      props.setselectedDate(e.start);
+      props.createAppointmentDialog.setOpen(true);
+    } else {
+      mostrarAlertaError({
+        mensaje: "No se puede crear una cita en una fecha anterior",
+      });
+    }
   };
   const handleClickEvent = async (event: EventClickArg) => {
     const eventoEncontrado = props.appointments.find(
@@ -71,32 +105,29 @@ export default function AppointmentsCalendar({
     );
     props.setselectedAppointment(eventoEncontrado);
     props.viewAppointmentDialog.setOpen(true);
-    //todo mostrar evento del calendario
   };
   return (
-    <div className="w-3/4">
-      <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-        timeZone="UTC"
-        headerToolbar={{
-          left: "prev,next today",
-          center: "title",
-          right: "timeGridDay,timeGridWeek,dayGridMonth,listMonth",
-        }}
-        height={"auto"}
-        initialView="dayGridMonth"
-        selectable={true}
-        editable={true}
-        eventChange={handleEventChange}
-        eventResizableFromStart={false}
-        eventDurationEditable={false}
-        select={handleDateSelect}
-        locale={esLocale}
-        slotMinTime="08:00:00"
-        slotMaxTime="17:00:00"
-        events={convertirAppointmentsAEventos(props.appointments)}
-        eventClick={handleClickEvent}
-      />
-    </div>
+    <FullCalendar
+      plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+      timeZone="UTC"
+      headerToolbar={{
+        left: "prev,next today",
+        center: "title",
+        right: "timeGridDay,timeGridWeek,dayGridMonth,listMonth",
+      }}
+      height={"auto"}
+      initialView="dayGridMonth"
+      selectable={true}
+      editable={true}
+      eventChange={handleEventChange}
+      eventResizableFromStart={false}
+      eventDurationEditable={false}
+      select={handleDateSelect}
+      locale={esLocale}
+      slotMinTime="08:00:00"
+      slotMaxTime="17:00:00"
+      events={convertirAppointmentsAEventos(props.appointments)}
+      eventClick={handleClickEvent}
+    />
   );
 }

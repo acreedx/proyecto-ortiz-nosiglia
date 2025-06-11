@@ -11,13 +11,13 @@ import {
   NativeSelect,
   Textarea,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { toaster } from "../../../../../components/ui/toaster";
 import {
   CreateAppointmentSchema,
   TCreateAppointmentSchema,
 } from "../../../../../lib/zod/z-appointment-schemas";
-import { create } from "../actions/operations";
+import { create, horariosDisponibles } from "../actions/operations";
 import { User } from "@prisma/client";
 
 export default function AppointmentsCreateForm({
@@ -28,9 +28,11 @@ export default function AppointmentsCreateForm({
     pacientes: User[];
   };
 }) {
+  const [horarios, sethorarios] = useState<string[]>([]);
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
     reset,
   } = useForm({
@@ -48,11 +50,30 @@ export default function AppointmentsCreateForm({
     }
     if (!res.ok) {
       toaster.create({
-        description: "Error al crear la cita",
+        description: res.mensaje ? res.mensaje : "Error al crear la cita",
         type: "error",
       });
     }
   };
+  const fechaSeleccionada = watch("programed_date_time");
+  useEffect(() => {
+    sethorarios([]);
+    const cargarHorarios = async () => {
+      if (fechaSeleccionada) {
+        const res = await horariosDisponibles({
+          date: new Date(fechaSeleccionada),
+        });
+        if (res.ok) {
+          sethorarios(res.horarios);
+        } else {
+          sethorarios([]);
+        }
+      } else {
+        sethorarios([]);
+      }
+    };
+    cargarHorarios();
+  }, [fechaSeleccionada]);
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="h-full">
       <Dialog.Header>
@@ -70,7 +91,7 @@ export default function AppointmentsCreateForm({
             <Field.Label>Fecha programada</Field.Label>
             <Input
               colorPalette="orange"
-              type="datetime-local"
+              type="date"
               variant="outline"
               {...register("programed_date_time")}
             />
@@ -79,6 +100,33 @@ export default function AppointmentsCreateForm({
             </Field.ErrorText>
           </Field.Root>
 
+          <Field.Root
+            invalid={!!errors.hora_cita}
+            px={4}
+            w={{ base: "100%", md: "50%" }}
+            required
+          >
+            <Field.Label>Hora de la cita</Field.Label>
+            <NativeSelect.Root size={"md"}>
+              <NativeSelect.Field
+                placeholder="Selecciona una hora"
+                colorPalette={"orange"}
+                {...register("hora_cita", {
+                  required: "Seleccione una hora para la cita",
+                })}
+              >
+                {horarios.map((hora) => (
+                  <option key={hora} value={hora}>
+                    {hora}
+                  </option>
+                ))}
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+            <Field.ErrorText className="text-sm">
+              {errors.hora_cita?.message}
+            </Field.ErrorText>
+          </Field.Root>
           {/* Especialidad */}
           <Field.Root
             invalid={!!errors.specialty}

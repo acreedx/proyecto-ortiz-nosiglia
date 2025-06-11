@@ -14,6 +14,8 @@ import {
 import { userStatusList } from "../../../../../types/statusList";
 import { TGenerateReportSchema } from "../../../../../lib/zod/z-report-schemas";
 import { Prisma } from "@prisma/client";
+import { auth } from "../../../../../lib/nextauth/auth";
+import { registerLog } from "../../../../../lib/logs/logger";
 
 export async function createQualification({
   data,
@@ -21,6 +23,12 @@ export async function createQualification({
   data: TCreateQualificationSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = CreateQualificationSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -52,6 +60,13 @@ export async function createQualification({
         },
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "crear",
+      module: "personal",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/personal");
     return { ok: true };
   } catch (e) {
@@ -66,6 +81,12 @@ export async function editQualification({
   data: TEditQualificationSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = EditQualificationSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -84,6 +105,13 @@ export async function editQualification({
         obtainment_date: new Date(data.obtainment_date),
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "personal",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/personal");
     return { ok: true };
   } catch (e) {
@@ -98,6 +126,12 @@ export async function editPayroll({
   data: TEditPayrollSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = EditPayrollSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -127,6 +161,13 @@ export async function editPayroll({
         },
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "personal",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/personal");
     return { ok: true };
   } catch (e) {
@@ -141,6 +182,12 @@ export async function eliminate({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.qualification.update({
       where: {
         id: id,
@@ -148,6 +195,13 @@ export async function eliminate({
       data: {
         status: userStatusList.INACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "deshabilitar",
+      module: "personal",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/personal");
     return { ok: true };
@@ -163,6 +217,12 @@ export async function restore({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.qualification.update({
       where: {
         id: id,
@@ -170,6 +230,13 @@ export async function restore({
       data: {
         status: userStatusList.ACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "restaurar",
+      module: "personal",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/personal");
     return { ok: true };
@@ -193,6 +260,13 @@ export async function staffReportData({
   ok?: boolean;
 }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        personal: [],
+        ok: false,
+      };
+    }
     const whereClause: {
       created_at?: {
         gte?: Date;
@@ -218,6 +292,13 @@ export async function staffReportData({
         staff: true,
         role: true,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "crear informe",
+      module: "personal",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     return {
       personal: personal,

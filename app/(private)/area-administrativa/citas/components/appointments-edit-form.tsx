@@ -10,16 +10,16 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { Appointment, User } from "@prisma/client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   EditAppointmentSchema,
   TEditAppointmentSchema,
 } from "../../../../../lib/zod/z-appointment-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { edit } from "../actions/operations";
+import { edit, horariosDisponibles } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
-import { formatDateTimeLocal } from "../../../../../types/dateFormatter";
+import formatDateLocal from "../../../../../types/dateFormatter";
 
 export default function AppointmentsEditForm({
   props,
@@ -32,6 +32,7 @@ export default function AppointmentsEditForm({
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
     reset,
   } = useForm({
@@ -40,7 +41,12 @@ export default function AppointmentsEditForm({
     defaultValues: {
       ...props.selectedAppointment,
       programed_date_time: props.selectedAppointment
-        ? formatDateTimeLocal(props.selectedAppointment?.programed_date_time)
+        ? formatDateLocal(props.selectedAppointment?.programed_date_time)
+        : undefined,
+      hora_cita: props.selectedAppointment
+        ? props.selectedAppointment.programed_date_time
+            .toISOString()
+            .substring(11, 16)
         : undefined,
       note: props.selectedAppointment?.note ?? undefined,
       patient_instruction:
@@ -63,6 +69,26 @@ export default function AppointmentsEditForm({
       reset();
     }
   };
+  const fechaSeleccionada = watch("programed_date_time");
+  const [horarios, sethorarios] = useState<string[]>([]);
+  useEffect(() => {
+    sethorarios([]);
+    const cargarHorarios = async () => {
+      if (fechaSeleccionada) {
+        const res = await horariosDisponibles({
+          date: new Date(fechaSeleccionada),
+        });
+        if (res.ok) {
+          sethorarios(res.horarios);
+        } else {
+          sethorarios([]);
+        }
+      } else {
+        sethorarios([]);
+      }
+    };
+    cargarHorarios();
+  }, [fechaSeleccionada]);
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Dialog.Header>
@@ -81,7 +107,7 @@ export default function AppointmentsEditForm({
             <Field.Label>Fecha programada</Field.Label>
             <Input
               colorPalette="orange"
-              type="datetime-local"
+              type="date"
               variant="outline"
               {...register("programed_date_time")}
             />
@@ -90,6 +116,34 @@ export default function AppointmentsEditForm({
             </Field.ErrorText>
           </Field.Root>
 
+          <Field.Root
+            invalid={!!errors.hora_cita}
+            px={4}
+            w={{ base: "100%", md: "50%" }}
+            required
+          >
+            <Field.Label>Hora de la cita</Field.Label>
+            <NativeSelect.Root size={"md"}>
+              <NativeSelect.Field
+                placeholder="Selecciona una hora"
+                colorPalette={"orange"}
+                value={watch("hora_cita") ?? ""}
+                {...register("hora_cita", {
+                  required: "Seleccione una hora para la cita",
+                })}
+              >
+                {horarios.map((hora) => (
+                  <option key={hora} value={hora}>
+                    {hora}
+                  </option>
+                ))}
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+            <Field.ErrorText className="text-sm">
+              {errors.hora_cita?.message}
+            </Field.ErrorText>
+          </Field.Root>
           {/* Especialidad */}
           <Field.Root
             invalid={!!errors.specialty}

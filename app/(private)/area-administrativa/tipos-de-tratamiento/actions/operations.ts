@@ -8,6 +8,8 @@ import {
   TCreateTreatmentSchema,
   TEditTreatmentSchema,
 } from "../../../../../lib/zod/z-treatment-schemas";
+import { auth } from "../../../../../lib/nextauth/auth";
+import { registerLog } from "../../../../../lib/logs/logger";
 
 export async function create({
   data,
@@ -15,6 +17,12 @@ export async function create({
   data: TCreateTreatmentSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = CreateTreatmentSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -28,9 +36,16 @@ export async function create({
         description: data.description,
         estimated_appointments: data.estimated_appointments,
         days_between_appointments: data.days_between_appointments,
-        cost_estimation: data.cost_estimation,
+        cost_estimation: data.cost_estimation * 100,
         status: userStatusList.ACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "crear",
+      module: "tipos de tratamientos",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/tipos-de-tratamiento");
     return { ok: true };
@@ -46,6 +61,12 @@ export async function edit({
   data: TEditTreatmentSchema;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     const tryParse = EditTreatmentSchema.safeParse(data);
     if (!tryParse.success) {
       return {
@@ -65,6 +86,13 @@ export async function edit({
         cost_estimation: data.cost_estimation,
       },
     });
+    await registerLog({
+      type: "sistema",
+      action: "editar",
+      module: "tipos de tratamientos",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
     revalidatePath("/area-administrativa/tipos-de-tratamiento");
     return { ok: true };
   } catch (e) {
@@ -79,6 +107,12 @@ export async function eliminate({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.treatment.update({
       where: {
         id: id,
@@ -86,6 +120,13 @@ export async function eliminate({
       data: {
         status: userStatusList.INACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "deshabilitar",
+      module: "tipos de tratamientos",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/tipos-de-tratamiento");
     return { ok: true };
@@ -101,6 +142,12 @@ export async function restore({
   id: number;
 }): Promise<{ ok: boolean }> {
   try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.treatment.update({
       where: {
         id: id,
@@ -108,6 +155,13 @@ export async function restore({
       data: {
         status: userStatusList.ACTIVO,
       },
+    });
+    await registerLog({
+      type: "sistema",
+      action: "restaurar",
+      module: "tipos de tratamientos",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
     });
     revalidatePath("/area-administrativa/tipos-de-tratamiento");
     return { ok: true };

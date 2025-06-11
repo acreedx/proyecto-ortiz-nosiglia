@@ -67,7 +67,7 @@ export default function AppointmentsSection({
   }, [props.appointments]);
   return (
     <div className="flex flex-row w-full pt-4 gap-4 h-full">
-      <div className="w-1/4 px-4">
+      <div className="w-1/4 h-auto px-4">
         <Heading>Listado de citas</Heading>
         <AppointmentAccordion
           props={{
@@ -81,18 +81,20 @@ export default function AppointmentsSection({
           }}
         />
       </div>
-      <AppointmentsCalendar
-        props={{
-          appointments: Events,
-          setselectedDate: setselectedDate,
-          createAppointmentDialog: createAppointmentDialog,
-          editAppointmentDialog: editAppointmentDialog,
-          completeAppointmentDialog: completeAppointmentDialog,
-          cancelAppointmentDialog: cancelAppointmentDialog,
-          viewAppointmentDialog: viewAppointmentDialog,
-          setselectedAppointment: setselectedAppointment,
-        }}
-      />
+      <div className="w-3/4 h-auto">
+        <AppointmentsCalendar
+          props={{
+            appointments: Events,
+            setselectedDate: setselectedDate,
+            createAppointmentDialog: createAppointmentDialog,
+            editAppointmentDialog: editAppointmentDialog,
+            completeAppointmentDialog: completeAppointmentDialog,
+            cancelAppointmentDialog: cancelAppointmentDialog,
+            viewAppointmentDialog: viewAppointmentDialog,
+            setselectedAppointment: setselectedAppointment,
+          }}
+        />
+      </div>
       <EditDialog dialog={createAppointmentDialog}>
         <AppointmentsCreateCalendarForm
           props={{ pacientes: props.patients, selectedDate: selectedDate }}
