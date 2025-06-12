@@ -37,11 +37,14 @@ export default function UsersTable({
       };
     }>
   >();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [rowData, setRowData] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
     {
       field: "photo_url",
       headerName: "Foto",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: (params: any) => (
         <Image
           src={params.value}
@@ -105,6 +108,7 @@ export default function UsersTable({
       field: "actions",
       headerName: "Acciones",
       sortable: false,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: (params: any) => (
         <div className="flex flex-row items-center justify-center w-full">
           <>

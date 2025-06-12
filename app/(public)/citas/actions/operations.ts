@@ -488,6 +488,7 @@ export async function updateAppointmentDateTime({
   }
 }
 export async function horariosDisponibles({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   date,
 }: {
   date: Date;
