@@ -1,35 +1,38 @@
-import { prisma } from "@/config/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { prisma } from "../../../../lib/prisma/prisma";
+import { rolesList } from "../../../../lib/nextauth/rolesList";
 
 export const dynamic = "force-dynamic";
 export async function GET() {
   try {
-    const pacientes = await prisma.patient.findMany({
+    const pacientes = await prisma.user.findMany({
+      where: {
+        role: {
+          role_name: rolesList.PACIENTE,
+        },
+      },
       select: {
         id: true,
-        resourceType: true,
-        user: {
+        patient: {
           select: {
-            status: true,
+            allergies: true,
+            preconditions: true,
           },
         },
-        firstName: true,
-        secondName: true,
-        familyName: true,
-        gender: true,
-        birthDate: true,
+        first_name: true,
+        last_name: true,
+        birth_date: true,
         phone: true,
         mobile: true,
         email: true,
-        addressLine: true,
-        addressCity: true,
-        maritalStatus: true,
+        address_line: true,
+        address_city: true,
         identification: true,
-        photoUrl: true,
-        allergies: true,
+        photo_url: true,
       },
     });
     return NextResponse.json({ pacientes: pacientes });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

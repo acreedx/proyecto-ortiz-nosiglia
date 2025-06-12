@@ -1,25 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  AppointmentSpecialty,
-  AppointmentStatus,
-} from "@/enums/appointmentsStatus";
-import { prisma } from "@/config/prisma";
+import { prisma } from "../../../../../lib/prisma/prisma";
+import { appointmentStatusList } from "../../../../../types/statusList";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const { descripcion, fecha, hora, doctor, usuarioId } = await req.json();
-    if (!descripcion || !fecha || !hora || !doctor || !usuarioId) {
+    const { descripcion, fecha, hora, doctor, patient_id } = await req.json();
+    if (!descripcion || !fecha || !hora || !doctor || !patient_id) {
       return NextResponse.json(
         { error: "Faltan datos requeridos." },
-        { status: 400 },
+        { status: 400 }
       );
     }
     const [day, month, year] = fecha.split("/");
     const formattedDate = `${year}-${month}-${day}`;
+    // eslint-disable-next-line prefer-const
     let [hour, minute] = hora.split(":");
-    let period = hora.split(" ")[1];
+    const period = hora.split(" ")[1];
     if (period === "PM" && hour !== "12") {
       hour = parseInt(hour) + 12;
     }
@@ -41,18 +39,27 @@ export async function POST(req: NextRequest) {
           error:
             "La fecha de la cita debe ser mayor a la fecha y hora actuales.",
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
     const citaExistente = await prisma.appointment.findFirst({
       where: {
-        practitionerId: doctor,
+        doctor_id: doctor,
         AND: [
           {
             OR: [
-              { start: { lte: start }, end: { gt: start } },
-              { start: { lt: end }, end: { gte: end } },
-              { start: { gte: start }, end: { lte: end } },
+              {
+                programed_date_time: { lte: start },
+                programed_end_date_time: { gt: start },
+              },
+              {
+                programed_date_time: { lt: end },
+                programed_end_date_time: { gte: end },
+              },
+              {
+                programed_date_time: { gte: start },
+                programed_end_date_time: { lte: end },
+              },
             ],
           },
         ],
@@ -62,18 +69,27 @@ export async function POST(req: NextRequest) {
     if (citaExistente) {
       return NextResponse.json(
         { error: "Ya hay una cita en ese horario para este doctor." },
-        { status: 400 },
+        { status: 400 }
       );
     }
     const citaExistentePaciente = await prisma.appointment.findFirst({
       where: {
-        subjectId: usuarioId,
+        patient_id: patient_id,
         AND: [
           {
             OR: [
-              { start: { lte: start }, end: { gt: start } },
-              { start: { lt: end }, end: { gte: end } },
-              { start: { gte: start }, end: { lte: end } },
+              {
+                programed_date_time: { lte: start },
+                programed_end_date_time: { gt: start },
+              },
+              {
+                programed_date_time: { lt: end },
+                programed_end_date_time: { gte: end },
+              },
+              {
+                programed_date_time: { gte: start },
+                programed_end_date_time: { lte: end },
+              },
             ],
           },
         ],
@@ -83,27 +99,30 @@ export async function POST(req: NextRequest) {
     if (citaExistentePaciente) {
       return NextResponse.json(
         { error: "Ya tienes una cita reservada en ese horario." },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     await prisma.appointment.create({
       data: {
-        start: start,
-        end: end,
-        specialty: AppointmentSpecialty.ESPECIALIDAD_CONTINUA,
+        scheduled_on: new Date(),
+        programed_date_time: start,
+        programed_end_date_time: end,
+        specialty: "Cita normal",
         reason: descripcion,
-        subjectId: usuarioId,
-        practitionerId: doctor,
-        status: AppointmentStatus.STATUS_PENDIENTE,
+        patient_id: patient_id,
+        doctor_id: doctor,
+        status: appointmentStatusList.STATUS_PENDIENTE,
       },
     });
 
     return NextResponse.json({ message: "Cita creada con exito." });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    console.log(error);
     return NextResponse.json(
       { error: "Error al crear la cita." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

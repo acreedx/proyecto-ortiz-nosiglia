@@ -1,12 +1,15 @@
-import { prisma } from "@/config/prisma";
-import { personFullNameFormater } from "@/utils/format_person_full_name";
-import { sendEmail } from "@/utils/mailer";
 import { NextResponse } from "next/server";
-import { AppointmentStatus } from "@/enums/appointmentsStatus";
-import { userStatus } from "@/enums/userStatus";
-import { birthDateFormater } from "@/utils/birth_date_formater";
-import { timeFormatter } from "@/utils/time_formater";
-const DAYS_BEFORE_NOTIFICATION = 1;
+import { sendEmail } from "../../../../lib/nodemailer/mailer";
+import { prisma } from "../../../../lib/prisma/prisma";
+import formatDateLocal, {
+  timeFormatter,
+} from "../../../../types/dateFormatter";
+import {
+  appointmentStatusList,
+  userStatusList,
+} from "../../../../types/statusList";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(req: Request) {
   try {
     const tomorrow = new Date();
@@ -16,39 +19,49 @@ export async function GET(req: Request) {
     dayAfterTomorrow.setHours(0, 0, 0, 0);
     const citas = await prisma.appointment.findMany({
       where: {
-        status: AppointmentStatus.STATUS_CONFIRMADA,
-        subject: {
+        status: appointmentStatusList.STATUS_CONFIRMADA,
+        patient: {
           user: {
-            status: {
-              not: userStatus.ELIMINADO,
-            },
+            status: userStatusList.ACTIVO,
           },
         },
-        start: {
+        programed_date_time: {
           gte: tomorrow,
           lt: dayAfterTomorrow,
         },
       },
       include: {
-        subject: true,
-        practitioner: true,
+        patient: {
+          include: {
+            user: true,
+          },
+        },
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
       },
     });
     citas.forEach(async (e) => {
       await sendEmail({
-        email: e.subject.email,
+        email: e.patient.user.email,
         subject: "⏰ ¡Recordatorio de tu cita! 🦷",
         message: `
-          Hola ${personFullNameFormater(e.subject)}, 👋
+          Hola ${e.patient.user.first_name} ${e.patient.user.last_name}, 👋
       
           Queremos recordarte que tienes una cita confirmada para el día de mañana.
 
           Motivo: ${e.reason}
-          Doctor: ${personFullNameFormater(e.practitioner)}
+          Doctor: ${e.doctor.staff.user.first_name} ${e.doctor.staff.user.last_name}
           Dirección: Calle 15 de Calacoto, DiagnoSur piso 1, consultorio 108, La Paz, Bolivia
 
-          📅 **Fecha**: ${birthDateFormater(e.start)}
-          ⏰ **Hora**: ${timeFormatter(e.start)}      
+          📅 **Fecha**: ${formatDateLocal(e.programed_date_time)}
+          ⏰ **Hora**: ${timeFormatter(e.programed_date_time)}      
       
           No olvides pasar por aqui, tu salud dental es muy importante para nosotros. Si tienes alguna duda o necesitas más información, ¡no dudes en contactarnos!
 
@@ -61,7 +74,9 @@ export async function GET(req: Request) {
       });
     });
     return NextResponse.json({ ok: true });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    console.log(error);
     return NextResponse.json({ ok: false });
   }
 }

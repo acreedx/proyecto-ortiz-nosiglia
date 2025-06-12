@@ -1,22 +1,23 @@
-import { prisma } from "@/config/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "../../../../../../lib/prisma/prisma";
 
 export const dynamic = "force-dynamic";
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id_paciente: string } },
+  { params }: { params: { id_paciente: string } }
 ) {
   const { id_paciente } = params;
   try {
     const paciente = await prisma.patient.findUnique({
       where: {
-        id: id_paciente,
+        id: Number(id_paciente),
       },
       include: {
-        encounters: true,
+        encounter: true,
       },
     });
     return NextResponse.json({ paciente: paciente });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

@@ -1,32 +1,29 @@
-import { prisma } from "@/config/prisma";
-import { AppointmentStatus } from "@/enums/appointmentsStatus";
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "../../../../../../lib/prisma/prisma";
+import { appointmentStatusList } from "../../../../../../types/statusList";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id_dentista: string } },
+  { params }: { params: { id_dentista: string } }
 ) {
   try {
     const { id_dentista } = params;
     const citasCanceladas = await prisma.appointment.findMany({
       where: {
-        practitionerId: id_dentista,
-        status: AppointmentStatus.STATUS_CANCELADA,
-        start: {
+        doctor_id: Number(id_dentista),
+        status: appointmentStatusList.STATUS_CANCELADA,
+        programed_date_time: {
           gt: new Date(),
         },
       },
       include: {
-        subject: {
-          include: {
-            allergies: true,
-          },
-        },
+        patient: true,
       },
     });
     return NextResponse.json({ citas: citasCanceladas });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 });
   }

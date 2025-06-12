@@ -14,16 +14,12 @@ export async function GET(
         programed_date_time: {
           lte: new Date(),
         },
-        end: {
+        programed_end_date_time: {
           gte: new Date(),
         },
       },
       include: {
-        subject: {
-          include: {
-            allergies: true,
-          },
-        },
+        patient: true,
       },
     });
 
@@ -34,7 +30,9 @@ export async function GET(
         message: "No hay citas activas en este momento.",
       });
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    console.log(error);
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }

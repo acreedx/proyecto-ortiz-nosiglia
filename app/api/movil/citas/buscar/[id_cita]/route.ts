@@ -1,33 +1,31 @@
-import { prisma } from "@/config/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "../../../../../../lib/prisma/prisma";
 
 export const dynamic = "force-dynamic";
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id_cita: string } },
+  { params }: { params: { id_cita: string } }
 ) {
   const { id_cita } = params;
   try {
     const cita = await prisma.appointment.findFirst({
       where: {
-        id: id_cita,
+        id: Number(id_cita),
       },
       include: {
-        subject: {
-          include: {
-            allergies: true,
-          },
-        },
+        patient: true,
       },
     });
     if (!cita) {
       return NextResponse.json(
         { message: "No existe esa cita" },
-        { status: 500 },
+        { status: 500 }
       );
     }
     return NextResponse.json({ cita: cita });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    console.log(error);
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
