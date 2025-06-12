@@ -9,10 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
-import {
-  organizationReportData,
-  patientReportData,
-} from "../actions/operations";
+import { organizationReportData } from "../actions/operations";
 import { reporteOrganizaciones } from "../../../../../lib/jspdf/organizaciones";
 
 export default function CreateOrganizationsReportForm() {

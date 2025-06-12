@@ -16,7 +16,6 @@ import { complete, eliminate, restore } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
 import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import TreatmentsEditForm from "./treatments-edit-form";
-import formatDateLocal from "../../../../../types/dateFormatter";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function TreatmentsTable({
@@ -75,6 +74,7 @@ export default function TreatmentsTable({
     {
       field: "patient.user.first_name",
       headerName: "Paciente",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: (params: any) => {
         return `
           ${params.data.patient.user.first_name} ${params.data.patient.user.last_name}`;
