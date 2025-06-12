@@ -1,111 +1,95 @@
-import { Accordion, Box, Stack, Card, Badge, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Stack,
+  Card,
+  Badge,
+  Text,
+  UseDialogReturn,
+  Tabs,
+} from "@chakra-ui/react";
 import React from "react";
-import { FaCalendar } from "react-icons/fa";
+import { FaCalendar, FaTimesCircle } from "react-icons/fa";
+import { Appointment, Prisma } from "@prisma/client";
+import AppointmentActions from "./appointment-actions";
 import { appointmentStatusList } from "../../../../types/statusList";
-import { Prisma } from "@prisma/client";
 import { timeFormatter } from "../../../../types/dateFormatter";
-export const statusColorMap: Record<string, string> = {
-  [appointmentStatusList.STATUS_CANCELADA]: "red",
-  [appointmentStatusList.STATUS_COMPLETADA]: "green",
-  [appointmentStatusList.STATUS_CONFIRMADA]: "blue",
-  [appointmentStatusList.STATUS_NO_ASISTIDA]: "gray",
-  [appointmentStatusList.STATUS_PENDIENTE]: "yellow",
-};
-export const statusLabelMap: Record<string, string> = {
-  [appointmentStatusList.STATUS_CANCELADA]: "Cancelada",
-  [appointmentStatusList.STATUS_COMPLETADA]: "Completada",
-  [appointmentStatusList.STATUS_CONFIRMADA]: "Confirmada",
-  [appointmentStatusList.STATUS_NO_ASISTIDA]: "No Asistida",
-  [appointmentStatusList.STATUS_PENDIENTE]: "Pendiente",
-};
+import {
+  statusColorMap,
+  statusLabelMap,
+} from "../../../../types/appointmentStatusMaps";
+
 export default function AppointmentAccordion({
-  appointments,
+  props,
 }: {
-  appointments: Prisma.AppointmentGetPayload<{
-    include: {
-      patient: {
-        include: {
-          user: true;
+  props: {
+    appointments: Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true;
+          };
         };
-      };
-      doctor: {
-        include: {
-          staff: {
-            include: {
-              user: true;
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true;
+              };
             };
           };
         };
       };
-    };
-  }>[];
+    }>[];
+    createAppointmentDialog: UseDialogReturn;
+    editAppointmentDialog: UseDialogReturn;
+    completeAppointmentDialog: UseDialogReturn;
+    cancelAppointmentDialog: UseDialogReturn;
+    viewAppointmentDialog: UseDialogReturn;
+    setselectedAppointment: React.Dispatch<
+      React.SetStateAction<Appointment | undefined>
+    >;
+  };
 }) {
   const grouped = {
-    Pendiente: appointments
-      .filter((a) => a.status === appointmentStatusList.STATUS_PENDIENTE)
-      .sort(
-        (a, b) =>
-          new Date(a.programed_date_time).getTime() -
-          new Date(b.programed_date_time).getTime()
-      ),
-    Completada: appointments
-      .filter((a) => a.status === appointmentStatusList.STATUS_COMPLETADA)
-      .sort(
-        (a, b) =>
-          new Date(a.programed_date_time).getTime() -
-          new Date(b.programed_date_time).getTime()
-      ),
-    Cancelada: appointments
-      .filter((a) => a.status === appointmentStatusList.STATUS_CANCELADA)
-      .sort(
-        (a, b) =>
-          new Date(a.programed_date_time).getTime() -
-          new Date(b.programed_date_time).getTime()
-      ),
-    NoAsistida: appointments
-      .filter((a) => a.status === appointmentStatusList.STATUS_NO_ASISTIDA)
-      .sort(
-        (a, b) =>
-          new Date(a.programed_date_time).getTime() -
-          new Date(b.programed_date_time).getTime()
-      ),
-    Confirmada: appointments
-      .filter((a) => a.status === appointmentStatusList.STATUS_CONFIRMADA)
-      .sort(
-        (a, b) =>
-          new Date(a.programed_date_time).getTime() -
-          new Date(b.programed_date_time).getTime()
-      ),
+    Pendiente: props.appointments.filter(
+      (a) => a.status === appointmentStatusList.STATUS_PENDIENTE
+    ),
+    Confirmada: props.appointments.filter(
+      (a) => a.status === appointmentStatusList.STATUS_CONFIRMADA
+    ),
+    Historial: props.appointments.filter(
+      (a) =>
+        a.status === appointmentStatusList.STATUS_COMPLETADA ||
+        a.status === appointmentStatusList.STATUS_CANCELADA ||
+        a.status === appointmentStatusList.STATUS_NO_ASISTIDA
+    ),
   };
   return (
-    <Accordion.Root multiple defaultValue={["Pendiente"]}>
+    <Tabs.Root
+      defaultValue={"Pendiente"}
+      variant="plain"
+      w="full"
+      fitted
+      pt={2}
+    >
+      <Tabs.List bg="bg.muted" rounded="l3" p="1">
+        {Object.entries(grouped).map(([status, list]) => (
+          <Tabs.Trigger key={status} value={status}>
+            {status} ({list.length})
+          </Tabs.Trigger>
+        ))}
+        <Tabs.Indicator rounded="l2" />
+      </Tabs.List>
+
       {Object.entries(grouped).map(([status, list]) => (
-        <Accordion.Item key={status} value={status}>
-          <Accordion.ItemTrigger
-            _hover={{ bg: "gray.100" }}
-            px={4}
-            py={2}
-            borderBottom="1px solid"
-            borderColor="gray.200"
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            fontWeight="bold"
-          >
-            <Box>
-              <Text colorPalette={"orange"} color={"orange.400"}>
-                {status} ({list.length})
-              </Text>
-            </Box>
-            <Accordion.ItemIndicator />
-          </Accordion.ItemTrigger>
-          <Accordion.ItemContent px={4} pb={4}>
+        <Tabs.Content key={status} value={status} pt={0}>
+          <Box p={4}>
             {list.length === 0 ? (
               <Text color="gray.500" className="pt-4">
                 No hay citas
               </Text>
             ) : (
-              <Stack gap={4} mt={2}>
+              <Stack gap={4} mt={2} mb={4} maxH={690} overflowY="scroll">
                 {list.map((appt) => (
                   <Card.Root key={appt.id} variant="outline">
                     <Card.Body>
@@ -114,19 +98,18 @@ export default function AppointmentAccordion({
                           {appt.patient.user.first_name}{" "}
                           {appt.patient.user.last_name}
                         </Text>
-                        <Text>
-                          <FaCalendar color="orange" />
+                        <Text className="flex items-center">
+                          <FaCalendar color="orange" className="mr-1" />
                           {new Intl.DateTimeFormat("es-ES", {
                             day: "numeric",
                             month: "numeric",
                             year: "numeric",
                             timeZone: "UTC",
-                          })
-                            .format(appt.programed_date_time)
-                            .toString()}{" "}
-                          a las {timeFormatter(appt.programed_date_time)}
+                          }).format(appt.programed_date_time)}{" "}
+                          a las {timeFormatter(appt.programed_date_time)} -{" "}
+                          {timeFormatter(appt.programed_end_date_time)}
                         </Text>
-                        <Text color="gray.600">Motivo: {appt.reason}</Text>
+                        <Text>Motivo: {appt.reason}</Text>
                         <Badge
                           colorPalette={
                             appt.status ? statusColorMap[appt.status] : "gray"
@@ -134,15 +117,70 @@ export default function AppointmentAccordion({
                         >
                           {appt.status ? statusLabelMap[appt.status] : "-"}
                         </Badge>
+                        {appt.programed_date_time > new Date() &&
+                          appt.programed_end_date_time < new Date() && (
+                            <Text color={"green"} fontSize={"sm"}>
+                              Cita actual
+                            </Text>
+                          )}
+                        {appt.programed_date_time < new Date() &&
+                          appt.status ===
+                            appointmentStatusList.STATUS_PENDIENTE && (
+                            <Text color={"red"} fontSize={"sm"}>
+                              Cita con retraso
+                            </Text>
+                          )}
+                        {appt.status ===
+                          appointmentStatusList.STATUS_CANCELADA && (
+                          <>
+                            <Text color={"black"} className="flex items-center">
+                              <FaTimesCircle color="red" className="mr-1" />
+                              Motivo de cancelación: {appt.cancellation_reason}
+                            </Text>
+                            <Text color={"black"} className="flex items-center">
+                              <FaCalendar color="red" className="mr-1" />
+                              Fecha de cancelación:{" "}
+                              {appt.cancellation_date ? (
+                                <>
+                                  {new Intl.DateTimeFormat("es-ES", {
+                                    day: "numeric",
+                                    month: "numeric",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: false,
+                                  }).format(appt.cancellation_date)}{" "}
+                                </>
+                              ) : (
+                                "-"
+                              )}
+                            </Text>
+                          </>
+                        )}
+                        <AppointmentActions
+                          props={{
+                            appointment: appt,
+                            createAppointmentDialog:
+                              props.createAppointmentDialog,
+                            editAppointmentDialog: props.editAppointmentDialog,
+                            completeAppointmentDialog:
+                              props.completeAppointmentDialog,
+                            cancelAppointmentDialog:
+                              props.cancelAppointmentDialog,
+                            viewAppointmentDialog: props.viewAppointmentDialog,
+                            setselectedAppointment:
+                              props.setselectedAppointment,
+                          }}
+                        />
                       </Stack>
                     </Card.Body>
                   </Card.Root>
                 ))}
               </Stack>
             )}
-          </Accordion.ItemContent>
-        </Accordion.Item>
+          </Box>
+        </Tabs.Content>
       ))}
-    </Accordion.Root>
+    </Tabs.Root>
   );
 }

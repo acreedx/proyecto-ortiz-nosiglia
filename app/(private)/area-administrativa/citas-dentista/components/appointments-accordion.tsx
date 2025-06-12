@@ -117,6 +117,12 @@ export default function AppointmentAccordion({
                         >
                           {appt.status ? statusLabelMap[appt.status] : "-"}
                         </Badge>
+                        {appt.programed_date_time > new Date() &&
+                          appt.programed_end_date_time < new Date() && (
+                            <Text color={"green"} fontSize={"sm"}>
+                              Cita actual
+                            </Text>
+                          )}
                         {appt.programed_date_time < new Date() && (
                           <Text color={"red"} fontSize={"sm"}>
                             Cita con retraso

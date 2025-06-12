@@ -11,16 +11,13 @@ import {
   EventClickArg,
 } from "@fullcalendar/core/index.js";
 import { SetStateAction } from "react";
-import {
-  mostrarAlertaConfirmacion,
-  mostrarAlertaError,
-} from "../../../../../lib/sweetalert/alerts";
-import { UseDialogReturn } from "@chakra-ui/react";
 import { Appointment, Prisma } from "@prisma/client";
-import { convertirAppointmentsAEventos } from "../../../../../types/appointmentStatusMaps";
+import { UseDialogReturn } from "@chakra-ui/react";
+import { mostrarAlertaConfirmacion } from "../../../../lib/sweetalert/alerts";
 import { updateAppointmentDateTime } from "../actions/operations";
-import { toaster } from "../../../../../components/ui/toaster";
-import { appointmentStatusList } from "../../../../../types/statusList";
+import { toaster } from "../../../../components/ui/toaster";
+import { convertirAppointmentsAEventos } from "../../../../types/appointmentStatusMaps";
+import { appointmentStatusList } from "../../../../types/statusList";
 export default function AppointmentsCalendar({
   props,
 }: {
@@ -112,6 +109,8 @@ export default function AppointmentsCalendar({
       } else {
         e.revert();
       }
+    } else {
+      e.revert();
     }
   };
   const isTodayOrFuture = (date: Date) => {
@@ -125,8 +124,9 @@ export default function AppointmentsCalendar({
       props.setselectedDate(e.start);
       props.createAppointmentDialog.setOpen(true);
     } else {
-      mostrarAlertaError({
-        mensaje: "No se puede crear una cita en una fecha anterior",
+      toaster.create({
+        description: "No se puede crear una cita en una fecha anterior",
+        type: "error",
       });
     }
   };

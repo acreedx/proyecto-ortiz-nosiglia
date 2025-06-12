@@ -7,3 +7,6 @@ export enum appointmentDuration {
 export enum appointmentAllowedTimeToConfirm {
   HOURS = 48,
 }
+export enum appointmentDefaultInstructions {
+  INSTRUCCIONES = "Llegar puntual",
+}

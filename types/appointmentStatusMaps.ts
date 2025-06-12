@@ -17,6 +17,15 @@ export const statusLabelMap: Record<string, string> = {
   [appointmentStatusList.STATUS_PENDIENTE]: "Pendiente",
 };
 
+function normalizarFecha(fecha: Date) {
+  return new Date(
+    fecha.getFullYear(),
+    fecha.getMonth(),
+    fecha.getDate(),
+    fecha.getUTCHours(),
+    fecha.getUTCMinutes()
+  );
+}
 export function convertirAppointmentsAEventos(
   appointments: Prisma.AppointmentGetPayload<{
     include: {
@@ -38,14 +47,13 @@ export function convertirAppointmentsAEventos(
   }>[]
 ): EventInput[] {
   return appointments.map((appt) => {
-    const start = appt.programed_date_time;
-    console.log(start);
-    const end = start.getTime() + 30 * 60 * 1000;
+    const start: Date = normalizarFecha(appt.programed_date_time);
+    const end = normalizarFecha(appt.programed_end_date_time);
     return {
       id: appt.id.toString(),
       title: `${appt.patient.user.first_name} ${appt.patient.user.last_name}`,
-      start,
-      end,
+      start: start,
+      end: end,
       allDay: false,
       color: appt.status ? statusColorMap[appt.status] : "gray",
     };
