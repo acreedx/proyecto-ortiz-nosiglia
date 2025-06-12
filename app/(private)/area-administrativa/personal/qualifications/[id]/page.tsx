@@ -13,9 +13,9 @@ import { Qualification } from "@prisma/client";
 export default async function Page({
   params,
 }: {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }) {
   const { id } = await params;
   const doctor = await prisma.user.findUnique({

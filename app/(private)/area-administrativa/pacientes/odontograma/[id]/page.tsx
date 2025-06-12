@@ -11,9 +11,9 @@ import CreateOdontogramButton from "../../components/create-odontogram-button";
 export default async function Page({
   params,
 }: {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }) {
   const { id } = await params;
   const paciente = await prisma.user.findUnique({

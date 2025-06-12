@@ -12,9 +12,9 @@ import CreateLargeDialog from "../../../../../../components/admin/dialog/create-
 export default async function Page({
   params,
 }: {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }) {
   const { id } = await params;
   const paciente = await prisma.user.findUnique({
