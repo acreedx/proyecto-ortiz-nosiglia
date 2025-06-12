@@ -4,10 +4,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id_dentista: number } }
+  { params }: { params: Promise<{ id_dentista: number }> }
 ) {
   try {
-    const { id_dentista } = params;
+    const { id_dentista } = await params;
     const citasActivas = await prisma.appointment.findMany({
       where: {
         doctor_id: id_dentista,

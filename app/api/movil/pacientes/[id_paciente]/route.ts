@@ -4,9 +4,9 @@ import { rolesList } from "../../../../../lib/nextauth/rolesList";
 export const dynamic = "force-dynamic";
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id_paciente: string } }
+  { params }: { params: Promise<{ id_paciente: string }> }
 ) {
-  const { id_paciente } = params;
+  const { id_paciente } = await params;
 
   try {
     const paciente = await prisma.user.findFirst({

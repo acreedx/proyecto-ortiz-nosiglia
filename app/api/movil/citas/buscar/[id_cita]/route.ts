@@ -4,9 +4,9 @@ import { prisma } from "../../../../../../lib/prisma/prisma";
 export const dynamic = "force-dynamic";
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id_cita: string } }
+  { params }: { params: Promise<{ id_cita: string }> }
 ) {
-  const { id_cita } = params;
+  const { id_cita } = await params;
   try {
     const cita = await prisma.appointment.findFirst({
       where: {
