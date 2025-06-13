@@ -17,6 +17,7 @@ export const CreateQualificationSchema = z.object({
     .string()
     .max(50, "El tamaño máximo del país es de 50 caracteres")
     .optional(),
+  //todo validar que la fecha no pueda ser menor a la fecha actual igualmente en en el de editar
   obtainment_date: z
     .string()
     .min(1, "La fecha de obtención es requerida")

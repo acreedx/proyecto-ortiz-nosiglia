@@ -11,6 +11,7 @@ import NextLink from "next/link";
 import { userStatusList } from "../../../../../types/statusList";
 import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import EditPayrollForm from "./payroll-edit-form";
+import { rolesList } from "../../../../../lib/nextauth/rolesList";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function StaffTable({
@@ -113,20 +114,22 @@ export default function StaffTable({
           >
             <FaMoneyBill color="green" />
           </IconButton>
-
-          <NextLink
-            href={`/area-administrativa/personal/qualifications/${params.data.id}`}
-          >
-            <IconButton
-              size="sm"
-              colorPalette="red"
-              variant="outline"
-              aria-label="Pagos"
-              ml={2}
+          {(params.data.role.role_name === rolesList.DENTISTA ||
+            params.data.role.role_name === rolesList.MEDICO_TEMPORAL) && (
+            <NextLink
+              href={`/area-administrativa/personal/qualifications/${params.data.id}`}
             >
-              <FaScroll color="golden" />
-            </IconButton>
-          </NextLink>
+              <IconButton
+                size="sm"
+                colorPalette="red"
+                variant="outline"
+                aria-label="Pagos"
+                ml={2}
+              >
+                <FaScroll color="golden" />
+              </IconButton>
+            </NextLink>
+          )}
         </div>
       ),
     },

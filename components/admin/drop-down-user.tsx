@@ -1,22 +1,13 @@
 import Link from "next/link";
 import { Avatar, Button, Menu, Portal } from "@chakra-ui/react";
-import { LuBook, LuCog, LuLogOut, LuUser } from "react-icons/lu";
+import { LuUser } from "react-icons/lu";
 import { auth } from "../../lib/nextauth/auth";
+import LogOutButton from "./logoutbutton";
+import { rolesList } from "../../lib/nextauth/rolesList";
+import { FaGraduationCap } from "react-icons/fa";
 
 export default async function DropdownUser() {
   const session = await auth();
-  //const router = useRouter();
-  //const LogOut = async () => {
-  //  try {
-  //    //await signOut({
-  //    //  redirect: false,
-  //    //});
-  //    //router.push(routes.login);
-  //    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //  } catch (e: any) {
-  //    mostrarAlertaError(e);
-  //  }
-  //};
   return (
     <div>
       {session && session.user && (
@@ -54,31 +45,21 @@ export default async function DropdownUser() {
                     Editar tu perfil
                   </Link>
                 </Menu.Item>
-
-                <Menu.Item value="contacts">
-                  <Link
-                    href="#"
-                    className="flex items-center gap-3.5 text-sm font-medium duration-150 ease-in-out hover:text-orange-500 lg:text-base"
-                  >
-                    <LuBook />
-                    Mis contactos
-                  </Link>
-                </Menu.Item>
-                <Menu.Item value="config">
-                  <Link
-                    href="/settings"
-                    className="flex items-center gap-3.5 text-sm font-medium duration-150 ease-in-out hover:text-orange-500 lg:text-base"
-                  >
-                    <LuCog />
-                    Configuraciones
-                  </Link>
-                </Menu.Item>
+                {(session.user.role === rolesList.DENTISTA ||
+                  session.user.role === rolesList.MEDICO_TEMPORAL) && (
+                  <Menu.Item value="qualifications">
+                    <Link
+                      href={`/area-administrativa/staff-profile/titulos`}
+                      className="flex items-center gap-3.5 text-sm font-medium duration-150 ease-in-out hover:text-orange-500 lg:text-base"
+                    >
+                      <FaGraduationCap />
+                      Editar tus títulos
+                    </Link>
+                  </Menu.Item>
+                )}
                 <ul className="flex flex-col gap-5 border-b border-stroke px-6 w-full  dark:border-strokedark"></ul>
                 <Menu.Item value="log-out">
-                  <button className="flex items-center gap-3.5 text-sm font-medium duration-150 ease-in-out hover:text-orange-500 lg:text-base cursor-pointer">
-                    <LuLogOut />
-                    Cerrar sesión
-                  </button>
+                  <LogOutButton />
                 </Menu.Item>
               </Menu.Content>
             </Menu.Positioner>

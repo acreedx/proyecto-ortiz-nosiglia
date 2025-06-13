@@ -53,6 +53,7 @@ export default function LineChart({ labels, data }: LineChartProps) {
           },
         },
       }}
+      width={"300"}
     />
   );
 }

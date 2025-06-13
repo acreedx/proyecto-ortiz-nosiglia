@@ -19,6 +19,9 @@ export default async function Page() {
   const roles = await prisma.role.findMany({
     where: {
       status: userStatusList.ACTIVO,
+      role_name: {
+        not: rolesList.ADMINISTRADOR,
+      },
     },
   });
   const session = await auth();

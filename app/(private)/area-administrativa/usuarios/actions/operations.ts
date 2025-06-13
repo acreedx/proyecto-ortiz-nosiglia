@@ -28,7 +28,7 @@ export async function create({
 }: {
   data: TCreateUserSchema;
   image: File | undefined;
-}): Promise<{ ok: boolean }> {
+}): Promise<{ ok: boolean; message?: string }> {
   try {
     const session = await auth();
     if (!session) {
@@ -38,18 +38,20 @@ export async function create({
     }
     const tryParse = createUserSchema.safeParse(data);
     if (!tryParse.success) {
+      console.log(tryParse.error);
       return {
         ok: false,
       };
     }
-    const selected_role = await prisma.role.findUnique({
+    const isAnyUserWithId = await prisma.user.findFirst({
       where: {
-        id: data.rol_id,
+        identification: data.identification.toString(),
       },
     });
-    if (!selected_role) {
+    if (isAnyUserWithId) {
       return {
         ok: false,
+        message: "Ya existe un usuario con ese carnet de identidad",
       };
     }
     const generatedPassword = generateStrongPassword(12);

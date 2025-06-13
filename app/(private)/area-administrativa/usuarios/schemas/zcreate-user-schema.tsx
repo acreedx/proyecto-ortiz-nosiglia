@@ -1,6 +1,6 @@
 import { z } from "zod";
 export const createUserSchema = z.object({
-  identification: z
+  identification: z.coerce
     .string({ message: "Ingresa un Carnet válido" })
     .min(7, "El carnet de identidad es requerido")
     .max(9, "El tamaño máximo de carácteres es de 9")
@@ -18,13 +18,13 @@ export const createUserSchema = z.object({
     .string()
     .min(1, "La fecha de nacimiento es requerida")
     .max(50, "El tamaño máximo de carácteres es de 50"),
-  phone: z
+  phone: z.coerce
     .string({ message: "Ingresa un teléfono válido" })
     .min(7, "El teléfono debe ser de mínimo 7 carácteres")
     .max(7, "El tamaño máximo de carácteres es de 7")
     .regex(/^(?!.*(\d)\1{6})[234]\d{6}$/, "Ingresa un teléfono válido")
     .transform((val) => parseInt(val, 10)),
-  mobile: z
+  mobile: z.coerce
     .string({ message: "Ingresa un teléfono válido" })
     .min(8, "El celular debe ser de mínimo 8 carácteres")
     .max(8, "El tamaño máximo de carácteres es de 8")
@@ -43,7 +43,7 @@ export const createUserSchema = z.object({
     .string()
     .min(1, "La ciudad es requerida")
     .max(50, "El tamaño máximo de carácteres es de 50"),
-  rol_id: z
+  rol_id: z.coerce
     .string({ message: "Ingresa un rol válido" })
     .transform((val) => parseInt(val, 10)),
 });

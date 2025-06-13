@@ -44,7 +44,7 @@ export default async function Page({
       },
     },
   });
-  if (!doctor) {
+  if (!doctor || !doctor.staff || !doctor.staff.doctor) {
     return <div>No encontrado</div>;
   }
   return (
@@ -70,17 +70,23 @@ export default async function Page({
             <QualificationsCreateForm doctor_id={doctor.id} />
           </CreateDialog>
         </div>
-        <Box as="section" mt={8}>
-          <Heading size="md" mb={4}>
-            Títulos registrados
-          </Heading>
+        {doctor.staff.doctor.qualification.length > 0 ? (
+          <Box as="section" mt={8}>
+            <Heading size="md" mb={4} color={"orange"}>
+              Títulos registrados
+            </Heading>
 
-          <QualificationCard
-            qualifications={
-              doctor.staff?.doctor?.qualification as Qualification[]
-            }
-          />
-        </Box>
+            <QualificationCard
+              qualifications={
+                doctor.staff.doctor.qualification as Qualification[]
+              }
+            />
+          </Box>
+        ) : (
+          <Heading size="md" mb={4} color={"orange"}>
+            No hay títulos registrados
+          </Heading>
+        )}
       </main>
     </CanStaff>
   );

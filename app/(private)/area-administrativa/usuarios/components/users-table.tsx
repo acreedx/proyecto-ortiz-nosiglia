@@ -14,6 +14,7 @@ import { toaster } from "../../../../../components/ui/toaster";
 import { eliminate, restore } from "../actions/operations";
 import UsersEditForm from "./users-edit-form";
 import { Session } from "next-auth";
+import { rolesList } from "../../../../../lib/nextauth/rolesList";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function UsersTable({
@@ -112,24 +113,22 @@ export default function UsersTable({
       cellRenderer: (params: any) => (
         <div className="flex flex-row items-center justify-center w-full">
           <>
-            {(params.data.status === userStatusList.ACTIVO &&
-              !params.data.is_super_admin) ||
-              (props.session.user.is_super_admin && (
-                <IconButton
-                  size="sm"
-                  colorPalette="orange"
-                  variant="outline"
-                  aria-label="Editar"
-                  onClick={() => {
-                    editDialog.setOpen(true);
-                    setselectedUser(params.data);
-                  }}
-                >
-                  <FaEdit color="orange" />
-                </IconButton>
-              ))}
+            {params.data.role.role_name !== rolesList.ADMINISTRADOR && (
+              <IconButton
+                size="sm"
+                colorPalette="orange"
+                variant="outline"
+                aria-label="Editar"
+                onClick={() => {
+                  editDialog.setOpen(true);
+                  setselectedUser(params.data);
+                }}
+              >
+                <FaEdit color="orange" />
+              </IconButton>
+            )}
             {params.data.status === userStatusList.ACTIVO &&
-              !params.data.is_super_admin && (
+              params.data.role.role_name !== rolesList.ADMINISTRADOR && (
                 <IconButton
                   size="sm"
                   colorPalette="red"
@@ -142,7 +141,7 @@ export default function UsersTable({
                 </IconButton>
               )}
             {params.data.status === userStatusList.INACTIVO &&
-              !params.data.is_super_admin && (
+              params.data.role.role_name !== rolesList.ADMINISTRADOR && (
                 <IconButton
                   size="sm"
                   colorPalette="red"

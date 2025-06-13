@@ -13,13 +13,13 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { toaster } from "../../../../../components/ui/toaster";
-import { createUser } from "../../../../../actions/public";
 import ProfileUploadField from "../../../../../components/form/common/profileUploadField";
 import { Role } from "@prisma/client";
 import {
   createUserSchema,
   TCreateUserSchema,
 } from "../schemas/zcreate-user-schema";
+import { create } from "../actions/operations";
 
 export default function UsersCreateForm({
   props,
@@ -41,7 +41,7 @@ export default function UsersCreateForm({
     mode: "onChange",
   });
   const onSubmit = async (data: TCreateUserSchema) => {
-    const res = await createUser({
+    const res = await create({
       data: data,
       image: fileUpload.acceptedFiles[0],
     });
@@ -51,10 +51,9 @@ export default function UsersCreateForm({
         type: "success",
       });
       reset();
-    }
-    if (!res.ok) {
+    } else {
       toaster.create({
-        description: "Error al crear el usuario",
+        description: res.message ? res.message : "Error al crear el usuario",
         type: "error",
       });
     }

@@ -164,7 +164,7 @@ export default function QualificationsCreateForm({
           <Button variant="outline">Cancelar</Button>
         </Dialog.ActionTrigger>
         <Button type="submit" loading={isSubmitting}>
-          Crear
+          Añadir
         </Button>
       </Dialog.Footer>
       <Dialog.CloseTrigger asChild>
