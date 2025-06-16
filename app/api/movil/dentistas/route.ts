@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma/prisma";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
 export const dynamic = "force-dynamic";
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
     const dentistas = await prisma.user.findMany({
       where: {

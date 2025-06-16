@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id_cita: string }> }
-) {
+): Promise<NextResponse> {
   const { id_cita } = await params;
   try {
     const cita = await prisma.appointment.findFirst({

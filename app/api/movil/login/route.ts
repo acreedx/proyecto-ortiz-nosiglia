@@ -4,12 +4,13 @@ import { userStatusList } from "../../../../types/statusList";
 import { SignInApiSchema } from "../../../../lib/zod/z-sign-in-cycle-schemas";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { permissionsList } from "../../../../types/permissionsList";
+import { ZodError } from "zod";
 const key = process.env.JWT_SECRET;
 
 export async function POST(req: NextRequest): Promise<
   NextResponse<{
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    access_token?: any;
+    access_token?: string;
     message?: string;
   }>
 > {
@@ -25,7 +26,6 @@ export async function POST(req: NextRequest): Promise<
       await req.json()
     );
     //validar si existe el usuario con el username
-    //todo validar los permisos del usuario
     const dbUser = await prisma.user.findFirst({
       where: {
         username: username,
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest): Promise<
     });
     if (!dbUser) {
       return NextResponse.json(
-        { message: "No se encontró el usuario" },
+        { message: "Usuario o contraseña incorrectos" },
         { status: 500 }
       );
     }
@@ -119,7 +119,9 @@ export async function POST(req: NextRequest): Promise<
       );
     }
     if (
-      !dbUser.role.role_permissions.some((e) => e.permission.code === "sadnjks")
+      !dbUser.role.role_permissions.some(
+        (e) => e.permission.code === permissionsList.APLICACION_MOVIL
+      )
     ) {
       return NextResponse.json(
         {
@@ -143,6 +145,10 @@ export async function POST(req: NextRequest): Promise<
     return NextResponse.json({ access_token: token });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    if (error instanceof ZodError) {
+      const message = error.errors[0]?.message || "Error de validación";
+      return NextResponse.json({ message: message }, { status: 500 });
+    }
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }

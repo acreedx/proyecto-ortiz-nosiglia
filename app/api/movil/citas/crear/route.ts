@@ -4,7 +4,7 @@ import { appointmentStatusList } from "../../../../../types/statusList";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const { descripcion, fecha, hora, doctor, patient_id } = await req.json();
     if (!descripcion || !fecha || !hora || !doctor || !patient_id) {

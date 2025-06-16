@@ -1,9 +1,35 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma/prisma";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
+import { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
-export async function GET() {
+export async function GET(): Promise<
+  NextResponse<{
+    pacientes: Prisma.UserGetPayload<{
+      select: {
+        id: true;
+        patient: {
+          select: {
+            allergies: true;
+            preconditions: true;
+          };
+        };
+        first_name: true;
+        last_name: true;
+        birth_date: true;
+        phone: true;
+        mobile: true;
+        email: true;
+        address_line: true;
+        address_city: true;
+        identification: true;
+        photo_url: true;
+      };
+    }>[];
+    message?: string;
+  }>
+> {
   try {
     const pacientes = await prisma.user.findMany({
       where: {
@@ -34,6 +60,9 @@ export async function GET() {
     return NextResponse.json({ pacientes: pacientes });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { pacientes: [], message: error.message },
+      { status: 500 }
+    );
   }
 }

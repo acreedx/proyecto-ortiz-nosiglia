@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma/prisma";
 
 export const dynamic = "force-dynamic";
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const { appointment }: { appointment: Appointment } = await req.json();
     const validarFechaHora = await prisma.appointment.findMany({

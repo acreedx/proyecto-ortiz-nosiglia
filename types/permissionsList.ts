@@ -1,0 +1,16 @@
+export enum permissionsList {
+  DASHBOARD = "dsh_adm",
+  PACIENTES = "dsh_pct_adm",
+  ORGANIZACIONES = "dsh_org_adm",
+  CITAS = "dsh_cts_adm",
+  CITAS_DENTISTA = "dsh_cts_adm_dent",
+  USUARIOS = "dsh_usu_adm",
+  ROLES = "dsh_rol_adm",
+  EVENTOS = "dsh_log_adm",
+  PERSONAL = "dsh_per_adm",
+  TRATAMIENTOS = "dsh_trs_adm",
+  TIPOS_DE_TRATAMIENTO = "dsh_ttrs_adm",
+  DEUDAS = "dsh_deu_adm",
+  CONFIGURACION = "dsh_conf_adm",
+  APLICACION_MOVIL = "mov_adm",
+}
