@@ -16,6 +16,19 @@ export const signInSchema = z.object({
 
 export type TSignInSchema = z.infer<typeof signInSchema>;
 
+export const SignInApiSchema = z.object({
+  username: z
+    .string()
+    .min(6, "El nombre de usuario no puede ser menor de 6 carácteres")
+    .max(30, "El nombre de usuario no puede tener mas de 30 carácteres"),
+  password: z
+    .string()
+    .min(6, "La contraseña debe tener mas de 6 carácteres")
+    .max(30, "La contraseña no puede tener mas de 30 carácteres"),
+});
+
+export type TSignInApiSchema = z.infer<typeof SignInApiSchema>;
+
 export const createUserSchema = z.object({
   identification: z
     .string({ message: "Ingresa un Carnet válido" })
