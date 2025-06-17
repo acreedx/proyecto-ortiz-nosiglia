@@ -4,13 +4,13 @@ import { prisma } from "../../../../../lib/prisma/prisma";
 export const dynamic = "force-dynamic";
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id_dentista: number }> }
+  { params }: { params: Promise<{ id_dentista: string }> }
 ): Promise<NextResponse> {
   try {
     const { id_dentista } = await params;
     const citas = await prisma.appointment.findMany({
       where: {
-        doctor_id: id_dentista,
+        doctor_id: Number(id_dentista),
       },
     });
     return NextResponse.json({ citas });
