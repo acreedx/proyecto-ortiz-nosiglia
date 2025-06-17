@@ -35,6 +35,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(req: NextRequest) {
   try {
+    //todo obtener las citas del dentista
     const citas = await prisma.appointment.findMany();
     return NextResponse.json({ citas });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
