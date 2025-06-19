@@ -34,7 +34,7 @@ export default function LineChart({ labels, data }: LineChartProps) {
         labels,
         datasets: [
           {
-            label: "Ventas",
+            label: "Citas",
             data,
             borderColor: "rgba(75,192,192,1)",
             backgroundColor: "rgba(75,192,192,0.2)",

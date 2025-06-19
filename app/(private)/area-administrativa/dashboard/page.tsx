@@ -7,12 +7,106 @@ import AppointmentStats from "./components/AppointmentStats";
 import PieChart from "./components/PieChart";
 import { ScatterChart } from "./components/ScatterPlot";
 import BarChart from "./components/BarChart";
+import { prisma } from "../../../../lib/prisma/prisma";
+import { appointmentStatusList } from "../../../../types/statusList";
+import { rolesList } from "../../../../lib/nextauth/rolesList";
 
 export default async function Page() {
-  const labels = ["Enero", "Febrero", "Marzo", "Abril", "Mayo"];
-  const values = [10, 20, 30, 25, 50];
-  const labelsPie = ["Dentistas", "Médicos", "Asistentes", "Administrativos"];
-  const dataPie = [10, 5, 3, 2];
+  const appointments = await prisma.appointment.findMany();
+  //primer gráfico
+  const datosCitas = {
+    citas_canceladas: appointments.filter(
+      (e) => e.status === appointmentStatusList.STATUS_CANCELADA
+    ).length,
+    citas_completadas: appointments.filter(
+      (e) => e.status === appointmentStatusList.STATUS_COMPLETADA
+    ).length,
+    citas_confirmadas: appointments.filter(
+      (e) => e.status === appointmentStatusList.STATUS_CONFIRMADA
+    ).length,
+    citas_no_asistidas: appointments.filter(
+      (e) => e.status === appointmentStatusList.STATUS_NO_ASISTIDA
+    ).length,
+    citas_pendientes: appointments.filter(
+      (e) => e.status === appointmentStatusList.STATUS_PENDIENTE
+    ).length,
+    citas_totales: appointments.length,
+  };
+  //segundo gráfico
+  const labels = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+  const values = [
+    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 0)
+      .length,
+    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 1)
+      .length,
+    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 2)
+      .length,
+    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 3)
+      .length,
+    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 4)
+      .length,
+    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 5)
+      .length,
+    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 6)
+      .length,
+    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 7)
+      .length,
+    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 8)
+      .length,
+    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 9)
+      .length,
+    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 10)
+      .length,
+    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 11)
+      .length,
+  ];
+  //tercer gráfico
+  const usuarios = await prisma.user.findMany({
+    include: {
+      role: true,
+    },
+  });
+  const labelsPie = [
+    "Administrativos",
+    "Dentistas",
+    "Enfermeros",
+    "Médicos temporales",
+    "Pacientes",
+    "Secretarios",
+    "Otros roles",
+  ];
+  const dataPie = [
+    usuarios.filter((e) => e.role.role_name === rolesList.ADMINISTRADOR).length,
+    usuarios.filter((e) => e.role.role_name === rolesList.DENTISTA).length,
+    usuarios.filter((e) => e.role.role_name === rolesList.ENFERMERO).length,
+    usuarios.filter((e) => e.role.role_name === rolesList.MEDICO_TEMPORAL)
+      .length,
+    usuarios.filter((e) => e.role.role_name === rolesList.PACIENTE).length,
+    usuarios.filter((e) => e.role.role_name === rolesList.SECRETARIO).length,
+    usuarios.filter(
+      (e) =>
+        e.role.role_name !== rolesList.ADMINISTRADOR &&
+        e.role.role_name !== rolesList.DENTISTA &&
+        e.role.role_name !== rolesList.ENFERMERO &&
+        e.role.role_name !== rolesList.MEDICO_TEMPORAL &&
+        e.role.role_name !== rolesList.PACIENTE &&
+        e.role.role_name !== rolesList.SECRETARIO
+    ).length,
+  ];
+  //cuarto gráfico
   const puntos = [
     { x: 1, y: 3 },
     { x: 2, y: 7 },
@@ -32,10 +126,12 @@ export default async function Page() {
         <section className="mt-4">
           <AppointmentStats
             props={{
-              citas_canceladas: 1,
-              citas_completadas: 1,
-              citas_pendientes: 1,
-              citas_totales: 1,
+              citas_canceladas: datosCitas.citas_canceladas,
+              citas_completadas: datosCitas.citas_completadas,
+              citas_confirmadas: datosCitas.citas_confirmadas,
+              citas_no_asitidas: datosCitas.citas_no_asistidas,
+              citas_pendientes: datosCitas.citas_pendientes,
+              citas_totales: datosCitas.citas_totales,
             }}
           />
         </section>

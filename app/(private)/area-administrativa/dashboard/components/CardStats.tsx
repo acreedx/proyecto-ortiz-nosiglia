@@ -17,7 +17,7 @@ export default function CardStats({ label, value }: CardStatsProps) {
       px={6}
       py={5}
       shadow="md"
-      width="100%"
+      width="full"
       maxW="280px"
       _dark={{ bg: "gray.800", borderColor: "gray.700" }}
     >
