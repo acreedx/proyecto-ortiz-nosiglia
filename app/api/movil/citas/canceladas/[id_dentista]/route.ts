@@ -34,7 +34,11 @@ export async function GET(
         status: appointmentStatusList.STATUS_CANCELADA,
       },
       include: {
-        patient: true,
+        patient: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
     return NextResponse.json({ citas: citasCanceladas });
