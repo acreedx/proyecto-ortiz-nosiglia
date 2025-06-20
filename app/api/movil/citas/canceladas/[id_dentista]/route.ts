@@ -10,13 +10,28 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const { id_dentista } = await params;
+    const usuario = await prisma.user.findUnique({
+      where: {
+        id: Number(id_dentista),
+      },
+      include: {
+        staff: {
+          include: {
+            doctor: true,
+          },
+        },
+      },
+    });
+    if (!usuario || !usuario.staff || !usuario.staff.doctor) {
+      return NextResponse.json(
+        { message: "Usuario no encontrado" },
+        { status: 500 }
+      );
+    }
     const citasCanceladas = await prisma.appointment.findMany({
       where: {
-        doctor_id: Number(id_dentista),
+        doctor_id: usuario.staff.doctor.id,
         status: appointmentStatusList.STATUS_CANCELADA,
-        programed_date_time: {
-          gt: new Date(),
-        },
       },
       include: {
         patient: true,
