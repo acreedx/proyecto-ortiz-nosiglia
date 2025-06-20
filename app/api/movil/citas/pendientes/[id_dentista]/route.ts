@@ -31,7 +31,7 @@ export async function GET(
     }
     const citasPendientes = await prisma.appointment.findMany({
       where: {
-        doctor_id: Number(usuario.staff.doctor),
+        doctor_id: usuario.staff.doctor.id,
         status: appointmentStatusList.STATUS_PENDIENTE,
       },
       include: {
