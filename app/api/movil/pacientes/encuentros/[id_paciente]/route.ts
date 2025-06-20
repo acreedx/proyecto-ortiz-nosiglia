@@ -8,12 +8,16 @@ export async function GET(
 ): Promise<NextResponse> {
   const { id_paciente } = await params;
   try {
-    const paciente = await prisma.patient.findUnique({
+    const paciente = await prisma.user.findUnique({
       where: {
         id: Number(id_paciente),
       },
       include: {
-        encounter: true,
+        patient: {
+          include: {
+            encounter: true,
+          },
+        },
       },
     });
     return NextResponse.json({ paciente: paciente });
