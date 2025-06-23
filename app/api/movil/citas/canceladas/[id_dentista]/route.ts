@@ -31,7 +31,13 @@ export async function GET(
     const citasCanceladas = await prisma.appointment.findMany({
       where: {
         doctor_id: usuario.staff.doctor.id,
-        status: appointmentStatusList.STATUS_CANCELADA,
+        status: {
+          in: [
+            appointmentStatusList.STATUS_COMPLETADA,
+            appointmentStatusList.STATUS_CANCELADA,
+            appointmentStatusList.STATUS_NO_ASISTIDA,
+          ],
+        },
       },
       include: {
         patient: {

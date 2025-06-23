@@ -26,7 +26,25 @@ export default async function Page() {
       },
     },
   });
+  const usuario = await prisma.user.findUnique({
+    where: {
+      id: session.user.id_db,
+    },
+    include: {
+      staff: {
+        include: {
+          doctor: true,
+        },
+      },
+    },
+  });
+  if (!usuario || !usuario.staff || !usuario.staff.doctor) {
+    return <div>No encontrado</div>;
+  }
   const appointments = await prisma.appointment.findMany({
+    where: {
+      doctor_id: usuario.staff.doctor.id,
+    },
     orderBy: {
       programed_date_time: "desc",
     },
@@ -47,6 +65,7 @@ export default async function Page() {
       },
     },
   });
+  console.log(appointments);
   return (
     <main className="w-full flex flex-col h-full flex-grow">
       <BreadCrumb

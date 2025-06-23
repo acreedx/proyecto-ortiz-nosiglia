@@ -32,7 +32,6 @@ export async function GET(
     const citasHistorial = await prisma.appointment.findMany({
       where: {
         doctor_id: usuario.staff.doctor.id,
-
         status: {
           in: [
             appointmentStatusList.STATUS_COMPLETADA,
