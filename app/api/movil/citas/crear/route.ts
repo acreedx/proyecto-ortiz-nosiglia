@@ -1,39 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma/prisma";
 import { appointmentStatusList } from "../../../../../types/statusList";
+import { ZodError } from "zod";
+import { CreateAppointmentMobileSchema } from "../../../../../lib/zod/z-appointment-mobile-shemas";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const { descripcion, fecha, hora, doctor, patient_id } = await req.json();
-    if (!descripcion || !fecha || !hora || !doctor || !patient_id) {
+    const data = CreateAppointmentMobileSchema.parse(await req.json());
+    console.log(data);
+
+    const userPatient = await prisma.user.findUnique({
+      where: {
+        id: data.patient_id,
+      },
+      include: {
+        patient: true,
+      },
+    });
+    if (!userPatient || !userPatient.patient) {
       return NextResponse.json(
-        { error: "Faltan datos requeridos." },
+        { error: "No existe el paciente seleccionado" },
         { status: 400 }
       );
     }
-    const [day, month, year] = fecha.split("/");
-    const formattedDate = `${year}-${month}-${day}`;
-    // eslint-disable-next-line prefer-const
-    let [hour, minute] = hora.split(":");
-    const period = hora.split(" ")[1];
-    if (period === "PM" && hour !== "12") {
-      hour = parseInt(hour) + 12;
+    const userDoctor = await prisma.user.findUnique({
+      where: {
+        id: data.doctor_id,
+      },
+      include: {
+        staff: {
+          include: {
+            doctor: true,
+          },
+        },
+      },
+    });
+    if (!userDoctor || !userDoctor.staff || !userDoctor.staff.doctor) {
+      return NextResponse.json(
+        { error: "No existe el dentista seleccionado" },
+        { status: 400 }
+      );
     }
-
-    if (period === "AM" && hour === "12") {
-      hour = "00";
-    }
-    hour = parseInt(hour) + 4;
-    if (hour >= 24) {
-      hour = hour - 24;
-    }
-    const formattedTime = `${String(hour).padStart(2, "0")}:${String(minute).slice(0, 2)}`;
-    const start = new Date(`${formattedDate}T${formattedTime}:00`);
-    const end = new Date(start.getTime() + 30 * 60 * 1000);
-    const now = new Date();
-    if (start <= now) {
+    const [horaStr, minutoStr] = data.hora_cita.split(":");
+    const fechaConHora = new Date(data.programed_date_time);
+    fechaConHora.setUTCHours(
+      parseInt(horaStr, 10),
+      parseInt(minutoStr, 10),
+      0,
+      0
+    );
+    const fechaFin = new Date(fechaConHora.getTime() + 30 * 60 * 1000);
+    if (fechaConHora <= new Date()) {
       return NextResponse.json(
         {
           error:
@@ -44,21 +63,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
     const citaExistente = await prisma.appointment.findFirst({
       where: {
-        doctor_id: doctor,
+        doctor_id: data.doctor_id,
         AND: [
           {
             OR: [
               {
-                programed_date_time: { lte: start },
-                programed_end_date_time: { gt: start },
+                programed_date_time: { lte: fechaConHora },
+                programed_end_date_time: { gt: fechaConHora },
               },
               {
-                programed_date_time: { lt: end },
-                programed_end_date_time: { gte: end },
+                programed_date_time: { lt: fechaFin },
+                programed_end_date_time: { gte: fechaFin },
               },
               {
-                programed_date_time: { gte: start },
-                programed_end_date_time: { lte: end },
+                programed_date_time: { gte: fechaConHora },
+                programed_end_date_time: { lte: fechaFin },
               },
             ],
           },
@@ -74,21 +93,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
     const citaExistentePaciente = await prisma.appointment.findFirst({
       where: {
-        patient_id: patient_id,
+        patient_id: userPatient.patient.id,
         AND: [
           {
             OR: [
               {
-                programed_date_time: { lte: start },
-                programed_end_date_time: { gt: start },
+                programed_date_time: { lte: fechaConHora },
+                programed_end_date_time: { gt: fechaConHora },
               },
               {
-                programed_date_time: { lt: end },
-                programed_end_date_time: { gte: end },
+                programed_date_time: { lt: fechaFin },
+                programed_end_date_time: { gte: fechaFin },
               },
               {
-                programed_date_time: { gte: start },
-                programed_end_date_time: { lte: end },
+                programed_date_time: { gte: fechaConHora },
+                programed_end_date_time: { lte: fechaFin },
               },
             ],
           },
@@ -106,12 +125,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     await prisma.appointment.create({
       data: {
         scheduled_on: new Date(),
-        programed_date_time: start,
-        programed_end_date_time: end,
+        programed_date_time: fechaConHora,
+        programed_end_date_time: fechaFin,
         specialty: "Cita normal",
-        reason: descripcion,
-        patient_id: patient_id,
-        doctor_id: doctor,
+        reason: data.reason,
+        patient_id: userPatient.patient.id,
+        doctor_id: userDoctor.staff.doctor.id,
         status: appointmentStatusList.STATUS_PENDIENTE,
       },
     });
@@ -120,6 +139,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.log(error);
+    if (error instanceof ZodError) {
+      const message = error.errors[0]?.message || "Error de validación";
+      return NextResponse.json({ message: message }, { status: 500 });
+    }
     return NextResponse.json(
       { error: "Error al crear la cita." },
       { status: 500 }

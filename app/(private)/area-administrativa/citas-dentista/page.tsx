@@ -65,7 +65,6 @@ export default async function Page() {
       },
     },
   });
-  console.log(appointments);
   return (
     <main className="w-full flex flex-col h-full flex-grow">
       <BreadCrumb

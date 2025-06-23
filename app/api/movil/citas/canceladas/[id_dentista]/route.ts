@@ -29,6 +29,9 @@ export async function GET(
       );
     }
     const citasCanceladas = await prisma.appointment.findMany({
+      orderBy: {
+        programed_date_time: "desc",
+      },
       where: {
         doctor_id: usuario.staff.doctor.id,
         status: {

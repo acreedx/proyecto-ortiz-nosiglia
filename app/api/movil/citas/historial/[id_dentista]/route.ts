@@ -30,6 +30,9 @@ export async function GET(
       );
     }
     const citasHistorial = await prisma.appointment.findMany({
+      orderBy: {
+        programed_date_time: "desc",
+      },
       where: {
         doctor_id: usuario.staff.doctor.id,
         status: {
