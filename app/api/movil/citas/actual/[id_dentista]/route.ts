@@ -19,7 +19,11 @@ export async function GET(
         },
       },
       include: {
-        patient: true,
+        patient: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
 
