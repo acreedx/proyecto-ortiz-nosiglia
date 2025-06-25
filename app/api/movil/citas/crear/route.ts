@@ -10,7 +10,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const data = CreateAppointmentMobileSchema.parse(await req.json());
     console.log(data);
-
     const userPatient = await prisma.user.findUnique({
       where: {
         id: data.patient_id,
