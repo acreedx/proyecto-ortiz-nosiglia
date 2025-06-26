@@ -15,7 +15,17 @@ export async function GET(
       include: {
         patient: {
           include: {
+            care_plan: true,
+            appointment: true,
             encounter: true,
+            emergency_contact: true,
+            imaging_study: true,
+            odontogram: {
+              include: {
+                odontogram_row: true,
+              },
+            },
+            organization: true,
           },
         },
       },
