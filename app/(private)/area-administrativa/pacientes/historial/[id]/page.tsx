@@ -14,6 +14,7 @@ import { prisma } from "../../../../../../lib/prisma/prisma";
 import CanStaff from "../../../../../../lib/rbac/can-staff";
 import { FaArrowCircleLeft } from "react-icons/fa";
 import { userStatusList } from "../../../../../../types/statusList";
+import { timeFormatter } from "../../../../../../types/dateFormatter";
 
 export default async function Page({
   params,
@@ -138,7 +139,7 @@ export default async function Page({
                 {historialPaciente.patient?.allergies || "No registradas"}
               </Text>
               <Text>
-                <strong>Condiciones preexistentes:</strong>{" "}
+                <strong>Precondiciones:</strong>{" "}
                 {historialPaciente.patient?.preconditions || "No registradas"}
               </Text>
             </Card.Body>
@@ -156,27 +157,21 @@ export default async function Page({
                   {historialPaciente.patient.emergency_contact.name}
                 </Text>
                 <Text>
+                  <strong>Relación:</strong>{" "}
+                  {historialPaciente.patient.emergency_contact.relation}
+                </Text>
+                <Text>
                   <strong>Teléfono:</strong>{" "}
                   {historialPaciente.patient.emergency_contact.phone}
                 </Text>
                 <Text>
-                  <strong>Relación:</strong>{" "}
-                  {historialPaciente.patient.emergency_contact.relation}
+                  <strong>Celular:</strong>{" "}
+                  {historialPaciente.patient.emergency_contact.mobile}
                 </Text>
-              </Card.Body>
-            </Card.Root>
-          )}
-
-          {/* Odontograma */}
-          {historialPaciente.patient?.odontogram && (
-            <Card.Root>
-              <Card.Header>
-                <Heading size="md">Odontograma</Heading>
-              </Card.Header>
-              <Card.Body>
                 <Text>
-                  <strong>Total de filas:</strong>{" "}
-                  {historialPaciente.patient.odontogram.odontogram_row.length}
+                  <strong>Dirección:</strong>{" "}
+                  {historialPaciente.patient.emergency_contact.address_line}{" "}
+                  {historialPaciente.patient.emergency_contact.address_city}
                 </Text>
               </Card.Body>
             </Card.Root>
@@ -216,16 +211,16 @@ export default async function Page({
               </Card.Root>
             )}
 
-          {/* Citas */}
+          {/* Encuentros */}
           {historialPaciente.patient?.appointment &&
           historialPaciente.patient?.appointment.length > 0 ? (
             <Card.Root>
               <Card.Header>
-                <Heading size="md">Citas</Heading>
+                <Heading size="md">Atenciones realizadas</Heading>
               </Card.Header>
               <Card.Body>
                 <Stack gap={3}>
-                  {historialPaciente.patient.appointment.map((appt, index) => (
+                  {historialPaciente.patient.encounter.map((appt, index) => (
                     <Box
                       key={index}
                       p={3}
@@ -234,14 +229,21 @@ export default async function Page({
                       bg="gray.50"
                     >
                       <Text>
-                        <strong>Fecha:</strong>{" "}
-                        {new Date(
-                          appt.programed_date_time
-                        ).toLocaleDateString()}
+                        <strong>Tipo de atención:</strong> {appt.type}
                       </Text>
                       <Text>
-                        <strong>Motivo:</strong>{" "}
-                        {appt.reason || "No especificado"}
+                        <strong>Motivo:</strong> {appt.reason}
+                      </Text>
+                      <Text>
+                        <strong>Especialidad:</strong> {appt.specialty}
+                      </Text>
+                      <Text>
+                        <strong>Diagnóstico:</strong> {appt.diagnosis}
+                      </Text>
+                      <Text>
+                        <strong>Fecha:</strong>{" "}
+                        {new Date(appt.performed_on).toLocaleDateString()}{" "}
+                        {timeFormatter(appt.performed_on)}
                       </Text>
                     </Box>
                   ))}
@@ -249,7 +251,7 @@ export default async function Page({
               </Card.Body>
             </Card.Root>
           ) : (
-            <div>Ninguna</div>
+            <div>Ningun encuentro registrado</div>
           )}
 
           {/* Tratamientos */}

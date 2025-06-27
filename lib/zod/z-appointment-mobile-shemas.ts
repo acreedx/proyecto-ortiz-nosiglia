@@ -21,8 +21,12 @@ export const CreateAppointmentMobileSchema = z.object({
     .string()
     .min(1, "El motivo es obligatorio")
     .max(100, "Máximo 100 caracteres"),
-  note: z.string().max(200, "Máximo 200 caracteres").optional(),
-  patient_instruction: z.string().max(200, "Máximo 200 caracteres").optional(),
+  note: z.string().max(200, "Máximo 200 caracteres").optional().nullable(),
+  patient_instruction: z
+    .string()
+    .max(200, "Máximo 200 caracteres")
+    .optional()
+    .nullable(),
   patient_id: z.coerce.number({
     required_error: "El ID del paciente es obligatorio",
   }),

@@ -470,7 +470,6 @@ export async function editPatient({
     }
     const tryParse = EditPatientSchema.safeParse(data);
     if (!tryParse.success) {
-      console.log(tryParse.error);
       return {
         ok: false,
       };
