@@ -470,6 +470,7 @@ export async function editPatient({
     }
     const tryParse = EditPatientSchema.safeParse(data);
     if (!tryParse.success) {
+      console.log(tryParse.error);
       return {
         ok: false,
       };
@@ -481,7 +482,7 @@ export async function editPatient({
       data: {
         allergies: data.allergies,
         preconditions: data.preconditions,
-        organization_id: data.organization_id,
+        organization_id: data.organization_id ?? null,
       },
     });
     await registerLog({

@@ -189,7 +189,7 @@ model Organization {
   status     String    @db.Char(1)
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   updated_at DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
-  patient    Patient?
+  patient    Patient[]
 
   @@map("organization")
 }
@@ -199,7 +199,7 @@ model Patient {
   allergies            String?           @db.VarChar(200)
   preconditions        String?           @db.VarChar(200)
   status               String            @db.Char(1)
-  organization_id      Int?              @unique
+  organization_id      Int?
   account_id           Int               @unique
   user_id              Int               @unique
   emergency_contact_id Int?              @unique
@@ -340,6 +340,7 @@ model User {
   patient             Patient?
   staff               Staff?
   role                Role      @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
   @@map("user")
 }
 

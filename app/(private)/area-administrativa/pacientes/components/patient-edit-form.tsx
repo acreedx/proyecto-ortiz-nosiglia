@@ -40,7 +40,7 @@ export default function EditPatientForm({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<TEditPatientSchema>({
+  } = useForm({
     resolver: zodResolver(EditPatientSchema),
     mode: "onChange",
     defaultValues: {
@@ -48,11 +48,12 @@ export default function EditPatientForm({
       allergies: props.patient?.allergies ?? "",
       preconditions: props.patient?.preconditions ?? "",
       organization_id: props.patient?.organization_id
-        ? props.patient?.organization_id
+        ? props.patient?.organization_id.toString()
         : undefined,
     },
   });
   const onSubmit = async (data: TEditPatientSchema) => {
+    console.log(data);
     const res = await editPatient({ data: data });
     if (res.ok) {
       toaster.create({
@@ -78,7 +79,6 @@ export default function EditPatientForm({
           <Input type="hidden" {...register("id")} />
           <Field.Root
             invalid={!!errors.allergies}
-            required
             px={4}
             w={{ base: "100%", md: "100%" }}
           >
@@ -96,7 +96,6 @@ export default function EditPatientForm({
           </Field.Root>
           <Field.Root
             invalid={!!errors.preconditions}
-            required
             px={4}
             w={{ base: "100%", md: "100%" }}
           >
@@ -114,7 +113,6 @@ export default function EditPatientForm({
           </Field.Root>
           <Field.Root
             invalid={!!errors.organization_id}
-            required
             px={4}
             w={{ base: "100%", md: "100%" }}
           >

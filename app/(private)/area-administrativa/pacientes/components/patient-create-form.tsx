@@ -78,7 +78,7 @@ export default function PatientCreateForm({
               colorPalette="orange"
               type="text"
               variant="outline"
-              placeholder="Ingresa tu CI"
+              placeholder="Ingresa el CI del paciente"
               {...register("identification", {
                 required: "El CI es requerido",
               })}
@@ -97,9 +97,8 @@ export default function PatientCreateForm({
             <Input
               colorPalette="orange"
               type="text"
-              autoComplete="given-name"
               variant="outline"
-              placeholder="Ingresa tus nombres"
+              placeholder="Ingresa los nombres del paciente"
               {...register("first_name", {
                 required: "El nombre es requerido",
               })}
@@ -120,7 +119,7 @@ export default function PatientCreateForm({
               type="text"
               autoComplete="family-name"
               variant="outline"
-              placeholder="Ingresa tus apellidos"
+              placeholder="Ingresa los apellidos del paciente"
               {...register("last_name", {
                 required: "Los apellidos son requeridos",
               })}
@@ -140,7 +139,7 @@ export default function PatientCreateForm({
               type="date"
               autoComplete="bday-day"
               variant="outline"
-              placeholder="Ingresa tu fecha de nacimiento"
+              placeholder="Ingresa la fecha de nacimiento del paciente"
               {...register("birth_date", {
                 required: "La fecha de nacimiento es requerida",
               })}
@@ -161,7 +160,7 @@ export default function PatientCreateForm({
               autoComplete="tel"
               type="tel"
               variant="outline"
-              placeholder="Ingresa tu teléfono fijo"
+              placeholder="Ingresa el teléfono del paciente"
               {...register("phone", {
                 required: "El teléfono es requerido",
               })}
@@ -182,7 +181,7 @@ export default function PatientCreateForm({
               colorPalette="orange"
               type="text"
               variant="outline"
-              placeholder="Ingresa tu celular"
+              placeholder="Ingresa el celular del paciente"
               {...register("mobile", {
                 required: "El celular es requerido",
               })}
@@ -203,7 +202,7 @@ export default function PatientCreateForm({
               colorPalette="orange"
               type="email"
               variant="outline"
-              placeholder="Ingresa tu correo"
+              placeholder="Ingresa el correo del paciente"
               {...register("email", {
                 required: "El correo es requerido",
               })}
@@ -224,7 +223,7 @@ export default function PatientCreateForm({
               colorPalette="orange"
               type="text"
               variant="outline"
-              placeholder="Ingresa tu dirección"
+              placeholder="Ingresa la dirección del paciente"
               {...register("address_line", {
                 required: "La dirección es requerida",
               })}
@@ -242,10 +241,9 @@ export default function PatientCreateForm({
             <Field.Label>Ciudad</Field.Label>
             <Input
               colorPalette="orange"
-              autoComplete="address-line2"
               type="text"
               variant="outline"
-              placeholder="Ingresa tu ciudad"
+              placeholder="Ingresa la ciudad del paciente"
               {...register("address_city", {
                 required: "La ciudad es requerida",
               })}

@@ -69,7 +69,10 @@ export const EditPatientSchema = z.object({
     .min(1, "Las precondiciones deben tener almenos un carácter")
     .max(200, "Las precondiciones no pueden tener mas de 200 carácteres")
     .optional(),
-  organization_id: z.coerce.number(),
+  organization_id: z.coerce
+    .string()
+    .optional()
+    .transform((val) => (val === "" ? undefined : Number(val))),
 });
 
 export type TEditPatientSchema = z.infer<typeof EditPatientSchema>;
