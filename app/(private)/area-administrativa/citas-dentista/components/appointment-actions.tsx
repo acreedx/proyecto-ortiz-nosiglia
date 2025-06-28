@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import { Dispatch, SetStateAction } from "react";
 import { appointmentStatusList } from "../../../../../types/statusList";
 import { IconButton, UseDialogReturn } from "@chakra-ui/react";
 import {
@@ -10,7 +10,7 @@ import {
   FaTrash,
   FaEye,
 } from "react-icons/fa";
-import { Appointment, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { toaster } from "../../../../../components/ui/toaster";
 import {
   confirmAppointment,
@@ -45,8 +45,16 @@ export default function AppointmentActions({
     completeAppointmentDialog: UseDialogReturn;
     cancelAppointmentDialog: UseDialogReturn;
     viewAppointmentDialog: UseDialogReturn;
-    setselectedAppointment: React.Dispatch<
-      React.SetStateAction<Appointment | undefined>
+    setselectedAppointment: Dispatch<
+      SetStateAction<
+        | Prisma.AppointmentGetPayload<{
+            include: {
+              patient: { include: { user: true } };
+              doctor: { include: { staff: { include: { user: true } } } };
+            };
+          }>
+        | undefined
+      >
     >;
   };
 }) {
@@ -55,11 +63,49 @@ export default function AppointmentActions({
     props.appointment.status !== appointmentStatusList.STATUS_COMPLETADA &&
     props.appointment.status !== appointmentStatusList.STATUS_NO_ASISTIDA;
 
-  const handleEdit = async (appointment: Appointment) => {
+  const handleEdit = async (
+    appointment: Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true;
+          };
+        };
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true;
+              };
+            };
+          };
+        };
+      };
+    }>
+  ) => {
     props.setselectedAppointment(appointment);
     props.editAppointmentDialog.setOpen(true);
   };
-  const handleCancel = async (appointment: Appointment) => {
+  const handleCancel = async (
+    appointment: Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true;
+          };
+        };
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true;
+              };
+            };
+          };
+        };
+      };
+    }>
+  ) => {
     props.setselectedAppointment(appointment);
     props.cancelAppointmentDialog.setOpen(true);
   };
@@ -82,7 +128,26 @@ export default function AppointmentActions({
       }
     }
   };
-  const handleComplete = async (appointment: Appointment) => {
+  const handleComplete = async (
+    appointment: Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true;
+          };
+        };
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true;
+              };
+            };
+          };
+        };
+      };
+    }>
+  ) => {
     props.setselectedAppointment(appointment);
     props.completeAppointmentDialog.setOpen(true);
   };
@@ -105,7 +170,26 @@ export default function AppointmentActions({
       }
     }
   };
-  const handleViewDetails = async (appointment: Appointment) => {
+  const handleViewDetails = async (
+    appointment: Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true;
+          };
+        };
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true;
+              };
+            };
+          };
+        };
+      };
+    }>
+  ) => {
     props.setselectedAppointment(appointment);
     props.viewAppointmentDialog.setOpen(true);
   };

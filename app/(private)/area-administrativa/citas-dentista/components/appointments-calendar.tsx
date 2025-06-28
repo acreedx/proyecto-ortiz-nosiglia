@@ -10,13 +10,13 @@ import {
   EventChangeArg,
   EventClickArg,
 } from "@fullcalendar/core/index.js";
-import { SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
 import {
   mostrarAlertaConfirmacion,
   mostrarAlertaError,
 } from "../../../../../lib/sweetalert/alerts";
 import { UseDialogReturn } from "@chakra-ui/react";
-import { Appointment, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { convertirAppointmentsAEventos } from "../../../../../types/appointmentStatusMaps";
 import { updateAppointmentDateTime } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
@@ -49,8 +49,16 @@ export default function AppointmentsCalendar({
     completeAppointmentDialog: UseDialogReturn;
     cancelAppointmentDialog: UseDialogReturn;
     viewAppointmentDialog: UseDialogReturn;
-    setselectedAppointment: React.Dispatch<
-      React.SetStateAction<Appointment | undefined>
+    setselectedAppointment: Dispatch<
+      SetStateAction<
+        | Prisma.AppointmentGetPayload<{
+            include: {
+              patient: { include: { user: true } };
+              doctor: { include: { staff: { include: { user: true } } } };
+            };
+          }>
+        | undefined
+      >
     >;
   };
 }) {

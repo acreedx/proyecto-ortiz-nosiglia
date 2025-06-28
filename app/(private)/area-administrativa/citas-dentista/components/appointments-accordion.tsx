@@ -7,9 +7,9 @@ import {
   UseDialogReturn,
   Tabs,
 } from "@chakra-ui/react";
-import React from "react";
+import { Dispatch, SetStateAction } from "react";
 import { FaCalendar, FaTimesCircle } from "react-icons/fa";
-import { Appointment, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { appointmentStatusList } from "../../../../../types/statusList";
 import { timeFormatter } from "../../../../../types/dateFormatter";
 import AppointmentActions from "./appointment-actions";
@@ -45,8 +45,16 @@ export default function AppointmentAccordion({
     completeAppointmentDialog: UseDialogReturn;
     cancelAppointmentDialog: UseDialogReturn;
     viewAppointmentDialog: UseDialogReturn;
-    setselectedAppointment: React.Dispatch<
-      React.SetStateAction<Appointment | undefined>
+    setselectedAppointment: Dispatch<
+      SetStateAction<
+        | Prisma.AppointmentGetPayload<{
+            include: {
+              patient: { include: { user: true } };
+              doctor: { include: { staff: { include: { user: true } } } };
+            };
+          }>
+        | undefined
+      >
     >;
   };
 }) {

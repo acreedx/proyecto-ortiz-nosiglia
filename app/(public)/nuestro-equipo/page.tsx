@@ -2,6 +2,7 @@ import React from "react";
 import { prisma } from "../../../lib/prisma/prisma";
 import TeamCard from "../../../components/index/team-card";
 import { userStatusList } from "../../../types/statusList";
+import { rolesList } from "../../../lib/nextauth/rolesList";
 
 export default async function Page() {
   const dentistas = await prisma.doctor.findMany({
@@ -9,6 +10,9 @@ export default async function Page() {
       staff: {
         user: {
           status: userStatusList.ACTIVO,
+          role: {
+            role_name: rolesList.DENTISTA,
+          },
         },
       },
     },
