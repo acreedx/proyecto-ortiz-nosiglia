@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma/prisma";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
 import { Prisma } from "@prisma/client";
+import { userStatusList } from "../../../../types/statusList";
 
 export const dynamic = "force-dynamic";
 export async function GET(): Promise<
@@ -36,6 +37,7 @@ export async function GET(): Promise<
         role: {
           role_name: rolesList.PACIENTE,
         },
+        status: userStatusList.ACTIVO,
       },
       select: {
         id: true,
