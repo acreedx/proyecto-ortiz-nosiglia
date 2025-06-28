@@ -34,6 +34,15 @@ export const ScatterChart: React.FC<ScatterChartProps> = ({ data }) => {
         },
       },
     },
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: true,
+        text: "Título pendiente",
+      },
+    },
   };
 
   return (

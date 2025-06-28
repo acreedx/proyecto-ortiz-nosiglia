@@ -35,6 +35,15 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
       data={chartData}
       options={{
         responsive: true,
+        plugins: {
+          legend: {
+            position: "top" as const,
+          },
+          title: {
+            display: true,
+            text: "Distribución de usuarios con roles",
+          },
+        },
       }}
     />
   );

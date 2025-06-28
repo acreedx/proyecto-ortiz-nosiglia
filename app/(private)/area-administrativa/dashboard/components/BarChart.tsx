@@ -55,6 +55,15 @@ export const BarChart: React.FC<BarChartProps> = ({ labels, data }) => {
         },
       },
     },
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: true,
+        text: "Distribución de usuarios con roles",
+      },
+    },
   };
 
   return <Bar data={chartData} options={options} />;
