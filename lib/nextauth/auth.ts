@@ -1,6 +1,5 @@
 import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { signInSchema } from "../zod/z-sign-in-cycle-schemas";
 import { prisma } from "../prisma/prisma";
 import bcrypt from "bcryptjs";
 import { userStatusList } from "../../types/statusList";
@@ -19,14 +18,13 @@ class ExpiredPasswordError extends CredentialsSignin {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
-      credentials: {
-        username: {},
-        password: {},
-        token: {},
-      },
+      credentials: { username: {}, password: {}, token: {} },
       authorize: async (credentials) => {
-        const { username, password, token } =
-          await signInSchema.parseAsync(credentials);
+        const { username, password, token } = credentials as {
+          username: string;
+          password: string;
+          token: string;
+        };
         if (!token) {
           throw new Error("Token inválido");
         }
@@ -41,26 +39,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: {
             username: username,
             OR: [
-              {
-                status: userStatusList.ACTIVO,
-              },
-              {
-                status: userStatusList.NUEVO,
-              },
-              {
-                status: userStatusList.BLOQUEADO,
-              },
+              { status: userStatusList.ACTIVO },
+              { status: userStatusList.NUEVO },
+              { status: userStatusList.BLOQUEADO },
             ],
           },
           include: {
             role: {
-              include: {
-                role_permissions: {
-                  include: {
-                    permission: true,
-                  },
-                },
-              },
+              include: { role_permissions: { include: { permission: true } } },
             },
           },
         });
@@ -71,24 +57,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!isPasswordValid) {
           if (dbUser.password_attempts >= 5) {
             await prisma.user.update({
-              where: {
-                id: dbUser.id,
-              },
-              data: {
-                status: userStatusList.BLOQUEADO,
-              },
+              where: { id: dbUser.id },
+              data: { status: userStatusList.BLOQUEADO },
             });
             throw new BlockedUserError(
               "El usuario está bloqueado, cambie su contraseña para continuar"
             );
           }
           await prisma.user.update({
-            where: {
-              id: dbUser.id,
-            },
-            data: {
-              password_attempts: dbUser.password_attempts + 1,
-            },
+            where: { id: dbUser.id },
+            data: { password_attempts: dbUser.password_attempts + 1 },
           });
           throw new CredentialsSignin("Usuario o contraseña incorrectos");
         }
@@ -111,13 +89,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           );
         }
         await prisma.user.update({
-          where: {
-            id: dbUser.id,
-          },
-          data: {
-            password_attempts: 0,
-            last_login: new Date(),
-          },
+          where: { id: dbUser.id },
+          data: { password_attempts: 0, last_login: new Date() },
         });
         return {
           id_db: dbUser.id,
@@ -161,16 +134,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return !!auth;
     },
   },
-  pages: {
-    signIn: "/login",
-    signOut: "/logout",
-  },
-  session: {
-    maxAge: 3600,
-    strategy: "jwt",
-  },
+  pages: { signIn: "/login", signOut: "/logout" },
+  session: { maxAge: 3600, strategy: "jwt" },
   secret: process.env.JWT_SECRET,
-  jwt: {
-    maxAge: 3600,
-  },
+  jwt: { maxAge: 3600 },
 });

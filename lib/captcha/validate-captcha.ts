@@ -6,9 +6,7 @@ export async function getCaptchaToken() {
         resolve(null);
         return;
       }
-      const token = await grecaptcha.execute(siteKey, {
-        action: "contact",
-      });
+      const token = await grecaptcha.execute(siteKey, { action: "contact" });
       resolve(token);
     });
   });
@@ -21,9 +19,7 @@ export async function verifyCaptchaToken(token: string) {
   const url = new URL("https://www.google.com/recaptcha/api/siteverify");
   url.searchParams.append("secret", secretKey);
   url.searchParams.append("response", token);
-  const res = await fetch(url, {
-    method: "POST",
-  });
+  const res = await fetch(url, { method: "POST" });
   const captchaData: CaptchaData = await res.json();
   if (!res.ok) {
     return null;
@@ -38,10 +34,7 @@ type CaptchaData =
       score: number;
       action: string;
     }
-  | {
-      success: false;
-      "error-codes": ErrorCodes[];
-    };
+  | { success: false; "error-codes": ErrorCodes[] };
 
 type ErrorCodes =
   | "missing-input-secret"
