@@ -28,7 +28,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const { username, password, token } =
           await signInSchema.parseAsync(credentials);
         if (!token) {
-          console.log(token);
           throw new Error("Token inválido");
         }
         const captchaData = await verifyCaptchaToken(token);
@@ -68,9 +67,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!dbUser) {
           throw new CredentialsSignin("Error en el login");
         }
-
         const isPasswordValid = await bcrypt.compare(password, dbUser.password);
-        //Validación de contraseña incorrecta
         if (!isPasswordValid) {
           if (dbUser.password_attempts >= 5) {
             await prisma.user.update({
@@ -95,7 +92,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           });
           throw new CredentialsSignin("Usuario o contraseña incorrectos");
         }
-        //Validar al usuario bloqueado
         if (dbUser.status === userStatusList.BLOQUEADO) {
           throw new CredentialsSignin(
             "El usuario está bloqueado, cambie su contraseña para continuar"
@@ -168,12 +164,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: "/login",
     signOut: "/logout",
-  },
-  logger: {
-    async error(error) {
-      console.log(error.message);
-      return error;
-    },
   },
   session: {
     maxAge: 3600,
