@@ -8,8 +8,13 @@ import PieChart from "./components/PieChart";
 import { ScatterChart } from "./components/ScatterPlot";
 import BarChart from "./components/BarChart";
 import { prisma } from "../../../../lib/prisma/prisma";
-import { appointmentStatusList } from "../../../../types/statusList";
+import {
+  appointmentStatusList,
+  userStatusList,
+} from "../../../../types/statusList";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
+import KPIIndicator from "./components/KPIIndicator";
+import { billingStatus } from "../../../../types/billingStatus";
 
 export default async function Page() {
   const appointments = await prisma.appointment.findMany();
@@ -114,8 +119,33 @@ export default async function Page() {
     { x: 4, y: 8 },
     { x: 5, y: 5 },
   ];
+
   const labelsBars = ["Dentistas", "Médicos", "Asistentes", "Administrativos"];
   const dataBars = [10, 5, 3, 2];
+  const citasTotales = appointments.length;
+  const citasCompletadas = appointments.filter(
+    (e) => e.status === appointmentStatusList.STATUS_COMPLETADA
+  ).length;
+  const porcentajeCumplidas = (citasCompletadas / citasTotales) * 100;
+  const citasNoAsistidas = appointments.filter(
+    (e) => e.status === appointmentStatusList.STATUS_NO_ASISTIDA
+  ).length;
+  const porcentajeNoAsistidas = (citasNoAsistidas / citasTotales) * 100;
+  const citasCanceladas = appointments.filter(
+    (e) => e.status === appointmentStatusList.STATUS_CANCELADA
+  ).length;
+
+  const porcentajeCanceladas = (citasCanceladas / citasTotales) * 100;
+  const cuentasConDeudas = (await prisma.account.findMany()).filter(
+    (e) => e.billing_status === billingStatus.DEUDA
+  ).length;
+
+  const tratamientos = await prisma.carePlan.findMany();
+  const tratamientosFinalizados = tratamientos.filter(
+    (e) => e.status === userStatusList.ACTIVO
+  ).length;
+  const porcentajeTratamientosFinalizados =
+    (tratamientosFinalizados / tratamientos.length) * 100;
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
@@ -168,6 +198,55 @@ export default async function Page() {
             h={"400px"}
           >
             <BarChart labels={labelsBars} data={dataBars} />
+          </GridItem>
+          <GridItem>
+            <KPIIndicator
+              texto="Tiempo promedio de consultas"
+              valor={30}
+              medida="minutos"
+            />
+          </GridItem>
+          <GridItem>
+            <KPIIndicator
+              texto="Tasa de cumplimiento de citas"
+              valor={porcentajeCumplidas}
+              medida="%"
+            />
+          </GridItem>
+          <GridItem>
+            <KPIIndicator
+              texto="Tasa de inasistencia de citas"
+              valor={porcentajeNoAsistidas}
+              medida="%"
+            />
+          </GridItem>
+          <GridItem>
+            <KPIIndicator
+              texto="Tasa de cancelación de citas"
+              valor={porcentajeCanceladas}
+              medida="%"
+            />
+          </GridItem>
+          <GridItem>
+            <KPIIndicator
+              texto="Cuentas con deudas pendientes"
+              valor={cuentasConDeudas}
+              medida="cuentas"
+            />
+          </GridItem>
+          <GridItem>
+            <KPIIndicator
+              texto="Tratamientos finalizados"
+              valor={porcentajeTratamientosFinalizados}
+              medida="tratamientos"
+            />
+          </GridItem>
+          <GridItem>
+            <KPIIndicator
+              texto="Tiempo de cobro de deudas"
+              valor={porcentajeTratamientosFinalizados}
+              medida="tratamientos"
+            />
           </GridItem>
         </Grid>
       </main>
