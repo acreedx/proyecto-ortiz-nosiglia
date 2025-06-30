@@ -248,6 +248,13 @@ export default async function Page() {
               medida="tratamientos"
             />
           </GridItem>
+          <GridItem>
+            <KPIIndicator
+              texto="Tiempo de cobro de deudas"
+              valor={porcentajeTratamientosFinalizados}
+              medida="tratamientos"
+            />
+          </GridItem>
         </Grid>
       </main>
     </CanStaff>
