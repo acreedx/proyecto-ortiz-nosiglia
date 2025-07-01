@@ -1,5 +1,6 @@
 import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { signInSchema } from "../zod/z-sign-in-cycle-schemas";
 import { prisma } from "../prisma/prisma";
 import bcrypt from "bcryptjs";
 import { userStatusList } from "../../types/statusList";
@@ -20,11 +21,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Credentials({
       credentials: { username: {}, password: {}, token: {} },
       authorize: async (credentials) => {
-        const { username, password, token } = credentials as {
-          username: string;
-          password: string;
-          token: string;
-        };
+        const { username, password, token } =
+          await signInSchema.parseAsync(credentials);
         if (!token) {
           throw new Error("Token inválido");
         }
