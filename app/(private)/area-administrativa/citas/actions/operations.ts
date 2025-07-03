@@ -313,6 +313,7 @@ export async function completeAppointment({
             },
           },
         },
+        completed_date_time: new Date(),
       },
       include: {
         doctor: {

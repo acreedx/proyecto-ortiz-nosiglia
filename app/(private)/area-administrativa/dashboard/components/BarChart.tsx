@@ -39,7 +39,7 @@ export const BarChart: React.FC<BarChartProps> = ({ labels, data }) => {
 
   const options = {
     responsive: true,
-    maintainAspectRatio: false,
+    maintainAspectRatio: true,
     scales: {
       y: {
         beginAtZero: true,
@@ -59,6 +59,7 @@ export const BarChart: React.FC<BarChartProps> = ({ labels, data }) => {
       legend: {
         position: "top" as const,
       },
+
       title: {
         display: true,
         text: "Distribución de usuarios con roles",

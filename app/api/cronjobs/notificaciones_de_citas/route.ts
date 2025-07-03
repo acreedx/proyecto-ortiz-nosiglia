@@ -13,21 +13,22 @@ import {
 export async function GET(req: Request) {
   try {
     const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-    const dayAfterTomorrow = new Date(tomorrow.getTime() + 86400000);
-    dayAfterTomorrow.setHours(0, 0, 0, 0);
+    tomorrow.setUTCDate(tomorrow.getDate() + 1);
+    tomorrow.setUTCHours(0, 0, 0, 0);
+    const dayAfterTomorrow = new Date();
+    dayAfterTomorrow.setUTCDate(tomorrow.getDate() + 2);
+    dayAfterTomorrow.setUTCHours(0, 0, 0, 0);
     const citas = await prisma.appointment.findMany({
       where: {
         status: appointmentStatusList.STATUS_CONFIRMADA,
+        programed_date_time: {
+          gte: tomorrow,
+          lt: dayAfterTomorrow,
+        },
         patient: {
           user: {
             status: userStatusList.ACTIVO,
           },
-        },
-        programed_date_time: {
-          gte: tomorrow,
-          lt: dayAfterTomorrow,
         },
       },
       include: {
@@ -65,7 +66,6 @@ export async function GET(req: Request) {
       
           No olvides pasar por aqui, tu salud dental es muy importante para nosotros. Si tienes alguna duda o necesitas más información, ¡no dudes en contactarnos!
 
-          El costo promedio de la cita es de 150 bs
           ¡Nos vemos pronto! 💙
       
           Saludos cordiales,  

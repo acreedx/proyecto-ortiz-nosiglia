@@ -20,7 +20,7 @@ export default function Header() {
                     <li>
                       <a
                         href="#"
-                        className="inline-block no-underline transition-all duration-300 ease-out hover:text-[#00adb5] focus:shadow-none focus:outline-none"
+                        className="inline-block no-underline transition-all duration-300 ease-out hover:text-orange-200 focus:shadow-none focus:outline-none"
                         onClick={copiarTelefono}
                       >
                         <i className="lni lni-phone inline-block no-underline"></i>{" "}
@@ -30,7 +30,7 @@ export default function Header() {
                     <li>
                       <a
                         href="#"
-                        className="inline-block no-underline transition-all duration-300 ease-out hover:text-[#00adb5] focus:shadow-none focus:outline-none"
+                        className="inline-block no-underline transition-all duration-300 ease-out hover:text-orange-200 focus:shadow-none focus:outline-none"
                         onClick={copiarCorreo}
                       >
                         <i className="lni lni-envelope inline-block no-underline"></i>
@@ -47,7 +47,7 @@ export default function Header() {
                       <a
                         href="https://www.facebook.com/ortiznosiglia"
                         target="_blank"
-                        className="inline-block no-underline transition-all duration-300 ease-out hover:text-[#00adb5] focus:shadow-none focus:outline-none"
+                        className="inline-block no-underline transition-all duration-300 ease-out hover:text-orange-200 focus:shadow-none focus:outline-none"
                       >
                         <i className="lni lni-facebook-fill inline-block no-underline"></i>
                       </a>
@@ -56,7 +56,7 @@ export default function Header() {
                       <a
                         href="https://www.tiktok.com/@ortiznosiglia"
                         target="_blank"
-                        className="inline-block no-underline transition-all duration-300 ease-out hover:text-[#00adb5] focus:shadow-none focus:outline-none"
+                        className="inline-block no-underline transition-all duration-300 ease-out hover:text-orange-200 focus:shadow-none focus:outline-none"
                       >
                         <i className="lni lni-tiktok-alt inline-block no-underline"></i>
                       </a>
@@ -65,7 +65,7 @@ export default function Header() {
                       <a
                         href="https://www.instagram.com/ortiznosiglia/"
                         target="_blank"
-                        className="inline-block no-underline transition-all duration-300 ease-out hover:text-[#00adb5] focus:shadow-none focus:outline-none"
+                        className="inline-block no-underline transition-all duration-300 ease-out hover:text-orange-200 focus:shadow-none focus:outline-none"
                       >
                         <i className="lni lni-instagram-original inline-block no-underline"></i>
                       </a>

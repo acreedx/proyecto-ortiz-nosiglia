@@ -32,6 +32,7 @@ export async function PUT(
       data: {
         status: appointmentStatusList.STATUS_COMPLETADA,
         note: diagnostico,
+        completed_date_time: new Date(),
       },
     });
     await prisma.encounter.create({

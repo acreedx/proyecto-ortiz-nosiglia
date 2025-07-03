@@ -35,6 +35,7 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
       data={chartData}
       options={{
         responsive: true,
+        maintainAspectRatio: true,
         plugins: {
           legend: {
             position: "top" as const,

@@ -217,6 +217,7 @@ export default function AppointmentsCreateCalendarForm({
                 required
                 px={4}
                 w={{ base: "100%", md: "50%" }}
+                readOnly
               >
                 <Field.Label>Fecha programada</Field.Label>
                 <Input

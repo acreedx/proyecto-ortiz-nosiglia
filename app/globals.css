@@ -1,6 +1,9 @@
 @tailwind components;
 @tailwind utilities;
 
+*:focus {
+  outline: none;
+}
 html {
   scroll-behavior: smooth;
 }

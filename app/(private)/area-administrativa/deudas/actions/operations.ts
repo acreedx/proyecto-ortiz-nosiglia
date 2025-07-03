@@ -110,6 +110,7 @@ export async function completePayment({
       },
       data: {
         status: userStatusList.INACTIVO,
+        date_payment: new Date(),
       },
     });
     const checkAccount = await prisma.account.findUnique({
@@ -144,6 +145,74 @@ export async function completePayment({
     });
     revalidatePath(`/area-administrativa/deudas/pagos/${accountId}`);
     return { ok: true };
+  } catch (e) {
+    console.log(e);
+    return { ok: false };
+  }
+}
+
+export async function infoInvoice({
+  invoiceId,
+  accountId,
+}: {
+  invoiceId: number;
+  accountId: number;
+}): Promise<{
+  ok: boolean;
+  invoice?: Prisma.InvoiceGetPayload<{
+    include: {
+      account: {
+        include: {
+          patient: {
+            include: {
+              user: true;
+            };
+          };
+        };
+      };
+    };
+  }>;
+}> {
+  try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
+    const invoice = await prisma.invoice.findUnique({
+      where: {
+        id: invoiceId,
+        account_id: accountId,
+      },
+      include: {
+        account: {
+          include: {
+            patient: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return {
+      ok: true,
+      invoice: invoice as Prisma.InvoiceGetPayload<{
+        include: {
+          account: {
+            include: {
+              patient: {
+                include: {
+                  user: true;
+                };
+              };
+            };
+          };
+        };
+      }>,
+    };
   } catch (e) {
     console.log(e);
     return { ok: false };

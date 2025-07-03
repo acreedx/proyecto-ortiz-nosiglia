@@ -1,4 +1,4 @@
-"use client"; // necesario si usas Next 13+ con Server Components
+"use client";
 
 import {
   Chart as ChartJS,
@@ -43,6 +43,7 @@ export default function LineChart({ labels, data }: LineChartProps) {
       }}
       options={{
         responsive: true,
+        maintainAspectRatio: true,
         plugins: {
           legend: {
             position: "top" as const,
@@ -53,7 +54,6 @@ export default function LineChart({ labels, data }: LineChartProps) {
           },
         },
       }}
-      width={"300"}
     />
   );
 }

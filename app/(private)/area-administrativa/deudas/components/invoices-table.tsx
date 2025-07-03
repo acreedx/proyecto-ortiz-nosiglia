@@ -10,7 +10,8 @@ import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
 import { userStatusList } from "../../../../../types/statusList";
-import { completePayment } from "../actions/operations";
+import { completePayment, infoInvoice } from "../actions/operations";
+import { reporteRecibo } from "../../../../../lib/jspdf/recibo";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function InvoicesTable({
@@ -119,10 +120,25 @@ export default function InvoicesTable({
                 const isConfirmed = await mostrarAlertaConfirmacion({
                   mensaje: "Quiere imprimir el recibo?",
                 });
-                if (isConfirmed) {
+                const res = await infoInvoice({
+                  invoiceId: params.data.id,
+                  accountId: props.accountId,
+                });
+                if (res.ok) {
+                  await reporteRecibo({
+                    data: res.invoice!,
+                  });
+                  console.log(res.invoice!);
+                  if (isConfirmed) {
+                    toaster.create({
+                      description: "Recibo creado con éxito",
+                      type: "success",
+                    });
+                  }
+                } else {
                   toaster.create({
-                    description: "Recibo creado con éxito",
-                    type: "success",
+                    description: "Error al generar el recibo",
+                    type: "error",
                   });
                 }
               }}

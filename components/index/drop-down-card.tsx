@@ -17,7 +17,7 @@ export default function DropDownCard({ title, content }: DropDownCardProps) {
             className="faq-btn hover:text-hover-color hover:bg-hover-bg hover:border-hover-border-color 
             disabled:bg-disabled-bg disabled:border-disabled-border-color inline-block rounded-md border 
             border-transparent bg-transparent px-1.5 py-1.5 text-base font-normal leading-6 text-current 
-            shadow-md transition-colors focus:no-underline  focus:outline-none  disabled:pointer-events-none disabled:opacity-65"
+            shadow-md transition-colors focus:no-underline  focus:outline-none  disabled:pointer-events-none disabled:opacity-65 cursor-pointer"
             type="button"
             onClick={toggleContent}
           >

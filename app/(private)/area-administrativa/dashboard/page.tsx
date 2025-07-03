@@ -1,6 +1,6 @@
 import React from "react";
 import BreadCrumb from "../../../../components/admin/breadcrumb";
-import { Grid, GridItem, Heading } from "@chakra-ui/react";
+import { Heading } from "@chakra-ui/react";
 import CanStaff from "../../../../lib/rbac/can-staff";
 import LineChart from "./components/LineChart";
 import AppointmentStats from "./components/AppointmentStats";
@@ -10,15 +10,19 @@ import BarChart from "./components/BarChart";
 import { prisma } from "../../../../lib/prisma/prisma";
 import {
   appointmentStatusList,
-  userStatusList,
+  treatmentStatusList,
 } from "../../../../types/statusList";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
 import KPIIndicator from "./components/KPIIndicator";
 import { billingStatus } from "../../../../types/billingStatus";
+import KPIPorcentageIndicator from "./components/KPIPorcentageIndicator";
 
 export default async function Page() {
   const appointments = await prisma.appointment.findMany();
   //primer gráfico
+  const citasDelAño = appointments.filter(
+    (e) => e.programed_date_time.getFullYear() === new Date().getFullYear()
+  );
   const datosCitas = {
     citas_canceladas: appointments.filter(
       (e) => e.status === appointmentStatusList.STATUS_CANCELADA
@@ -53,29 +57,19 @@ export default async function Page() {
     "Diciembre",
   ];
   const values = [
-    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 0)
+    citasDelAño.filter((e) => e.programed_date_time.getUTCMonth() === 0).length,
+    citasDelAño.filter((e) => e.programed_date_time.getUTCMonth() === 1).length,
+    citasDelAño.filter((e) => e.programed_date_time.getUTCMonth() === 2).length,
+    citasDelAño.filter((e) => e.programed_date_time.getUTCMonth() === 3).length,
+    citasDelAño.filter((e) => e.programed_date_time.getUTCMonth() === 4).length,
+    citasDelAño.filter((e) => e.programed_date_time.getUTCMonth() === 5).length,
+    citasDelAño.filter((e) => e.programed_date_time.getUTCMonth() === 6).length,
+    citasDelAño.filter((e) => e.programed_date_time.getUTCMonth() === 7).length,
+    citasDelAño.filter((e) => e.programed_date_time.getUTCMonth() === 8).length,
+    citasDelAño.filter((e) => e.programed_date_time.getUTCMonth() === 9).length,
+    citasDelAño.filter((e) => e.programed_date_time.getUTCMonth() === 10)
       .length,
-    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 1)
-      .length,
-    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 2)
-      .length,
-    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 3)
-      .length,
-    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 4)
-      .length,
-    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 5)
-      .length,
-    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 6)
-      .length,
-    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 7)
-      .length,
-    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 8)
-      .length,
-    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 9)
-      .length,
-    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 10)
-      .length,
-    appointments.filter((e) => e.programed_date_time.getUTCMonth() === 11)
+    citasDelAño.filter((e) => e.programed_date_time.getUTCMonth() === 11)
       .length,
   ];
   //tercer gráfico
@@ -119,9 +113,48 @@ export default async function Page() {
     { x: 4, y: 8 },
     { x: 5, y: 5 },
   ];
-
-  const labelsBars = ["Dentistas", "Médicos", "Asistentes", "Administrativos"];
-  const dataBars = [10, 5, 3, 2];
+  //
+  const labelsBars = [
+    "Administrativos",
+    "Dentistas",
+    "Enfermeros",
+    "Médicos temporales",
+    "Pacientes",
+    "Secretarios",
+    "Otros roles",
+  ];
+  const dataBars = [
+    usuarios.filter((e) => e.role.role_name === rolesList.ADMINISTRADOR).length,
+    usuarios.filter((e) => e.role.role_name === rolesList.DENTISTA).length,
+    usuarios.filter((e) => e.role.role_name === rolesList.ENFERMERO).length,
+    usuarios.filter((e) => e.role.role_name === rolesList.MEDICO_TEMPORAL)
+      .length,
+    usuarios.filter((e) => e.role.role_name === rolesList.PACIENTE).length,
+    usuarios.filter((e) => e.role.role_name === rolesList.SECRETARIO).length,
+    usuarios.filter(
+      (e) =>
+        e.role.role_name !== rolesList.ADMINISTRADOR &&
+        e.role.role_name !== rolesList.DENTISTA &&
+        e.role.role_name !== rolesList.ENFERMERO &&
+        e.role.role_name !== rolesList.MEDICO_TEMPORAL &&
+        e.role.role_name !== rolesList.PACIENTE &&
+        e.role.role_name !== rolesList.SECRETARIO
+    ).length,
+  ];
+  //
+  const tiempoDeConsultas = citasDelAño
+    .filter((e) => e.completed_date_time)
+    .map((e) => {
+      const diferenciaEnMinutos =
+        (e.completed_date_time!.getTime() - e.programed_date_time.getTime()) /
+        60000;
+      return diferenciaEnMinutos;
+    });
+  const total = tiempoDeConsultas.reduce((sum, t) => sum + t, 0);
+  const promedioDeTiempoDeConsultas = tiempoDeConsultas.length
+    ? total / citasDelAño.filter((e) => e.completed_date_time).length
+    : 0;
+  //
   const citasTotales = appointments.length;
   const citasCompletadas = appointments.filter(
     (e) => e.status === appointmentStatusList.STATUS_COMPLETADA
@@ -134,18 +167,31 @@ export default async function Page() {
   const citasCanceladas = appointments.filter(
     (e) => e.status === appointmentStatusList.STATUS_CANCELADA
   ).length;
-
+  //
   const porcentajeCanceladas = (citasCanceladas / citasTotales) * 100;
   const cuentasConDeudas = (await prisma.account.findMany()).filter(
     (e) => e.billing_status === billingStatus.DEUDA
   ).length;
-
+  //
   const tratamientos = await prisma.carePlan.findMany();
   const tratamientosFinalizados = tratamientos.filter(
-    (e) => e.status === userStatusList.ACTIVO
+    (e) => e.status === treatmentStatusList.COMPLETADO
   ).length;
   const porcentajeTratamientosFinalizados =
     (tratamientosFinalizados / tratamientos.length) * 100;
+  //
+  const invoices = await prisma.invoice.findMany();
+  const pagosTiempo = invoices
+    .filter((e) => e.date_payment)
+    .map((e) => {
+      const diferenciaEnMinutos =
+        (e.date_payment!.getTime() - e.date_issued.getTime()) / 60000;
+      return diferenciaEnMinutos;
+    });
+  const totalTiempoPagos = pagosTiempo.reduce((sum, t) => sum + t, 0);
+  const promedioDeCobroDeudas = invoices.length
+    ? totalTiempoPagos / invoices.filter((e) => e.date_payment).length
+    : 0;
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
@@ -165,97 +211,75 @@ export default async function Page() {
             }}
           />
         </section>
-        <Grid
-          mt={4}
-          templateColumns={{ base: "1fr", xl: "repeat(2, 1fr)" }}
-          gapY={{ base: 6, md: 8, "2xl": 10 }}
-          gapX={{ base: 4, md: 6, "2xl": 7.5 }}
-          justifyItems={"center"}
-        >
-          <GridItem w={"full"} justifyItems={"center"}>
-            <LineChart labels={labels} data={values} />
-          </GridItem>
-          <GridItem
-            h={"400px"}
-            w={"full"}
-            justifyItems={"center"}
-            alignContent={"center"}
-          >
-            <PieChart labels={labelsPie} data={dataPie} />
-          </GridItem>
-          <GridItem
-            w={"full"}
-            justifyItems={"center"}
-            alignContent={"center"}
-            h={"400px"}
-          >
-            <ScatterChart data={puntos} />
-          </GridItem>
-          <GridItem
-            w={"full"}
-            justifyItems={"center"}
-            alignContent={"center"}
-            h={"400px"}
-          >
-            <BarChart labels={labelsBars} data={dataBars} />
-          </GridItem>
-          <GridItem>
+        <div className="w-full h-[400px] flex items-center justify-center mt-8">
+          <LineChart labels={labels} data={values} />
+        </div>
+        <div className="w-full h-[400px] flex items-center justify-center  mt-4">
+          <PieChart labels={labelsPie} data={dataPie} />
+        </div>
+        <div className="w-full h-[400px] flex items-center justify-center  mt-4">
+          <ScatterChart data={puntos} />
+        </div>
+        <div className="w-full h-[400px] flex items-center justify-center  mt-4">
+          <BarChart labels={labelsBars} data={dataBars} />
+        </div>
+        <div className="flex flex-col md:flex-row w-full gap-4 mt-4 items-center justify-center">
+          <div className="w-full md:w-1/2 items-center justify-center flex">
             <KPIIndicator
               texto="Tiempo promedio de consultas"
-              valor={30}
+              valor={promedioDeTiempoDeConsultas}
               medida="minutos"
             />
-          </GridItem>
-          <GridItem>
-            <KPIIndicator
+          </div>
+          <div className="w-full md:w-1/2 items-center justify-center flex">
+            <KPIPorcentageIndicator
               texto="Tasa de cumplimiento de citas"
               valor={porcentajeCumplidas}
               medida="%"
             />
-          </GridItem>
-          <GridItem>
-            <KPIIndicator
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-row w-full gap-4 mt-4">
+          <div className="w-full md:w-1/2 items-center justify-center flex">
+            <KPIPorcentageIndicator
               texto="Tasa de inasistencia de citas"
               valor={porcentajeNoAsistidas}
               medida="%"
             />
-          </GridItem>
-          <GridItem>
-            <KPIIndicator
+          </div>
+          <div className="w-full md:w-1/2 items-center justify-center flex">
+            <KPIPorcentageIndicator
               texto="Tasa de cancelación de citas"
               valor={porcentajeCanceladas}
               medida="%"
             />
-          </GridItem>
-          <GridItem>
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-row w-full gap-4 mt-4">
+          <div className="w-full md:w-1/2 items-center justify-center flex">
             <KPIIndicator
               texto="Cuentas con deudas pendientes"
               valor={cuentasConDeudas}
               medida="cuentas"
             />
-          </GridItem>
-          <GridItem>
-            <KPIIndicator
-              texto="Tratamientos finalizados"
+          </div>
+          <div className="w-full md:w-1/2 items-center justify-center flex">
+            <KPIPorcentageIndicator
+              texto="Tasa de tratamientos finalizados"
               valor={porcentajeTratamientosFinalizados}
-              medida="tratamientos"
+              medida="%"
             />
-          </GridItem>
-          <GridItem>
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-row w-full gap-4 mt-4">
+          <div className="w-full md:w-1/2 items-center justify-center flex">
             <KPIIndicator
-              texto="Tiempo de cobro de deudas"
-              valor={porcentajeTratamientosFinalizados}
-              medida="tratamientos"
+              texto="Tiempo promedio de cobro de deudas"
+              valor={promedioDeCobroDeudas}
+              medida="minutos"
             />
-          </GridItem>
-          <GridItem>
-            <KPIIndicator
-              texto="Tiempo de cobro de deudas"
-              valor={porcentajeTratamientosFinalizados}
-              medida="tratamientos"
-            />
-          </GridItem>
-        </Grid>
+          </div>
+        </div>
       </main>
     </CanStaff>
   );

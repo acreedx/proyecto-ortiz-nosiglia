@@ -292,7 +292,7 @@ export default function Page() {
                 </div>
                 <div className="faq-wrapper accordion">
                   <DropDownCard
-                    title="¿Que es el centro Ortiz Nosiglia?"
+                    title="¿Qué es el centro Ortiz Nosiglia?"
                     content="El Centro Ortiz Nosiglia es una institución dental dedicada a proporcionar atención integral y de calidad a nuestros pacientes.
                 Nuestro equipo de profesionales altamente capacitados utiliza tecnología avanzada y técnicas actualizadas para asegurar 
                 que cada visita sea una experiencia positiva. En el Centro Ortiz Nosiglia, nuestra misión es cuidar de tu salud bucal y contribuir a tu bienestar general."

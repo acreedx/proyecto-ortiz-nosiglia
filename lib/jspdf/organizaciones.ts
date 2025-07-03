@@ -1,7 +1,6 @@
 import { Organization } from "@prisma/client";
 import jsPDF from "jspdf";
 import { TGenerateReportSchema } from "../zod/z-report-schemas";
-import { timeFormatter } from "../../types/dateFormatter";
 import autoTable, { RowInput } from "jspdf-autotable";
 import { userStatusList } from "../../types/statusList";
 
@@ -28,7 +27,7 @@ export async function reporteOrganizaciones({
     38
   );
   doc.text(
-    `Fecha del reporte: ${new Date().toLocaleDateString()}, Hora: ${timeFormatter(new Date())}`,
+    `Fecha del reporte: ${new Date().toLocaleDateString()}, Hora: ${new Date().getHours().toString().padStart(2, "0")}:${new Date().getMinutes().toString().padStart(2, "0")}`,
     14,
     46
   );

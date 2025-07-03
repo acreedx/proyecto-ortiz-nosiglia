@@ -63,10 +63,24 @@ export default function NavBar({ session }: { session: Session | null }) {
               {session.user.role !== rolesList.PACIENTE && (
                 <li>
                   <Link
+                    as={NextLink}
                     href={"/area-administrativa"}
-                    className="rounded-xl  bg-orange-400 p-3 text-lg text-white no-underline transition-all  hover:text-orange-700 hover:drop-shadow-md "
+                    _hover={{ textDecoration: "none" }}
                   >
-                    Ingresar al dashboard
+                    <Button
+                      bg="orange.400"
+                      color="white"
+                      fontSize="lg"
+                      borderRadius="xl"
+                      px={6}
+                      py={6}
+                      _hover={{
+                        color: "orange.700",
+                        boxShadow: "md",
+                      }}
+                    >
+                      Ingresar al dashboard
+                    </Button>
                   </Link>
                 </li>
               )}
