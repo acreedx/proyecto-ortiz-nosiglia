@@ -4,6 +4,7 @@ import { signInSchema } from "../zod/z-sign-in-cycle-schemas";
 import { verifyCaptchaToken } from "../captcha/validate-captcha";
 import { prisma } from "../prisma/prisma";
 import { userStatusList } from "../../types/statusList";
+import { registerLog } from "../logs/logger";
 
 class NewUserError extends CredentialsSignin {
   code = "new";
@@ -92,7 +93,13 @@ export async function validateUserLogin({ username, password, token }: any) {
     where: { id: dbUser.id },
     data: { password_attempts: 0, last_login: new Date() },
   });
-
+  await registerLog({
+    type: "acceso",
+    action: "inicio de sesion",
+    module: "página web",
+    person_name: dbUser.first_name + " " + dbUser.last_name,
+    person_role: dbUser.role.role_name,
+  });
   return {
     id_db: dbUser.id,
     username: dbUser.username,

@@ -8,7 +8,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json(user);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error(error);
-    return NextResponse.json({ message: error.message }, { status: 401 });
+    console.error("Error en login:", error);
+    const errorType = error.constructor?.name ?? "Error";
+    const message = error.message ?? "Error desconocido";
+    return NextResponse.json({ message, errorType }, { status: 401 });
   }
 }
