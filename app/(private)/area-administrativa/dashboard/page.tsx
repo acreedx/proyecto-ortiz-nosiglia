@@ -5,7 +5,6 @@ import CanStaff from "../../../../lib/rbac/can-staff";
 import LineChart from "./components/LineChart";
 import AppointmentStats from "./components/AppointmentStats";
 import PieChart from "./components/PieChart";
-import { ScatterChart } from "./components/ScatterPlot";
 import BarChart from "./components/BarChart";
 import { prisma } from "../../../../lib/prisma/prisma";
 import {
@@ -106,6 +105,7 @@ export default async function Page() {
     ).length,
   ];
   //cuarto gráfico
+  /*
   const puntos = [
     { x: 1, y: 3 },
     { x: 2, y: 7 },
@@ -113,6 +113,7 @@ export default async function Page() {
     { x: 4, y: 8 },
     { x: 5, y: 5 },
   ];
+  */
   //
   const labelsBars = [
     "Administrativos",
@@ -217,9 +218,10 @@ export default async function Page() {
         <div className="w-full h-[400px] flex items-center justify-center  mt-4">
           <PieChart labels={labelsPie} data={dataPie} />
         </div>
+        {/*
         <div className="w-full h-[400px] flex items-center justify-center  mt-4">
           <ScatterChart data={puntos} />
-        </div>
+        </div>*/}
         <div className="w-full h-[400px] flex items-center justify-center  mt-4">
           <BarChart labels={labelsBars} data={dataBars} />
         </div>

@@ -1,98 +1,101 @@
 import { sendEmail } from "../../../../lib/nodemailer/mailer";
 import { prisma } from "../../../../lib/prisma/prisma";
-import { debtsStatusList, userStatusList } from "../../../../types/statusList";
+import {
+  appointmentStatusList,
+  debtsStatusList,
+  userStatusList,
+} from "../../../../types/statusList";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(req: Request) {
   try {
+    //obtener los datos
     const pacientes = await prisma.patient.findMany({
-      where: {
-        user: {
-          status: userStatusList.ACTIVO,
-        },
-        account: {
-          billing_status: debtsStatusList.CON_DEUDA,
-        },
-      },
       include: {
-        account: true,
+        account: {
+          include: {
+            invoice: true,
+          },
+        },
         user: true,
+        appointment: true,
+        care_plan: true,
       },
     });
-    for (const paciente of pacientes) {
+    /*Notificaciones de deudas*/
+    const pacientesConDeudas = pacientes.filter(
+      (e) => e.account.billing_status === debtsStatusList.CON_DEUDA
+    );
+    for (const paciente of pacientesConDeudas) {
+      const deudasPacienteActivas = paciente.account.invoice.filter(
+        (e) => e.status === userStatusList.ACTIVO
+      );
+      const detalleDeudasPaciente = deudasPacienteActivas
+        .map((invoice) => {
+          const nota = invoice.note;
+          const total = invoice.total;
+          const fecha = invoice.date_issued;
+          return (
+            "Descripción: " + nota + ", Total: " + total + ", Fecha: " + fecha
+          );
+        })
+        .join("\n");
       await sendEmail({
         email: paciente.user.email,
         subject: "⏰ ¡Recordatorio de tu pago de deudas! 🦷",
         message: `
-        Hola ${paciente.user.first_name} ${paciente.user.last_name}, 👋
-    
-        Queremos recordarte que **tienes una deuda pendiente**.
-    
-        No dejes pasar más tiempo, tu salud dental es muy importante para nosotros. Si tienes alguna duda o necesitas más información, ¡no dudes en contactarnos!
-        El costo de tu deuda es de: ${paciente.account.balance} bs
-        ¡Nos vemos pronto! 💙
-    
-        Saludos cordiales,  
-        El equipo de Ortiz Nosiglia
-      `,
-      });
-    }
-    const today = new Date();
-    const carePlans = await prisma.carePlan.findMany({
-      where: { status: userStatusList.ACTIVO },
-      include: {
-        patient: {
-          include: {
-            user: true,
-          },
-        },
-      },
-    });
+          Hola ${paciente.user.first_name} ${paciente.user.last_name}, 👋
 
-    for (const carePlan of carePlans) {
-      const daysSinceStart = Math.floor(
-        (today.getTime() - carePlan.start_date.getTime()) /
-          (1000 * 60 * 60 * 24)
-      );
+          Queremos recordarte que **tienes una deuda pendiente**.
 
-      const theoreticalAppointments = Math.floor(
-        daysSinceStart / carePlan.days_between_appointments
-      );
-
-      if (theoreticalAppointments < carePlan.estimated_appointments) {
-        const nextAppointmentDate = new Date(carePlan.start_date);
-        nextAppointmentDate.setDate(
-          carePlan.start_date.getDate() +
-            theoreticalAppointments * carePlan.days_between_appointments
-        );
-
-        if (nextAppointmentDate.getTime() < today.getTime()) {
-          nextAppointmentDate.setDate(
-            nextAppointmentDate.getDate() + carePlan.days_between_appointments
-          );
-        }
-
-        //const daysUntilNextAppointment =
-        //  (nextAppointmentDate.getTime() - today.getTime()) /
-        //  (1000 * 60 * 60 * 24);
-
-        await sendEmail({
-          email: carePlan.patient.user.email,
-          subject: "⏰ ¡Recordatorio de tu tratamiento dental! 🦷",
-          message: `
-          Hola ${carePlan.patient.user.first_name} ${carePlan.patient.user.last_name}, 👋
-      
-          Queremos recordarte que **deberías programar tu próxima cita** para continuar con tu tratamiento de **${carePlan.title}**.
-      
-          📅 **Fecha sugerida para la cita**: ${nextAppointmentDate.toLocaleDateString()}
-      
           No dejes pasar más tiempo, tu salud dental es muy importante para nosotros. Si tienes alguna duda o necesitas más información, ¡no dudes en contactarnos!
-          El costo del estimado del tratamiento es de: ${carePlan.cost} bs
+
+          El costo total de tu deuda es de: ${paciente.account.balance} Bs.
+
+          📄 Detalle de tus deudas:
+          ${detalleDeudasPaciente}
+
           ¡Nos vemos pronto! 💙
-      
+
           Saludos cordiales,  
           El equipo de Ortiz Nosiglia
-        `,
+          `,
+      });
+    }
+    /*Notificaciones de tratamientos*/
+    const pacientesConTratamientosActivos = pacientes.filter((e) =>
+      e.care_plan.some((e) => e.status === userStatusList.ACTIVO)
+    );
+    for (const paciente of pacientesConTratamientosActivos) {
+      if (
+        !paciente.appointment.some(
+          (e) =>
+            e.status === appointmentStatusList.STATUS_CONFIRMADA ||
+            e.status === appointmentStatusList.STATUS_PENDIENTE
+        )
+      ) {
+        const tratamientosActivos = paciente.care_plan
+          .filter((cp) => cp.status === userStatusList.ACTIVO)
+          .map((cp) => `- ${cp.title}`)
+          .join("\n");
+        await sendEmail({
+          email: paciente.user.email,
+          subject: "⏰ ¡Recordatorio de tu tratamiento dental! 🦷",
+          message: `
+            Hola ${paciente.user.first_name} ${paciente.user.last_name}, 👋
+
+            Queremos recordarte que **deberías programar tu próxima cita** para continuar con tu(s) tratamiento(s) en curso.
+
+            📋 Tratamientos activos:
+            ${tratamientosActivos}
+
+            No dejes pasar más tiempo, tu salud dental es muy importante para nosotros. Si tienes alguna duda o necesitas más información, ¡no dudes en contactarnos!
+
+            ¡Nos vemos pronto! 💙
+
+            Saludos cordiales,  
+            El equipo de Ortiz Nosiglia
+          `,
         });
       }
     }
