@@ -58,7 +58,7 @@ export async function GET(req: Request) {
           Queremos recordarte que tienes una cita confirmada para el día de mañana.
 
           Motivo: ${e.reason}
-          Doctor: ${e.doctor.staff.user.first_name} ${e.doctor.staff.user.last_name}
+          Dentista: ${e.doctor.staff.user.first_name} ${e.doctor.staff.user.last_name}
           Dirección: Calle 15 de Calacoto, DiagnoSur piso 1, consultorio 108, La Paz, Bolivia
 
           📅 **Fecha**: ${formatDateLocal(e.programed_date_time)}
