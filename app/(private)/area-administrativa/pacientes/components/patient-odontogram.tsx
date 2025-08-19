@@ -41,7 +41,7 @@ export default function PatientOdontogram({
       editable: true,
     },
     { field: "tratamiento", headerName: "Tratamiento", editable: true },
-    { field: "created_at", sort: "asc", hide: true },
+    { field: "id", sort: "asc", hide: true },
   ]);
   const dataTypeDefinitions = useMemo<{
     [cellDataType: string]: DataTypeDefinition;
@@ -62,9 +62,7 @@ export default function PatientOdontogram({
           if (value == null || value === "") {
             return undefined;
           }
-
           const dateParts = new Date(value).toLocaleDateString().split("/");
-          console.log(dateParts);
           return dateParts.length === 3
             ? new Date(
                 parseInt(dateParts[2]),
@@ -125,10 +123,11 @@ export default function PatientOdontogram({
               });
             } else {
               toaster.update(toastId, {
-                description: "Error al editar la fila",
+                description: res.message ?? "Error al editar la fila",
                 type: "error",
                 duration: 3000,
               });
+              gridRef.current!.api.undoCellEditing();
             }
           } else {
             gridRef.current!.api.undoCellEditing();

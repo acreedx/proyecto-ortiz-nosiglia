@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import React, { useState } from "react";
+import { rolesList } from "../../lib/nextauth/rolesList";
 
 export default function UserDrawer({ session }: { session: Session }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -67,12 +68,14 @@ export default function UserDrawer({ session }: { session: Session }) {
                 </p>
               </div>
               <div className="flex flex-col items-center justify-center gap-4">
-                <Link
-                  href={"/editar-perfil"}
-                  className="rounded-xl bg-orange-400 p-1 text-base text-white no-underline transition-all duration-300  hover:text-orange-700 hover:drop-shadow-md "
-                >
-                  Editar perfil
-                </Link>
+                {session.user.role === rolesList.PACIENTE && (
+                  <Link
+                    href={"/editar-perfil"}
+                    className="rounded-xl bg-orange-400 p-1 text-base text-white no-underline transition-all duration-300  hover:text-orange-700 hover:drop-shadow-md "
+                  >
+                    Editar perfil
+                  </Link>
+                )}
                 <Link
                   href={"/cambio-de-password"}
                   className="rounded-xl bg-orange-400 p-1 text-base text-white no-underline transition-all duration-300  hover:text-orange-700 hover:drop-shadow-md "

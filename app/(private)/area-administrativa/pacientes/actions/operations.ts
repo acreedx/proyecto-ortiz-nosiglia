@@ -32,6 +32,7 @@ import { uploadProfileImage } from "../../../../../lib/firebase/image-uploader";
 import { hashPassword } from "../../../../../lib/bcrypt/hasher";
 import { sendEmail } from "../../../../../lib/nodemailer/mailer";
 import { billingStatus } from "../../../../../types/billingStatus";
+import { EditOdontogramSchema } from "../../../../../lib/zod/z-odontogram-schemas";
 
 export async function createPatient({
   data,
@@ -417,27 +418,34 @@ export async function editRow({
     diagnostico: string;
     tratamiento: string;
   };
-}): Promise<{ ok: boolean }> {
+}): Promise<{ ok: boolean; message?: string }> {
   try {
+    console.log(data.fecha);
     const session = await auth();
     if (!session) {
       return {
         ok: false,
       };
     }
-    //todo validar el tamaño de las rows
-    //const tryParse = OrganizationSchema.safeParse(data);
-    //if (!tryParse.success) {
-    //  return {
-    //    ok: false,
-    //  };
-    //}
+    const tryParse = EditOdontogramSchema.safeParse(data);
+    if (!tryParse.success) {
+      const errors = tryParse.error.flatten().fieldErrors;
+      const firstError =
+        errors.diagnostico?.[0] ??
+        errors.tratamiento?.[0] ??
+        errors.fecha?.[0] ??
+        "Error de validación";
+      return {
+        ok: false,
+        message: firstError,
+      };
+    }
     await prisma.odontogramRow.update({
       where: {
         id: data.id,
       },
       data: {
-        fecha: new Date(data.fecha),
+        fecha: data.fecha ? new Date(data.fecha) : null,
         diagnostico: data.diagnostico,
         tratamiento: data.tratamiento,
       },

@@ -8,11 +8,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { mostrarAlertaConfirmacion } from "../../lib/sweetalert/alerts";
 import { toaster } from "../ui/toaster";
-import {
-  createUserSchema,
-  TCreateUserSchema,
-} from "../../lib/zod/z-sign-in-cycle-schemas";
 import formatDateLocal from "../../types/dateFormatter";
+import {
+  EditProfileSchema,
+  TEditProfileSchema,
+} from "../../lib/zod/z-profile-schemas";
+import { edit } from "../../app/(private)/area-administrativa/staff-profile/actions/operations";
 
 export default function EditProfileForm({ user }: { user: User }) {
   const fileUpload = useFileUpload({
@@ -21,32 +22,43 @@ export default function EditProfileForm({ user }: { user: User }) {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(createUserSchema),
+    resolver: zodResolver(EditProfileSchema),
     mode: "onChange",
     defaultValues: {
       ...user,
       birth_date: formatDateLocal(user.birth_date),
     },
   });
-  const onSubmit = async (data: TCreateUserSchema) => {
+  const onSubmit = async (data: TEditProfileSchema) => {
     if (
       await mostrarAlertaConfirmacion({
         mensaje: "Confirmas los datos de tu usuario?",
       })
     ) {
-      //TODO actualizar el paciente
-      toaster.create({
-        description: "Usuario actualizado con éxito",
-        type: "success",
+      const res = await edit({
+        data: data,
+        image: fileUpload.acceptedFiles[0],
       });
-      console.log(data);
-      //TODO actualizar la sesion
+      if (res.ok) {
+        toaster.create({
+          description: "Perfil actualizado con éxito",
+          type: "success",
+        });
+      } else {
+        toaster.create({
+          description: res.errorMessage ?? "Error al actualizar el perfil",
+          type: "error",
+        });
+        reset();
+      }
     }
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="h-full">
+      <input type="hidden" {...register("id")} />
       <div className="flex flex-row justify-center items-center mt-4 mb-4">
         <div className="h-full w-full flex flex-col items-center">
           <p className="mb-2 font-semibold">Foto de perfil actual</p>

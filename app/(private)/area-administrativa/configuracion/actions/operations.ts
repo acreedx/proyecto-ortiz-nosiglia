@@ -276,5 +276,5 @@ export async function createPatients({
   }
 }
 const extractDigits = (value: string): string => {
-  return value.replace(/\D/g, ""); // \D = todo lo que no es dígito
+  return value.replace(/\D/g, "");
 };
