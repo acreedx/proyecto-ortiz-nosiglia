@@ -28,7 +28,6 @@ export default function CreateAccountsReportForm() {
       mensaje: "Esta seguro de generar este reporte?",
     });
     if (isConfirmed) {
-      //todo cambiar para la server action de deudas
       const res = await accountsReportData({
         data: data,
       });

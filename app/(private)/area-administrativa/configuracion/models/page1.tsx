@@ -1,0 +1,17 @@
+export const modelPage1 = {
+  "FECHA FILIACION": "",
+  "APELLIDO PATERNO": "",
+  "APELLIDO MATERNO": "",
+  "PRIMER NOMBRE": "",
+  "SEGUNDO NOMBRE": "",
+  "FECHA DE NACIMIENTO": "",
+  "LUGAR DE NACIMIENTO": "",
+  "CARNET DE IDENTIDAD": "",
+  "DIRECCIÓN/ZONA": "",
+  TELÉFONO: "",
+  CELULAR: "",
+  EMAIL: "",
+  "REFERIDO POR": "",
+  "MOTIVO DE CONSULTA": "",
+  "ALERGIA ALGUN MEDICAMENTO:": "",
+};

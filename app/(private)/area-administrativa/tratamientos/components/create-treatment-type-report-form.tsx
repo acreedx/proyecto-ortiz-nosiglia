@@ -28,7 +28,6 @@ export default function CreateTreatmentTypeReportForm() {
       mensaje: "Esta seguro de generar este reporte?",
     });
     if (isConfirmed) {
-      //todo cambiar para la server action de tipos de tratamientos
       const res = await treatmentTypesReportData({
         data: data,
       });

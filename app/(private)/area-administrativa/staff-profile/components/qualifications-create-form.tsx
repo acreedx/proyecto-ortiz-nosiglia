@@ -1,74 +1,82 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import {
+  Dialog,
+  Flex,
+  Field,
   Button,
   CloseButton,
-  Dialog,
-  Field,
-  Flex,
   Input,
 } from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { toaster } from "../../../../../components/ui/toaster";
-import { Qualification } from "@prisma/client";
 import {
-  EditQualificationSchema,
-  TEditQualificationSchema,
+  CreateQualificationSchema,
+  TCreateQualificationSchema,
 } from "../../../../../lib/zod/z-qualification-schemas";
-import formatDateLocal from "../../../../../types/dateFormatter";
-import { editQualification } from "../actions/operations";
+import { createQualification } from "../../personal/actions/operations";
 
-export default function QualificationEditForm({
-  props,
+export default function QualificationsCreateForm({
+  doctor_id,
 }: {
-  props: {
-    qualification: Qualification | undefined;
-  };
+  doctor_id: number;
 }) {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<TEditQualificationSchema>({
-    resolver: zodResolver(EditQualificationSchema),
+  } = useForm({
+    resolver: zodResolver(CreateQualificationSchema),
     mode: "onChange",
     defaultValues: {
-      id: props.qualification?.id,
-      country: props.qualification?.country ?? undefined,
-      institution: props.qualification?.institution,
-      name: props.qualification?.name,
-      type: props.qualification?.type,
-      obtainment_date: props.qualification?.obtainment_date
-        ? formatDateLocal(props.qualification.obtainment_date)
-        : undefined,
+      doctor_id: doctor_id,
     },
   });
-  const onSubmit = async (data: TEditQualificationSchema) => {
-    const res = await editQualification({ data: data });
+  const onSubmit = async (data: TCreateQualificationSchema) => {
+    const res = await createQualification({ data: data });
     if (res.ok) {
       toaster.create({
-        description: "Información del título editada con éxito",
+        description: "Título creado con éxito",
         type: "success",
       });
+      reset();
     }
     if (!res.ok) {
       toaster.create({
-        description: "Error al editar la información del título",
+        description: "Error al crear el título",
         type: "error",
       });
-      reset();
     }
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Dialog.Header>
-        <Dialog.Title>Edita el título del dentista</Dialog.Title>
+        <Dialog.Title>Registra uno de tus títulos</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body>
-        <Flex wrap="wrap" gapY={4} mb={4} w="full" flexDirection={"column"}>
-          <Input type="hidden" {...register("id")} />
+        <Flex wrap="wrap" gapY={4} mb={4} w="full" flexDirection={"row"}>
+          <Field.Root
+            invalid={!!errors.type}
+            required
+            px={4}
+            w={{ base: "100%", md: "100%" }}
+          >
+            <Field.Label>Tipo</Field.Label>
+            <Input
+              colorPalette="orange"
+              type="text"
+              variant="outline"
+              placeholder="Ingresa el tipo del título"
+              {...register("type", {
+                required: "El tipo es requerido",
+              })}
+            />
+            <Field.ErrorText className="text-sm">
+              {errors.type?.message}
+            </Field.ErrorText>
+          </Field.Root>
           <Field.Root
             invalid={!!errors.name}
             required
@@ -77,9 +85,8 @@ export default function QualificationEditForm({
           >
             <Field.Label>Nombre del título</Field.Label>
             <Input
-              type="text"
               colorPalette="orange"
-              resize={"none"}
+              type="text"
               variant="outline"
               placeholder="Ingresa el nombre del título"
               {...register("name", {
@@ -87,7 +94,7 @@ export default function QualificationEditForm({
               })}
             />
             <Field.ErrorText className="text-sm">
-              {errors?.name?.message}
+              {errors.name?.message}
             </Field.ErrorText>
           </Field.Root>
           <Field.Root
@@ -98,12 +105,13 @@ export default function QualificationEditForm({
           >
             <Field.Label>Institución</Field.Label>
             <Input
-              type="text"
               colorPalette="orange"
-              resize={"none"}
+              type="text"
               variant="outline"
-              placeholder="Ingresa la institución del título"
-              {...register("institution")}
+              placeholder="Ingresa el nombre de la institución"
+              {...register("institution", {
+                required: "La institución es requerida",
+              })}
             />
             <Field.ErrorText className="text-sm">
               {errors.institution?.message}
@@ -117,34 +125,16 @@ export default function QualificationEditForm({
           >
             <Field.Label>País</Field.Label>
             <Input
-              type="text"
               colorPalette="orange"
-              resize={"none"}
+              type="text"
               variant="outline"
-              placeholder="Ingresa el país del título"
-              {...register("country")}
+              placeholder="Ingresa el nombre del país"
+              {...register("country", {
+                required: "El país requerido",
+              })}
             />
             <Field.ErrorText className="text-sm">
               {errors.country?.message}
-            </Field.ErrorText>
-          </Field.Root>
-          <Field.Root
-            invalid={!!errors.type}
-            required
-            px={4}
-            w={{ base: "100%", md: "100%" }}
-          >
-            <Field.Label>Tipo</Field.Label>
-            <Input
-              type="text"
-              colorPalette="orange"
-              resize={"none"}
-              variant="outline"
-              placeholder="Ingresa el tipo del título"
-              {...register("type")}
-            />
-            <Field.ErrorText className="text-sm">
-              {errors.type?.message}
             </Field.ErrorText>
           </Field.Root>
           <Field.Root
@@ -155,12 +145,13 @@ export default function QualificationEditForm({
           >
             <Field.Label>Fecha de obtención</Field.Label>
             <Input
-              type="date"
               colorPalette="orange"
-              resize={"none"}
+              type="date"
               variant="outline"
-              placeholder="Ingresa la fecha de obtención del título"
-              {...register("obtainment_date")}
+              placeholder="Selecciona la fecha de obtención"
+              {...register("obtainment_date", {
+                required: "La fecha de obtención es requerida",
+              })}
             />
             <Field.ErrorText className="text-sm">
               {errors.obtainment_date?.message}
@@ -173,7 +164,7 @@ export default function QualificationEditForm({
           <Button variant="outline">Cancelar</Button>
         </Dialog.ActionTrigger>
         <Button type="submit" loading={isSubmitting}>
-          Editar
+          Añadir
         </Button>
       </Dialog.Footer>
       <Dialog.CloseTrigger asChild>

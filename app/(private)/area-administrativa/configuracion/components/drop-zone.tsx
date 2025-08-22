@@ -20,25 +20,16 @@ import { FaFile } from "react-icons/fa";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { createPatients } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
+import { modelPage1 } from "../models/page1";
+import { ImportPatient } from "../models/import-patient";
+import { tabNames } from "../models/tab-names";
 
-export type ImportPatient = {
-  fechaFiliacion: Date | undefined;
-  apellidoPaterno: string | undefined;
-  apellidoMaterno: string | undefined;
-  primerNombre: string | undefined;
-  segundoNombre: string | undefined;
-  fechaDeNacimiento: Date | undefined;
-  lugarDeNacimiento: string | undefined;
-  carnetDeIdentidad: string | undefined;
-  direccion: string | undefined;
-  telefono: string | undefined;
-  celular: string | undefined;
-  email: string | undefined;
-  referidoPor: string | undefined;
-  motivoDeConsulta: string | undefined;
-  alergias: string | undefined;
-};
 export default function DropZone() {
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm();
   const fileUpload = useFileUpload({
     accept: [
       "application/vnd.ms-excel",
@@ -102,32 +93,10 @@ export default function DropZone() {
       sheets: { [key: string]: any[][] };
     }[]
   >([]);
-  const {
-    register,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = useForm();
-
-  const modelPage1 = {
-    "FECHA FILIACION": "",
-    "APELLIDO PATERNO": "",
-    "APELLIDO MATERNO": "",
-    "PRIMER NOMBRE": "",
-    "SEGUNDO NOMBRE": "",
-    "FECHA DE NACIMIENTO": "",
-    "LUGAR DE NACIMIENTO": "",
-    "CARNET DE IDENTIDAD": "",
-    "DIRECCIÓN/ZONA": "",
-    TELÉFONO: "",
-    CELULAR: "",
-    EMAIL: "",
-    "REFERIDO POR": "",
-    "MOTIVO DE CONSULTA": "",
-    "ALERGIA ALGUN MEDICAMENTO:": "",
-  };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   const onSubmit = async (data: any) => {
+    //obtener datos
     const formatedData = excelFiles.map((file) => {
       const firstSheetName = Object.keys(file.sheets)[0];
       const sheet = file.sheets[firstSheetName];
@@ -141,23 +110,42 @@ export default function DropZone() {
       });
       return result;
     });
-    const pacientes: ImportPatient[] = formatedData.map((element) => ({
-      fechaFiliacion: new Date(element["FECHA FILIACION"]),
-      apellidoPaterno: element["APELLIDO PATERNO"],
-      apellidoMaterno: element["APELLIDO MATERNO"],
-      primerNombre: element["PRIMER NOMBRE"],
-      segundoNombre: element["SEGUNDO NOMBRE"],
-      fechaDeNacimiento: new Date(element["FECHA DE NACIMIENTO"]),
-      lugarDeNacimiento: element["LUGAR DE NACIMIENTO"],
-      carnetDeIdentidad: element["CARNET DE IDENTIDAD"],
-      direccion: element["DIRECCIÓN/ZONA"],
-      telefono: element["TELÉFONO"],
-      celular: element["CELULAR"],
-      email: element["EMAIL"],
-      referidoPor: element["REFERIDO POR"],
-      motivoDeConsulta: element["MOTIVO DE CONSULTA"],
-      alergias: element["ALERGIA ALGUN MEDICAMENTO:"],
-    }));
+    //convertir a objetos
+    const pacientes: ImportPatient[] = formatedData.map((element) => {
+      const fechaFiliacion = new Date(element["FECHA FILIACION"]);
+      const apellidoPaterno = element["APELLIDO PATERNO"];
+      const apellidoMaterno = element["APELLIDO MATERNO"];
+      const primerNombre = element["PRIMER NOMBRE"];
+      const segundoNombre = element["SEGUNDO NOMBRE"];
+      const fechaDeNacimiento = new Date(element["FECHA DE NACIMIENTO"]);
+      const lugarDeNacimiento = element["LUGAR DE NACIMIENTO"];
+      const carnetDeIdentidad = element["CARNET DE IDENTIDAD"];
+      const direccion = element["DIRECCIÓN/ZONA"];
+      const telefono = element["TELÉFONO"];
+      const celular = element["CELULAR"];
+      const email = element["EMAIL"];
+      const referidoPor = element["REFERIDO POR"];
+      const motivoDeConsulta = element["MOTIVO DE CONSULTA"];
+      const alergias = element["ALERGIA ALGUN MEDICAMENTO:"];
+      return {
+        fechaFiliacion,
+        apellidoPaterno,
+        apellidoMaterno,
+        primerNombre,
+        segundoNombre,
+        fechaDeNacimiento,
+        lugarDeNacimiento,
+        carnetDeIdentidad,
+        direccion,
+        telefono,
+        celular,
+        email,
+        referidoPor,
+        motivoDeConsulta,
+        alergias,
+      };
+    });
+    //mostrar confirmacion
     const isConfirmed = await mostrarAlertaConfirmacion({
       mensaje: `Esta seguro de subir los ${pacientes.length} archivos`,
     });
@@ -177,15 +165,26 @@ export default function DropZone() {
         });
       }
     }
+    pacientes.forEach(async (paciente, index) => {
+      const hasInvalid =
+        !paciente.email || !paciente.primerNombre || !paciente.segundoNombre;
+      const originalFile = fileUpload.acceptedFiles?.[index];
+      if (originalFile) {
+        const formData = new FormData();
+        formData.append("file", originalFile);
+        formData.append("isValid", hasInvalid ? "false" : "true");
+
+        const uploadRes = await fetch("/api/uploads", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await uploadRes.json();
+        console.log(`Archivo ${originalFile.name} guardado en:`, result);
+      }
+    });
   };
-  const tabNames = [
-    "Filacion",
-    "Odontograma",
-    "Seguimiento",
-    "Contable",
-    "Presupuesto",
-    "Laboratorios",
-  ];
+
   return (
     <div className="pt-4 flex flex-col justify-center md:flex-row">
       <form
@@ -236,12 +235,20 @@ export default function DropZone() {
         </Field.Root>
         <SubmitButton text="Extraer datos" isSubmitting={isSubmitting} />
         <Button
-          colorPalette={"orange"}
+          ml={4}
+          rounded={"xl"}
+          mt={6}
+          size="lg"
+          height={14}
+          border="1px"
+          borderColor="red.500"
+          bg="red.400"
+          color={"white"}
+          variant="solid"
+          _hover={{ bg: "red.300", opacity: 0.9 }}
           onClick={() => {
             fileUpload.clearFiles();
           }}
-          rounded={"xl"}
-          ml={"2"}
         >
           Limpiar
         </Button>

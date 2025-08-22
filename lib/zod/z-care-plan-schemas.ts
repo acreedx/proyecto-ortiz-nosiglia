@@ -57,17 +57,24 @@ export const EditCarePlanSchema = z.object({
   start_date: z
     .string({ required_error: "La fecha de inicio es obligatoria" })
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de fecha inválido (YYYY-MM-DD)"),
-  estimated_appointments: z.number({
-    required_error: "El número estimado de citas es obligatorio",
-  }),
-  days_between_appointments: z.number({
-    required_error: "Los días entre citas son obligatorios",
-  }),
+  estimated_appointments: z.coerce
+    .number({
+      required_error: "El número estimado de citas es obligatorio",
+      invalid_type_error: "Ingrese un número válido",
+    })
+    .positive("Ingrese un número positivo"),
+  days_between_appointments: z.coerce
+    .number({
+      required_error: "Los días entre citas son obligatorios",
+      invalid_type_error: "Ingrese un número válido",
+    })
+    .positive("Ingrese un número positivo"),
   cost: z.coerce
     .number({
-      message: "Ingresa un número válido",
+      required_error: "El costo estimado es obligatorio",
+      invalid_type_error: "Ingrese un número válido",
     })
-    .min(0, "El costo debe ser un número positivo"),
+    .positive("Ingrese un número positivo"),
   patient_id: z.coerce.number({
     required_error: "El ID del paciente es obligatorio",
   }),

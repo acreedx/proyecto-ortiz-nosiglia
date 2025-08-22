@@ -28,7 +28,6 @@ export default function CreateRolesReportForm() {
       mensaje: "Esta seguro de generar este reporte?",
     });
     if (isConfirmed) {
-      //todo cambiar para la server action de roles
       const res = await rolesReportData({
         data: data,
       });

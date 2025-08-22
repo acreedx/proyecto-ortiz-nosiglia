@@ -27,7 +27,6 @@ export default function CreateOrganizationsReportForm() {
     const isConfirmed = await mostrarAlertaConfirmacion({
       mensaje: "Esta seguro de generar este reporte?",
     });
-    //todo cambiar para la server action de organizations
     if (isConfirmed) {
       const res = await organizationReportData({
         data: data,

@@ -27,9 +27,6 @@ export default function TreatmentsEditForm({
     treatment: CarePlan | undefined;
   };
 }) {
-  {
-    //todo completar la edición de tratamientos
-  }
   const {
     register,
     handleSubmit,

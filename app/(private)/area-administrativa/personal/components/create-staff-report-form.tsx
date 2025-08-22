@@ -28,7 +28,6 @@ export default function CreateStaffReportForm() {
       mensaje: "Esta seguro de generar este reporte?",
     });
     if (isConfirmed) {
-      //todo cambiar para la server action de personal
       const res = await staffReportData({
         data: data,
       });

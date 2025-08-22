@@ -1,23 +1,21 @@
-"use client";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import {
+  Dialog,
+  Flex,
+  Field,
   Button,
   CloseButton,
-  Dialog,
-  Field,
-  Flex,
   Input,
 } from "@chakra-ui/react";
-import { toaster } from "../../../../../components/ui/toaster";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Qualification } from "@prisma/client";
+import { useForm } from "react-hook-form";
+import { toaster } from "../../../../../components/ui/toaster";
 import {
-  EditQualificationSchema,
   TEditQualificationSchema,
+  EditQualificationSchema,
 } from "../../../../../lib/zod/z-qualification-schemas";
 import formatDateLocal from "../../../../../types/dateFormatter";
-import { editQualification } from "../actions/operations";
+import { editQualification } from "../../personal/actions/operations";
 
 export default function QualificationEditForm({
   props,

@@ -28,7 +28,6 @@ export default function CreateAppointmentsReportForm() {
       mensaje: "Esta seguro de generar este reporte?",
     });
     if (isConfirmed) {
-      //todo cambiar para la server action de citas
       const res = await appointmentReportData({
         data: data,
       });
