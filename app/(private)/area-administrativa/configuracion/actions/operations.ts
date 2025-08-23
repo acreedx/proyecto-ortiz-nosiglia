@@ -15,6 +15,9 @@ export async function createPatients({
 }): Promise<{ ok: boolean }> {
   try {
     data.forEach(async (data) => {
+      if (!data.carnetDeIdentidad) {
+        return;
+      }
       const isIdTaken = await prisma.user.findFirst({
         where: {
           identification: data.carnetDeIdentidad,
@@ -24,16 +27,13 @@ export async function createPatients({
         return;
       }
       const generatedPassword = generateStrongPassword(12);
-      const randomId = generateStrongPassword(6);
       const formatedLastName = [data.apellidoPaterno, data.apellidoMaterno]
         .filter(Boolean)
         .join(" ");
       const generatedUserName = generateStrongPassword(12);
       await prisma.user.create({
         data: {
-          identification: data.carnetDeIdentidad
-            ? extractDigits(data.carnetDeIdentidad)
-            : randomId,
+          identification: extractDigits(data.carnetDeIdentidad),
           first_name: data.primerNombre ? data.primerNombre : "",
           last_name: formatedLastName,
           birth_date: data.fechaDeNacimiento ? data.fechaDeNacimiento : "",

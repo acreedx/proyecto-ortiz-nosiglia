@@ -160,16 +160,20 @@ export default async function Page() {
   const citasCompletadas = appointments.filter(
     (e) => e.status === appointmentStatusList.STATUS_COMPLETADA
   ).length;
-  const porcentajeCumplidas = (citasCompletadas / citasTotales) * 100;
+  const porcentajeCumplidas =
+    citasTotales > 0 ? (citasCompletadas / citasTotales) * 100 : 0;
+  //
   const citasNoAsistidas = appointments.filter(
     (e) => e.status === appointmentStatusList.STATUS_NO_ASISTIDA
   ).length;
-  const porcentajeNoAsistidas = (citasNoAsistidas / citasTotales) * 100;
+  const porcentajeNoAsistidas =
+    citasTotales > 0 ? (citasNoAsistidas / citasTotales) * 100 : 0;
+  //
   const citasCanceladas = appointments.filter(
     (e) => e.status === appointmentStatusList.STATUS_CANCELADA
   ).length;
-  //
-  const porcentajeCanceladas = (citasCanceladas / citasTotales) * 100;
+  const porcentajeCanceladas =
+    citasTotales > 0 ? (citasCanceladas / citasTotales) * 100 : 0;
   const cuentasConDeudas = (await prisma.account.findMany()).filter(
     (e) => e.billing_status === billingStatus.DEUDA
   ).length;
@@ -179,7 +183,9 @@ export default async function Page() {
     (e) => e.status === treatmentStatusList.COMPLETADO
   ).length;
   const porcentajeTratamientosFinalizados =
-    (tratamientosFinalizados / tratamientos.length) * 100;
+    tratamientos.length > 0
+      ? (tratamientosFinalizados / tratamientos.length) * 100
+      : 0;
   //
   const invoices = await prisma.invoice.findMany();
   const pagosTiempo = invoices

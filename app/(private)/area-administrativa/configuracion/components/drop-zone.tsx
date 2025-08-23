@@ -165,7 +165,7 @@ export default function DropZone() {
         });
       }
     }
-    pacientes.forEach(async (paciente, index) => {
+    /*pacientes.forEach(async (paciente, index) => {
       const hasInvalid =
         !paciente.email || !paciente.primerNombre || !paciente.segundoNombre;
       const originalFile = fileUpload.acceptedFiles?.[index];
@@ -182,7 +182,7 @@ export default function DropZone() {
         const result = await uploadRes.json();
         console.log(`Archivo ${originalFile.name} guardado en:`, result);
       }
-    });
+    });*/
   };
 
   return (
