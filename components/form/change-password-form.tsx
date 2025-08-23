@@ -13,6 +13,7 @@ import { Field, Flex, Input, InputGroup } from "@chakra-ui/react";
 import { LuLock, LuUser } from "react-icons/lu";
 import { PasswordInput } from "../ui/password-input";
 import { changePassword } from "../../actions/public";
+import { signOut } from "next-auth/react";
 
 export default function ChangePasswordForm() {
   const {
@@ -27,7 +28,8 @@ export default function ChangePasswordForm() {
   const onSubmit = async (data: TChangePasswordSchema) => {
     if (
       await mostrarAlertaConfirmacion({
-        mensaje: "Estas seguro que deseas cambiar tu contraseña?",
+        mensaje:
+          "Estas seguro que deseas cambiar tu contraseña?, una vez cambiada se cerrará la sesión",
       })
     ) {
       const res = await changePassword({ data: data });
@@ -37,6 +39,7 @@ export default function ChangePasswordForm() {
           type: "success",
         });
         reset();
+        signOut();
       }
       if (!res.ok) {
         toaster.create({
