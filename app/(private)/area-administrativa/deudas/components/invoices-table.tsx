@@ -12,6 +12,7 @@ import { toaster } from "../../../../../components/ui/toaster";
 import { userStatusList } from "../../../../../types/statusList";
 import { completePayment, infoInvoice } from "../actions/operations";
 import { reporteRecibo } from "../../../../../lib/jspdf/recibo";
+import { Tooltip } from "../../../../../components/ui/tooltip";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function InvoicesTable({
@@ -79,72 +80,76 @@ export default function InvoicesTable({
         return (
           <div className="flex flex-row items-center justify-center w-full">
             {params.data.status === userStatusList.ACTIVO && (
+              <Tooltip content="Pagar deuda">
+                <IconButton
+                  size="sm"
+                  colorPalette="green"
+                  variant="outline"
+                  aria-label="Pagar deudas"
+                  mr={2}
+                  onClick={async () => {
+                    const isConfirmed = await mostrarAlertaConfirmacion({
+                      mensaje: "Esta seguro de confirmar el pago?",
+                    });
+                    if (isConfirmed) {
+                      const res = await completePayment({
+                        accountId: props.accountId,
+                        invoiceId: params.data.id,
+                      });
+                      if (res.ok) {
+                        toaster.create({
+                          description: "Éxito al completar el pago",
+                          type: "success",
+                        });
+                      } else {
+                        toaster.create({
+                          description: "Error al completar el pago",
+                          type: "error",
+                        });
+                      }
+                    }
+                  }}
+                >
+                  <FaFileInvoice color="green" />
+                </IconButton>
+              </Tooltip>
+            )}
+            <Tooltip content="Imprimir recibo">
               <IconButton
                 size="sm"
-                colorPalette="green"
+                colorPalette="gray"
                 variant="outline"
-                aria-label="Pagar deudas"
-                mr={2}
+                aria-label="Imprimir recibo"
                 onClick={async () => {
                   const isConfirmed = await mostrarAlertaConfirmacion({
-                    mensaje: "Esta seguro de confirmar el pago?",
+                    mensaje: "Quiere imprimir el recibo?",
                   });
-                  if (isConfirmed) {
-                    const res = await completePayment({
-                      accountId: props.accountId,
-                      invoiceId: params.data.id,
+                  const res = await infoInvoice({
+                    invoiceId: params.data.id,
+                    accountId: props.accountId,
+                  });
+                  if (res.ok) {
+                    await reporteRecibo({
+                      data: res.invoice!,
                     });
-                    if (res.ok) {
+                    console.log(res.invoice!);
+                    if (isConfirmed) {
                       toaster.create({
-                        description: "Éxito al completar el pago",
+                        description: "Recibo creado con éxito",
                         type: "success",
                       });
-                    } else {
-                      toaster.create({
-                        description: "Error al completar el pago",
-                        type: "error",
-                      });
                     }
+                  } else {
+                    toaster.create({
+                      description: "Error al generar el recibo",
+                      type: "error",
+                    });
                   }
                 }}
               >
-                <FaFileInvoice color="green" />
+                <FaPrint color="gray" />
               </IconButton>
-            )}
-            <IconButton
-              size="sm"
-              colorPalette="gray"
-              variant="outline"
-              aria-label="Imprimir recibo"
-              onClick={async () => {
-                const isConfirmed = await mostrarAlertaConfirmacion({
-                  mensaje: "Quiere imprimir el recibo?",
-                });
-                const res = await infoInvoice({
-                  invoiceId: params.data.id,
-                  accountId: props.accountId,
-                });
-                if (res.ok) {
-                  await reporteRecibo({
-                    data: res.invoice!,
-                  });
-                  console.log(res.invoice!);
-                  if (isConfirmed) {
-                    toaster.create({
-                      description: "Recibo creado con éxito",
-                      type: "success",
-                    });
-                  }
-                } else {
-                  toaster.create({
-                    description: "Error al generar el recibo",
-                    type: "error",
-                  });
-                }
-              }}
-            >
-              <FaPrint color="gray" />
-            </IconButton>
+            </Tooltip>
           </div>
         );
       },

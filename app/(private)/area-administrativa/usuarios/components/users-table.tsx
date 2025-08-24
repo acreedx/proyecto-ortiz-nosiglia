@@ -15,6 +15,7 @@ import { eliminate, restore } from "../actions/operations";
 import UsersEditForm from "./users-edit-form";
 import { Session } from "next-auth";
 import { rolesList } from "../../../../../lib/nextauth/rolesList";
+import { Tooltip } from "../../../../../components/ui/tooltip";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function UsersTable({
@@ -114,44 +115,50 @@ export default function UsersTable({
         <div className="flex flex-row items-center justify-center w-full">
           <>
             {params.data.role.role_name !== rolesList.ADMINISTRADOR && (
-              <IconButton
-                size="sm"
-                colorPalette="orange"
-                variant="outline"
-                aria-label="Editar"
-                onClick={() => {
-                  editDialog.setOpen(true);
-                  setselectedUser(params.data);
-                }}
-              >
-                <FaEdit color="orange" />
-              </IconButton>
+              <Tooltip content="Editar usuario">
+                <IconButton
+                  size="sm"
+                  colorPalette="orange"
+                  variant="outline"
+                  aria-label="Editar"
+                  onClick={() => {
+                    editDialog.setOpen(true);
+                    setselectedUser(params.data);
+                  }}
+                >
+                  <FaEdit color="orange" />
+                </IconButton>
+              </Tooltip>
             )}
             {params.data.status === userStatusList.ACTIVO &&
               params.data.role.role_name !== rolesList.ADMINISTRADOR && (
-                <IconButton
-                  size="sm"
-                  colorPalette="red"
-                  variant="outline"
-                  aria-label="Deshabilitar"
-                  ml={2}
-                  onClick={async () => handleDelete(params.data.id)}
-                >
-                  <FaTrash color="red" />
-                </IconButton>
+                <Tooltip content="Deshabilitar usuario">
+                  <IconButton
+                    size="sm"
+                    colorPalette="red"
+                    variant="outline"
+                    aria-label="Deshabilitar"
+                    ml={2}
+                    onClick={async () => handleDelete(params.data.id)}
+                  >
+                    <FaTrash color="red" />
+                  </IconButton>
+                </Tooltip>
               )}
             {params.data.status === userStatusList.INACTIVO &&
               params.data.role.role_name !== rolesList.ADMINISTRADOR && (
-                <IconButton
-                  size="sm"
-                  colorPalette="red"
-                  variant="outline"
-                  aria-label="Rehabilitar"
-                  ml={2}
-                  onClick={async () => handleRestore(params.data.id)}
-                >
-                  <FaCheck color="green" />
-                </IconButton>
+                <Tooltip content="Rehabilitar usuario">
+                  <IconButton
+                    size="sm"
+                    colorPalette="red"
+                    variant="outline"
+                    aria-label="Rehabilitar"
+                    ml={2}
+                    onClick={async () => handleRestore(params.data.id)}
+                  >
+                    <FaCheck color="green" />
+                  </IconButton>
+                </Tooltip>
               )}
           </>
         </div>

@@ -18,6 +18,7 @@ import {
   eliminateOrganization,
   rehabilitateOrganization,
 } from "../actions/operations";
+import { Tooltip } from "../../../../../components/ui/tooltip";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function OrganizationsTable({
@@ -52,37 +53,43 @@ export default function OrganizationsTable({
       cellRenderer: (params: any) => {
         return (
           <div className="flex flex-row items-center justify-center w-full">
-            <IconButton
-              size="sm"
-              colorPalette="orange"
-              variant="outline"
-              aria-label="Editar"
-              mr={2}
-              onClick={async () => handleEdit(params.data)}
-            >
-              <FaEdit color="orange" />
-            </IconButton>
-            {params.data.status === userStatusList.ACTIVO && (
+            <Tooltip content="Editar organización">
               <IconButton
                 size="sm"
                 colorPalette="orange"
                 variant="outline"
-                aria-label="Eliminar"
-                onClick={async () => handleDelete(params.data)}
+                aria-label="Editar"
+                mr={2}
+                onClick={async () => handleEdit(params.data)}
               >
-                <FaTrash color="red" />
+                <FaEdit color="orange" />
               </IconButton>
+            </Tooltip>
+            {params.data.status === userStatusList.ACTIVO && (
+              <Tooltip content="Deshabilitar organización">
+                <IconButton
+                  size="sm"
+                  colorPalette="orange"
+                  variant="outline"
+                  aria-label="Eliminar"
+                  onClick={async () => handleDelete(params.data)}
+                >
+                  <FaTrash color="red" />
+                </IconButton>
+              </Tooltip>
             )}
             {params.data.status === userStatusList.INACTIVO && (
-              <IconButton
-                size="sm"
-                colorPalette="orange"
-                variant="outline"
-                aria-label="Rehabilitar"
-                onClick={async () => handleRehabilitate(params.data)}
-              >
-                <FaUndo color="green" />
-              </IconButton>
+              <Tooltip content="Rehabilitar organización">
+                <IconButton
+                  size="sm"
+                  colorPalette="orange"
+                  variant="outline"
+                  aria-label="Rehabilitar"
+                  onClick={async () => handleRehabilitate(params.data)}
+                >
+                  <FaUndo color="green" />
+                </IconButton>
+              </Tooltip>
             )}
           </div>
         );

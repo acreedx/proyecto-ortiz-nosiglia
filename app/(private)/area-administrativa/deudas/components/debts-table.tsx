@@ -8,6 +8,7 @@ import { FaFileContract } from "react-icons/fa";
 import { Prisma } from "@prisma/client";
 import { AgGridReact } from "ag-grid-react";
 import NextLink from "next/link";
+import { Tooltip } from "../../../../../components/ui/tooltip";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function DebtsTable({
@@ -74,18 +75,20 @@ export default function DebtsTable({
       cellRenderer: (params: any) => {
         return (
           <div className="flex flex-row items-center justify-center w-full">
-            <NextLink
-              href={`/area-administrativa/deudas/pagos/${params.data.patient.user.id}`}
-            >
-              <IconButton
-                size="sm"
-                colorPalette="white"
-                variant="outline"
-                aria-label="Deudas"
+            <Tooltip content="Ver detalle de la deuda">
+              <NextLink
+                href={`/area-administrativa/deudas/pagos/${params.data.patient.user.id}`}
               >
-                <FaFileContract color="gray" />
-              </IconButton>
-            </NextLink>
+                <IconButton
+                  size="sm"
+                  colorPalette="white"
+                  variant="outline"
+                  aria-label="Deudas"
+                >
+                  <FaFileContract color="gray" />
+                </IconButton>
+              </NextLink>
+            </Tooltip>
           </div>
         );
       },

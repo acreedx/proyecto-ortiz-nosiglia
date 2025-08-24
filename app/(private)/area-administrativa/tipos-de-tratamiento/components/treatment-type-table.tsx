@@ -13,6 +13,7 @@ import { toaster } from "../../../../../components/ui/toaster";
 import { Treatment } from "@prisma/client";
 import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import TreatmentTypeEditForm from "./treatment-type-edit-form";
+import { Tooltip } from "../../../../../components/ui/tooltip";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function TreatmentTypeTable({
@@ -79,40 +80,46 @@ export default function TreatmentTypeTable({
         return (
           <div className="flex flex-row items-center justify-center w-full">
             {params.data.status === userStatusList.ACTIVO && (
-              <IconButton
-                size="sm"
-                colorPalette="orange"
-                variant="outline"
-                aria-label="Editar"
-                onClick={() => handleEdit(params.data)}
-              >
-                <FaEdit color="orange" />
-              </IconButton>
+              <Tooltip content="Editar tipo de tratamiento">
+                <IconButton
+                  size="sm"
+                  colorPalette="orange"
+                  variant="outline"
+                  aria-label="Editar"
+                  onClick={() => handleEdit(params.data)}
+                >
+                  <FaEdit color="orange" />
+                </IconButton>
+              </Tooltip>
             )}
 
             {params.data.status === userStatusList.ACTIVO && (
-              <IconButton
-                size="sm"
-                colorPalette="red"
-                variant="outline"
-                aria-label="Eliminar"
-                ml={2}
-                onClick={async () => handleDelete(params.data.id)}
-              >
-                <FaTrash color="red" />
-              </IconButton>
+              <Tooltip content="Deshabilitar tipo de tratamiento">
+                <IconButton
+                  size="sm"
+                  colorPalette="red"
+                  variant="outline"
+                  aria-label="Deshabilitar"
+                  ml={2}
+                  onClick={async () => handleDelete(params.data.id)}
+                >
+                  <FaTrash color="red" />
+                </IconButton>
+              </Tooltip>
             )}
             {params.data.status === userStatusList.INACTIVO && (
-              <IconButton
-                size="sm"
-                colorPalette="green"
-                variant="outline"
-                aria-label="Reactivar"
-                ml={2}
-                onClick={async () => handleRestore(params.data.id)}
-              >
-                <FaUndo color="green" />
-              </IconButton>
+              <Tooltip content="Rehabilitar tipo de tratamiento">
+                <IconButton
+                  size="sm"
+                  colorPalette="green"
+                  variant="outline"
+                  aria-label="Reactivar"
+                  ml={2}
+                  onClick={async () => handleRestore(params.data.id)}
+                >
+                  <FaUndo color="green" />
+                </IconButton>
+              </Tooltip>
             )}
           </div>
         );

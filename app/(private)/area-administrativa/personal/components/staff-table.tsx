@@ -12,6 +12,7 @@ import { userStatusList } from "../../../../../types/statusList";
 import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import EditPayrollForm from "./payroll-edit-form";
 import { rolesList } from "../../../../../lib/nextauth/rolesList";
+import { Tooltip } from "../../../../../components/ui/tooltip";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function StaffTable({
@@ -101,34 +102,38 @@ export default function StaffTable({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: (params: any) => (
         <div className="flex flex-row items-center justify-center w-full">
-          <IconButton
-            size="sm"
-            colorPalette="red"
-            variant="outline"
-            aria-label="Pagos"
-            ml={2}
-            onClick={() => {
-              editDialog.setOpen(true);
-              setselectedUser(params.data);
-            }}
-          >
-            <FaMoneyBill color="green" />
-          </IconButton>
+          <Tooltip content="Ver pagos del empleado">
+            <IconButton
+              size="sm"
+              colorPalette="red"
+              variant="outline"
+              aria-label="Pagos"
+              ml={2}
+              onClick={() => {
+                editDialog.setOpen(true);
+                setselectedUser(params.data);
+              }}
+            >
+              <FaMoneyBill color="green" />
+            </IconButton>
+          </Tooltip>
           {(params.data.role.role_name === rolesList.DENTISTA ||
             params.data.role.role_name === rolesList.MEDICO_TEMPORAL) && (
-            <NextLink
-              href={`/area-administrativa/personal/qualifications/${params.data.id}`}
-            >
-              <IconButton
-                size="sm"
-                colorPalette="red"
-                variant="outline"
-                aria-label="Pagos"
-                ml={2}
+            <Tooltip content="Ver títulos del empleado">
+              <NextLink
+                href={`/area-administrativa/personal/qualifications/${params.data.id}`}
               >
-                <FaScroll color="golden" />
-              </IconButton>
-            </NextLink>
+                <IconButton
+                  size="sm"
+                  colorPalette="red"
+                  variant="outline"
+                  aria-label="Pagos"
+                  ml={2}
+                >
+                  <FaScroll color="golden" />
+                </IconButton>
+              </NextLink>
+            </Tooltip>
           )}
         </div>
       ),

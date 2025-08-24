@@ -13,6 +13,7 @@ import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import EditPatientForm from "./patient-edit-form";
 import { LuSiren } from "react-icons/lu";
 import EmergencyContactEditForm from "./emergency-contact-edit-form";
+import { Tooltip } from "../../../../../components/ui/tooltip";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function PatientTable({
@@ -95,73 +96,81 @@ export default function PatientTable({
       cellRenderer: (params: any) => {
         return (
           <div>
-            <IconButton
-              size="sm"
-              colorPalette="orange"
-              variant="outline"
-              aria-label="Editar paciente"
-              mr={2}
-              onClick={() => {
-                editDialog.setOpen(true);
-                setselectedPatient(params.data.patient);
-              }}
-            >
-              <FaEdit color="blue" />
-            </IconButton>
-
-            <IconButton
-              size="sm"
-              colorPalette="orange"
-              variant="outline"
-              aria-label="Contacto de emergencia"
-              mr={2}
-              onClick={() => {
-                emergencyContactDialog.setOpen(true);
-                setselectedPatient(params.data.patient);
-              }}
-            >
-              <LuSiren color="red" />
-            </IconButton>
-
-            <NextLink
-              href={`/area-administrativa/pacientes/odontograma/${params.data.id}`}
-            >
+            <Tooltip content="Editar paciente">
               <IconButton
                 size="sm"
                 colorPalette="orange"
                 variant="outline"
-                aria-label="Odontograma"
+                aria-label="Editar paciente"
                 mr={2}
+                onClick={() => {
+                  editDialog.setOpen(true);
+                  setselectedPatient(params.data.patient);
+                }}
               >
-                <FaFile color="gray" />
+                <FaEdit color="blue" />
               </IconButton>
-            </NextLink>
-            <NextLink
-              href={`/area-administrativa/pacientes/imaging-studies/${params.data.id}`}
-            >
+            </Tooltip>
+            <Tooltip content="Contacto de emergencia">
               <IconButton
                 size="sm"
                 colorPalette="orange"
                 variant="outline"
-                aria-label="Radiografías"
+                aria-label="Contacto de emergencia"
                 mr={2}
+                onClick={() => {
+                  emergencyContactDialog.setOpen(true);
+                  setselectedPatient(params.data.patient);
+                }}
               >
-                <FaXRay color={"orange"} />
+                <LuSiren color="red" />
               </IconButton>
-            </NextLink>
+            </Tooltip>
 
-            <NextLink
-              href={`/area-administrativa/pacientes/historial/${params.data.id}`}
-            >
-              <IconButton
-                size="sm"
-                colorPalette="whiteAlpha"
-                variant="outline"
-                aria-label="Historial clínico del paciente"
+            <Tooltip content="Odontograma">
+              <NextLink
+                href={`/area-administrativa/pacientes/odontograma/${params.data.id}`}
               >
-                <FaBookMedical color={"green"} />
-              </IconButton>
-            </NextLink>
+                <IconButton
+                  size="sm"
+                  colorPalette="orange"
+                  variant="outline"
+                  aria-label="Odontograma"
+                  mr={2}
+                >
+                  <FaFile color="gray" />
+                </IconButton>
+              </NextLink>
+            </Tooltip>
+            <Tooltip content="Radiografías">
+              <NextLink
+                href={`/area-administrativa/pacientes/imaging-studies/${params.data.id}`}
+              >
+                <IconButton
+                  size="sm"
+                  colorPalette="orange"
+                  variant="outline"
+                  aria-label="Radiografías"
+                  mr={2}
+                >
+                  <FaXRay color={"orange"} />
+                </IconButton>
+              </NextLink>
+            </Tooltip>
+            <Tooltip content="Historial clínico">
+              <NextLink
+                href={`/area-administrativa/pacientes/historial/${params.data.id}`}
+              >
+                <IconButton
+                  size="sm"
+                  colorPalette="whiteAlpha"
+                  variant="outline"
+                  aria-label="Historial clínico del paciente"
+                >
+                  <FaBookMedical color={"green"} />
+                </IconButton>
+              </NextLink>
+            </Tooltip>
           </div>
         );
       },

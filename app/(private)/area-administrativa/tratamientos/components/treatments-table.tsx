@@ -16,6 +16,7 @@ import { complete, eliminate, restore } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
 import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import TreatmentsEditForm from "./treatments-edit-form";
+import { Tooltip } from "../../../../../components/ui/tooltip";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function TreatmentsTable({
@@ -113,52 +114,60 @@ export default function TreatmentsTable({
         return (
           <div className="flex flex-row items-center justify-center w-full">
             {params.data.status === userStatusList.ACTIVO && (
-              <IconButton
-                size="sm"
-                colorPalette="orange"
-                variant="outline"
-                aria-label="Editar"
-                onClick={() => handleEdit(params.data)}
-              >
-                <FaEdit color="orange" />
-              </IconButton>
+              <Tooltip content="Editar tratamiento">
+                <IconButton
+                  size="sm"
+                  colorPalette="orange"
+                  variant="outline"
+                  aria-label="Editar"
+                  onClick={() => handleEdit(params.data)}
+                >
+                  <FaEdit color="orange" />
+                </IconButton>
+              </Tooltip>
             )}
             {params.data.status === userStatusList.ACTIVO && (
-              <IconButton
-                size="sm"
-                colorPalette="red"
-                variant="outline"
-                aria-label="Desactivar"
-                ml={2}
-                onClick={async () => handleDelete(params.data.id)}
-              >
-                <FaTrash color="red" />
-              </IconButton>
+              <Tooltip content="Deshabilitar tratamiento">
+                <IconButton
+                  size="sm"
+                  colorPalette="red"
+                  variant="outline"
+                  aria-label="Desactivar"
+                  ml={2}
+                  onClick={async () => handleDelete(params.data.id)}
+                >
+                  <FaTrash color="red" />
+                </IconButton>
+              </Tooltip>
             )}
             {params.data.status === userStatusList.ACTIVO && (
-              <IconButton
-                size="sm"
-                colorPalette="blue"
-                variant="outline"
-                aria-label="Completar"
-                ml={2}
-                onClick={async () => handleCompleteTreatment(params.data.id)}
-              >
-                <FaCheck color="blue" />
-              </IconButton>
+              <Tooltip content="Completar tratamiento">
+                <IconButton
+                  size="sm"
+                  colorPalette="blue"
+                  variant="outline"
+                  aria-label="Completar"
+                  ml={2}
+                  onClick={async () => handleCompleteTreatment(params.data.id)}
+                >
+                  <FaCheck color="blue" />
+                </IconButton>
+              </Tooltip>
             )}
             {params.data.status === userStatusList.INACTIVO ||
               (params.data.status === treatmentStatusList.COMPLETADO && (
-                <IconButton
-                  size="sm"
-                  colorPalette="green"
-                  variant="outline"
-                  aria-label="Reactivar"
-                  ml={2}
-                  onClick={async () => handleRestore(params.data.id)}
-                >
-                  <FaUndo color="green" />
-                </IconButton>
+                <Tooltip content="Rehabilitar tratamiento">
+                  <IconButton
+                    size="sm"
+                    colorPalette="green"
+                    variant="outline"
+                    aria-label="Reactivar"
+                    ml={2}
+                    onClick={async () => handleRestore(params.data.id)}
+                  >
+                    <FaUndo color="green" />
+                  </IconButton>
+                </Tooltip>
               ))}
           </div>
         );
