@@ -47,13 +47,6 @@ export function SignIn() {
           type: "warning",
         });
         router.push("/olvido-de-password");
-      } else if (res.code === "new") {
-        toaster.create({
-          description:
-            "Usuario nuevo debe reestablecer su contraseña para poder continuar",
-          type: "warning",
-        });
-        router.push("/olvido-de-password");
       } else {
         toaster.create({
           description: "Usuario o contraseña incorrectos",

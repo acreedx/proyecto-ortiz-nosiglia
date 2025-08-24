@@ -6,9 +6,6 @@ import { prisma } from "../prisma/prisma";
 import { userStatusList } from "../../types/statusList";
 import { registerLog } from "../logs/logger";
 
-class NewUserError extends CredentialsSignin {
-  code = "new";
-}
 class BlockedUserError extends CredentialsSignin {
   code = "blocked";
 }
@@ -83,12 +80,6 @@ export async function validateUserLogin({ username, password, token }: any) {
     );
   }
 
-  if (dbUser.last_login !== null && dbUser.status === userStatusList.NUEVO) {
-    throw new NewUserError(
-      "Usuario nuevo, debe cambiar su contraseña para poder continuar"
-    );
-  }
-
   await prisma.user.update({
     where: { id: dbUser.id },
     data: { password_attempts: 0, last_login: new Date() },
@@ -110,6 +101,7 @@ export async function validateUserLogin({ username, password, token }: any) {
     is_super_admin: dbUser.is_super_admin,
     last_login: dbUser.last_login,
     role: dbUser.role.role_name,
+    status: dbUser.status,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     permissions: dbUser.role.role_permissions.map((rp: any) => rp.permission),
   };

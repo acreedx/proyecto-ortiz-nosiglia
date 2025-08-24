@@ -12,6 +12,7 @@ declare module "next-auth" {
     is_super_admin: boolean;
     last_login: Date | null;
     role: string;
+    status: string;
     permissions: Permission[];
   }
 
@@ -26,6 +27,7 @@ declare module "next-auth" {
       is_super_admin: boolean;
       last_login: Date | null;
       role: string;
+      status: string;
       permissions: Permission[];
     } & DefaultSession["user"];
   }

@@ -26,7 +26,6 @@ export async function edit({
     }
     const tryParse = EditProfileSchema.safeParse(data);
     if (!tryParse.success) {
-      console.log(tryParse);
       return {
         ok: false,
       };

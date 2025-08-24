@@ -333,8 +333,10 @@ export async function createUser({
 
 export async function changePassword({
   data,
+  image,
 }: {
   data: TChangePasswordSchema;
+  image: File | undefined;
 }) {
   try {
     const session = await auth();
@@ -360,6 +362,20 @@ export async function changePassword({
       },
     });
     if (!checkUser) return { ok: false };
+    const isAnyUserWithId = await prisma.user.findFirst({
+      where: {
+        identification: data.identification.toString(),
+        NOT: {
+          id: data.id,
+        },
+      },
+    });
+    if (isAnyUserWithId) {
+      return {
+        ok: false,
+        errorMessage: "Ya existe un usuario con ese Carnet de identidad",
+      };
+    }
     const checkPassword = await bcrypt.compare(
       data.actualPassword,
       checkUser.password
@@ -370,11 +386,22 @@ export async function changePassword({
         id: checkUser.id,
       },
       data: {
+        identification: data.identification.toString(),
+        first_name: data.first_name,
+        last_name: data.last_name,
+        birth_date: new Date(data.birth_date),
+        phone: data.phone.toString(),
+        mobile: data.mobile.toString(),
+        email: data.email,
+        address_line: data.address_line,
+        address_city: data.address_city,
+        ...(image && {
+          photo_url: await uploadProfileImage(image),
+        }),
         password: await hashPassword(data.newPassword),
         password_attempts: 0,
         password_expiration: getPasswordExpiration(),
         status: userStatusList.ACTIVO,
-        last_login: undefined,
       },
     });
     await sendEmail({

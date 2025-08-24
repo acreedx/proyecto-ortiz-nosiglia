@@ -5,10 +5,11 @@ import Banner from "../../../components/index/banner";
 import { prisma } from "../../../lib/prisma/prisma";
 import AppointmentsSection from "./sections/appointments-section";
 import { userStatusList } from "../../../types/statusList";
+import { redirect } from "next/navigation";
 
 export default async function Page() {
   const session = await auth();
-  if (!session)
+  if (!session || !session.user)
     return (
       <main className="rounded-sm border border-stroke bg-white shadow-default flex-grow">
         <div className="flex flex-wrap items-center ">
@@ -29,6 +30,7 @@ export default async function Page() {
       id: session.user.id_db,
     },
     select: {
+      status: true,
       patient: {
         select: {
           id: true,
@@ -39,6 +41,7 @@ export default async function Page() {
   if (!userId || !userId.patient) {
     return <div>No encontrado</div>;
   }
+  if (userId.status === userStatusList.NUEVO) redirect("/cambio-de-password");
   const appointments = await prisma.appointment.findMany({
     where: {
       patient_id: userId.patient.id,
@@ -69,6 +72,7 @@ export default async function Page() {
       },
     },
   });
+
   return (
     session.user.role === rolesList.PACIENTE && (
       <main className="flex-grow p-4">
