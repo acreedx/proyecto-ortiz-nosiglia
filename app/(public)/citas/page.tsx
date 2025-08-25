@@ -39,7 +39,7 @@ export default async function Page() {
     },
   });
   if (!userId || !userId.patient) {
-    return <div>No encontrado</div>;
+    return <main className="flex-grow p-4">No encontrado</main>;
   }
   if (userId.status === userStatusList.NUEVO) redirect("/cambio-de-password");
   const appointments = await prisma.appointment.findMany({
@@ -73,18 +73,20 @@ export default async function Page() {
     },
   });
 
-  return (
-    session.user.role === rolesList.PACIENTE && (
-      <main className="flex-grow p-4">
-        <Flex direction={{ base: "column", md: "row" }} w="100%" gap={2}>
-          <AppointmentsSection
-            props={{
-              appointments: appointments,
-              doctors: doctores,
-            }}
-          />
-        </Flex>
-      </main>
-    )
+  return session.user.role === rolesList.PACIENTE ? (
+    <main className="flex-grow p-4">
+      <Flex direction={{ base: "column", md: "row" }} w="100%" gap={2}>
+        <AppointmentsSection
+          props={{
+            appointments: appointments,
+            doctors: doctores,
+          }}
+        />
+      </Flex>
+    </main>
+  ) : (
+    <main className="flex-grow p-4">
+      Necesita ser un paciente para crear una cita
+    </main>
   );
 }

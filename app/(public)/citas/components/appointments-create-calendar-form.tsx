@@ -162,6 +162,21 @@ export default function AppointmentsCreateCalendarForm({
               {errors.hora_cita?.message}
             </Field.ErrorText>
           </Field.Root>
+          <Field.Root
+            invalid={!!errors.reason}
+            required
+            px={4}
+            w={{ base: "100%", md: "100%" }}
+          >
+            <Field.Label>Motivo</Field.Label>
+            <Input
+              colorPalette="orange"
+              type="text"
+              variant="outline"
+              {...register("reason")}
+            />
+            <Field.ErrorText>{errors.reason?.message}</Field.ErrorText>
+          </Field.Root>
         </Flex>
       </Dialog.Body>
       <Dialog.Footer>

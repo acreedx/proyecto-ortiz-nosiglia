@@ -255,11 +255,12 @@ export default async function Page({
           )}
 
           {/* Tratamientos */}
+          {/* todo mostrar los tratamientos*/}
           {historialPaciente.patient?.care_plan &&
           historialPaciente.patient?.care_plan.length > 0 ? (
             <div>Tratamientos</div>
           ) : (
-            <div>Ninguno</div>
+            <div>Ningun tratamiento registrado</div>
           )}
         </Stack>
       </main>
