@@ -72,49 +72,57 @@ export default function RolesTable({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: (params: any) => (
         <div className="flex flex-row items-center justify-center w-full">
-          {params.data.role_name !== rolesList.ADMINISTRADOR && (
-            <>
-              <Tooltip content="Editar rol">
-                <IconButton
-                  size="sm"
-                  colorPalette="orange"
-                  variant="outline"
-                  aria-label="Editar"
-                  onClick={async () => handleEdit(params.data)}
-                >
-                  <FaEdit color="orange" />
-                </IconButton>
-              </Tooltip>
-              {params.data.status === userStatusList.ACTIVO && (
-                <Tooltip content="Deshabilitar rol">
-                  <IconButton
-                    size="sm"
-                    colorPalette="red"
-                    variant="outline"
-                    aria-label="Deshabilitar"
-                    ml={2}
-                    onClick={async () => handleDelete(params.data)}
-                  >
-                    <FaTrash color="red" />
-                  </IconButton>
-                </Tooltip>
-              )}
-              {params.data.status === userStatusList.INACTIVO && (
-                <Tooltip content="Rehabilitar rol">
-                  <IconButton
-                    size="sm"
-                    colorPalette="green"
-                    variant="outline"
-                    aria-label="Rehabilitar"
-                    ml={2}
-                    onClick={async () => handleRestore(params.data)}
-                  >
-                    <FaCheck color="green" />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </>
-          )}
+          {params.data.role_name !== rolesList.ADMINISTRADOR &&
+            params.data.role_name !== rolesList.PACIENTE && (
+              <>
+                {params.data.role_name !== rolesList.ADMINISTRADOR &&
+                  params.data.role_name !== rolesList.PACIENTE &&
+                  params.data.role_name !== rolesList.DENTISTA &&
+                  params.data.role_name !== rolesList.SECRETARIO &&
+                  params.data.role_name !== rolesList.ENFERMERO &&
+                  params.data.role_name !== rolesList.MEDICO_TEMPORAL && (
+                    <Tooltip content="Editar rol">
+                      <IconButton
+                        size="sm"
+                        colorPalette="orange"
+                        variant="outline"
+                        aria-label="Editar"
+                        onClick={async () => handleEdit(params.data)}
+                      >
+                        <FaEdit color="orange" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                {params.data.status === userStatusList.ACTIVO && (
+                  <Tooltip content="Deshabilitar rol">
+                    <IconButton
+                      size="sm"
+                      colorPalette="red"
+                      variant="outline"
+                      aria-label="Deshabilitar"
+                      ml={2}
+                      onClick={async () => handleDelete(params.data)}
+                    >
+                      <FaTrash color="red" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                {params.data.status === userStatusList.INACTIVO && (
+                  <Tooltip content="Rehabilitar rol">
+                    <IconButton
+                      size="sm"
+                      colorPalette="green"
+                      variant="outline"
+                      aria-label="Rehabilitar"
+                      ml={2}
+                      onClick={async () => handleRestore(params.data)}
+                    >
+                      <FaCheck color="green" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </>
+            )}
         </div>
       ),
     },

@@ -1,6 +1,5 @@
 import React from "react";
 import BreadCrumb from "../../../../components/admin/breadcrumb";
-import CreateDialog from "../../../../components/admin/dialog/create-dialog";
 import { Heading } from "@chakra-ui/react";
 import AppointmentsTable from "./components/appointments-table";
 import CanStaff from "../../../../lib/rbac/can-staff";
@@ -8,6 +7,7 @@ import { prisma } from "../../../../lib/prisma/prisma";
 import AppointmentsCreateForm from "./components/appointments-create-form";
 import { userStatusList } from "../../../../types/statusList";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
+import CreateExtraLargeDialog from "../../../../components/admin/dialog/create-xl-dialog";
 
 export default async function Page() {
   const appointments = await prisma.appointment.findMany({
@@ -50,14 +50,14 @@ export default async function Page() {
         <BreadCrumb pageName="Citas" />
         <div className="flex flex-row w-full items-center justify-between">
           <Heading>Citas</Heading>
-          <CreateDialog>
+          <CreateExtraLargeDialog>
             <AppointmentsCreateForm
               props={{
                 doctores: doctores,
                 pacientes: pacientes,
               }}
             />
-          </CreateDialog>
+          </CreateExtraLargeDialog>
         </div>
         <AppointmentsTable
           props={{

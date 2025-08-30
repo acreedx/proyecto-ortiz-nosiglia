@@ -6,7 +6,7 @@ export const RoleSchema = z.object({
     .min(1, "El nombre del rol es requerido")
     .max(50, "El tamaño máximo de carácteres es de 50")
     .regex(
-      /^[a-zA-Z0-9_]+$/,
+      /^[\p{L}0-9_ ]+$/u,
       "El nombre del rol solo puede contener letras, números y guiones bajos sin espacios"
     ),
   description: z
@@ -29,7 +29,7 @@ export const EditRoleSchema = z.object({
     .min(1, "El nombre del rol es requerido")
     .max(50, "El tamaño máximo de carácteres es de 50")
     .regex(
-      /^[a-zA-Z0-9_]+$/,
+      /^[\p{L}0-9_ ]+$/u,
       "El nombre del rol solo puede contener letras, números y guiones bajos"
     ),
   description: z
