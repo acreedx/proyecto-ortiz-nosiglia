@@ -212,8 +212,8 @@ export default async function Page({
             )}
 
           {/* Encuentros */}
-          {historialPaciente.patient?.appointment &&
-          historialPaciente.patient?.appointment.length > 0 ? (
+          {historialPaciente.patient?.encounter &&
+          historialPaciente.patient?.encounter.length > 0 ? (
             <Card.Root>
               <Card.Header>
                 <Heading size="md">Atenciones realizadas</Heading>
@@ -258,7 +258,45 @@ export default async function Page({
           {/* todo mostrar los tratamientos*/}
           {historialPaciente.patient?.care_plan &&
           historialPaciente.patient?.care_plan.length > 0 ? (
-            <div>Tratamientos</div>
+            <Card.Root>
+              <Card.Header>
+                <Heading size="md">Tratamientos realizados</Heading>
+              </Card.Header>
+              <Card.Body>
+                <Stack gap={3}>
+                  {historialPaciente.patient.care_plan.map(
+                    (tratamiento, index) => (
+                      <Box
+                        key={index}
+                        p={3}
+                        borderWidth="1px"
+                        borderRadius="md"
+                        bg="gray.50"
+                      >
+                        <Text>
+                          <strong>Tipo de tratamiento:</strong>{" "}
+                          {tratamiento.treatment_type}
+                        </Text>
+                        <Text>
+                          <strong>Nombre del tratamiento:</strong>{" "}
+                          {tratamiento.title}
+                        </Text>
+                        <Text>
+                          <strong>Descripción:</strong>{" "}
+                          {tratamiento.description}
+                        </Text>
+                        <Text>
+                          <strong>Fecha de inicio:</strong>{" "}
+                          {new Date(
+                            tratamiento.start_date
+                          ).toLocaleDateString()}
+                        </Text>
+                      </Box>
+                    )
+                  )}
+                </Stack>
+              </Card.Body>
+            </Card.Root>
           ) : (
             <div>Ningun tratamiento registrado</div>
           )}
