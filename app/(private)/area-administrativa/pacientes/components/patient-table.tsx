@@ -1,8 +1,12 @@
 "use client";
-import { Organization, Prisma } from "@prisma/client";
-import { useEffect, useState } from "react";
-import { AgGridReact } from "ag-grid-react";
-import type { ColDef } from "ag-grid-community";
+import { Organization } from "@prisma/client";
+import { AgGridReact, CustomCellRendererProps } from "ag-grid-react";
+import type {
+  ColDef,
+  GridReadyEvent,
+  IDatasource,
+  IGetRowsParams,
+} from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import Image from "next/image";
 import { IconButton, useDialog } from "@chakra-ui/react";
@@ -14,196 +18,219 @@ import EditPatientForm from "./patient-edit-form";
 import { LuSiren } from "react-icons/lu";
 import EmergencyContactEditForm from "./emergency-contact-edit-form";
 import { Tooltip } from "../../../../../components/ui/tooltip";
+import { getPatients } from "../data/datasource";
+import { useState, useMemo, useCallback } from "react";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function PatientTable({
   props,
 }: {
-  props: {
-    pacientes: Prisma.UserGetPayload<{
-      include: {
-        role: true;
-        patient: {
-          include: {
-            emergency_contact: true;
-          };
-        };
-      };
-    }>[];
-    organizations: Organization[];
-  };
+  props: { organizations: Organization[] };
 }) {
   const editDialog = useDialog();
   const emergencyContactDialog = useDialog();
-  const [selectedPatient, setselectedPatient] = useState<
-    Prisma.PatientGetPayload<{
-      include: {
-        emergency_contact: true;
-      };
-    }>
-  >();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [rowData, setRowData] = useState<any[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [colDefs, setColDefs] = useState<ColDef[]>([
-    {
-      field: "photo_url",
-      headerName: "Foto",
-      width: 100,
-      autoHeight: false,
-      filter: false,
-      sortable: false,
+  const [selectedPatient, setselectedPatient] = useState<any>();
+
+  const colDefs: ColDef[] = useMemo(
+    () => [
+      {
+        field: "photo_url",
+        headerName: "Foto",
+        width: 100,
+        filter: false,
+        sortable: false,
+        cellRenderer: (props: CustomCellRendererProps) => {
+          if (props.value !== undefined) {
+            return (
+              <div className="flex flex-row items-center justify-center">
+                <Image
+                  alt={`${props.value}`}
+                  src={`${props.value}`}
+                  width={40}
+                  height={40}
+                  className="h-[40px] rounded-full shadow-lg border border-black"
+                />
+              </div>
+            );
+          }
+        },
+      },
+      { field: "first_name", headerName: "Nombre" },
+      { field: "last_name", headerName: "Apellido" },
+      {
+        field: "birth_date",
+        headerName: "Fecha de nacimiento",
+        valueFormatter: (params) =>
+          params.value ? new Date(params.value).toLocaleDateString() : "",
+      },
+      { field: "phone", headerName: "Teléfono" },
+      { field: "mobile", headerName: "Celular" },
+      { field: "address_line", headerName: "Dirección" },
+      {
+        field: "patient.allergies",
+        headerName: "Alergias",
+        valueFormatter: (params) => params.value ?? "Ninguna",
+      },
+      {
+        field: "patient.preconditions",
+        headerName: "Precondiciones",
+        valueFormatter: (params) => params.value ?? "Ninguna",
+      },
+      {
+        field: "actions",
+        headerName: "Acciones",
+        filter: false,
+        minWidth: 240,
+        sortable: false,
+        cellRenderer: (props: CustomCellRendererProps) => {
+          if (props.data !== undefined) {
+            return (
+              <div className="flex flex-row justify-center items-center">
+                <Tooltip content="Editar paciente">
+                  <IconButton
+                    size="sm"
+                    colorPalette="orange"
+                    variant="outline"
+                    aria-label="Editar paciente"
+                    mr={2}
+                    onClick={() => {
+                      editDialog.setOpen(true);
+                      setselectedPatient(props.data.patient);
+                    }}
+                  >
+                    <FaEdit color="orange" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip content="Contacto de emergencia">
+                  <IconButton
+                    size="sm"
+                    colorPalette="orange"
+                    variant="outline"
+                    aria-label="Contacto de emergencia"
+                    mr={2}
+                    onClick={() => {
+                      emergencyContactDialog.setOpen(true);
+                      setselectedPatient(props.data.patient);
+                    }}
+                  >
+                    <LuSiren color="red" />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip content="Odontograma">
+                  <NextLink
+                    href={`/area-administrativa/pacientes/odontograma/${props.data.id}`}
+                    className="flex flex-row"
+                  >
+                    <IconButton
+                      size="sm"
+                      colorPalette="orange"
+                      variant="outline"
+                      aria-label="Odontograma"
+                      mr={2}
+                    >
+                      <FaFile color="gray" />
+                    </IconButton>
+                  </NextLink>
+                </Tooltip>
+                <Tooltip content="Radiografías">
+                  <NextLink
+                    href={`/area-administrativa/pacientes/imaging-studies/${props.data.id}`}
+                    className="flex flex-row"
+                  >
+                    <IconButton
+                      size="sm"
+                      colorPalette="orange"
+                      variant="outline"
+                      aria-label="Radiografías"
+                      mr={2}
+                    >
+                      <FaXRay color={"orange"} />
+                    </IconButton>
+                  </NextLink>
+                </Tooltip>
+                <Tooltip content="Historial clínico">
+                  <NextLink
+                    href={`/area-administrativa/pacientes/historial/${props.data.id}`}
+                    className="flex flex-row"
+                  >
+                    <IconButton
+                      size="sm"
+                      colorPalette="whiteAlpha"
+                      variant="outline"
+                      aria-label="Historial clínico del paciente"
+                    >
+                      <FaBookMedical color={"green"} />
+                    </IconButton>
+                  </NextLink>
+                </Tooltip>
+              </div>
+            );
+          }
+        },
+      },
+    ],
+    []
+  );
+
+  const defaultColDef = useMemo<ColDef>(
+    () => ({
       flex: 1,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      cellRenderer: (props: any) => {
-        return (
-          <Image
-            alt={`${props.value}`}
-            src={`${props.value}`}
-            width={50}
-            height={50}
-            className="h-[50px] rounded-full shadow-lg border border-black"
-          />
-        );
+      minWidth: 100,
+      resizable: false,
+      sortable: true,
+      filter: true,
+      filterParams: {
+        filterOptions: ["contains", "equals"],
+        maxNumConditions: 1,
       },
-    },
-    { field: "first_name", headerName: "Nombre" },
-    { field: "last_name", headerName: "Apellido" },
-    {
-      field: "birth_date",
-      headerName: "Fecha de nacimiento",
-      valueFormatter: (params) => new Date(params.value).toLocaleDateString(),
-    },
-    { field: "phone", headerName: "Teléfono" },
-    { field: "mobile", headerName: "Celular" },
-    { field: "address_line", headerName: "Dirección" },
-    {
-      field: "patient.allergies",
-      headerName: "Alergias",
-      valueFormatter: (params) => (params.value ? params.value : "Ninguna"),
-    },
-    {
-      field: "patient.preconditions",
-      headerName: "Precondiciones",
-      valueFormatter: (params) => (params.value ? params.value : "Ninguna"),
-    },
-    {
-      field: "actions",
-      headerName: "Acciones",
-      filter: false,
-      sortable: false,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      cellRenderer: (params: any) => {
-        return (
-          <div>
-            <Tooltip content="Editar paciente">
-              <IconButton
-                size="sm"
-                colorPalette="orange"
-                variant="outline"
-                aria-label="Editar paciente"
-                mr={2}
-                onClick={() => {
-                  editDialog.setOpen(true);
-                  setselectedPatient(params.data.patient);
-                }}
-              >
-                <FaEdit color="blue" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip content="Contacto de emergencia">
-              <IconButton
-                size="sm"
-                colorPalette="orange"
-                variant="outline"
-                aria-label="Contacto de emergencia"
-                mr={2}
-                onClick={() => {
-                  emergencyContactDialog.setOpen(true);
-                  setselectedPatient(params.data.patient);
-                }}
-              >
-                <LuSiren color="red" />
-              </IconButton>
-            </Tooltip>
+    }),
+    []
+  );
 
-            <Tooltip content="Odontograma">
-              <NextLink
-                href={`/area-administrativa/pacientes/odontograma/${params.data.id}`}
-              >
-                <IconButton
-                  size="sm"
-                  colorPalette="orange"
-                  variant="outline"
-                  aria-label="Odontograma"
-                  mr={2}
-                >
-                  <FaFile color="gray" />
-                </IconButton>
-              </NextLink>
-            </Tooltip>
-            <Tooltip content="Radiografías">
-              <NextLink
-                href={`/area-administrativa/pacientes/imaging-studies/${params.data.id}`}
-              >
-                <IconButton
-                  size="sm"
-                  colorPalette="orange"
-                  variant="outline"
-                  aria-label="Radiografías"
-                  mr={2}
-                >
-                  <FaXRay color={"orange"} />
-                </IconButton>
-              </NextLink>
-            </Tooltip>
-            <Tooltip content="Historial clínico">
-              <NextLink
-                href={`/area-administrativa/pacientes/historial/${params.data.id}`}
-              >
-                <IconButton
-                  size="sm"
-                  colorPalette="whiteAlpha"
-                  variant="outline"
-                  aria-label="Historial clínico del paciente"
-                >
-                  <FaBookMedical color={"green"} />
-                </IconButton>
-              </NextLink>
-            </Tooltip>
-          </div>
-        );
+  const onGridReady = useCallback((params: GridReadyEvent) => {
+    const datasource: IDatasource = {
+      rowCount: undefined,
+      getRows: async (gridParams: IGetRowsParams) => {
+        try {
+          const { rows, total } = await getPatients({
+            startRow: gridParams.startRow,
+            endRow: gridParams.endRow,
+            filterModel: gridParams.filterModel,
+            sortModel: gridParams.sortModel,
+          });
+          gridParams.successCallback(rows, total);
+        } catch (err) {
+          console.error("Error cargando pacientes:", err);
+          gridParams.failCallback();
+        }
       },
-    },
-  ]);
-
-  useEffect(() => {
-    setRowData([...props.pacientes]);
-  }, [props.pacientes]);
+    };
+    params.api.setGridOption("datasource", datasource);
+  }, []);
 
   return (
-    <div className="w-full h-full mb-4">
+    <div className="w-full h-full mb-4 ag-theme-quartz">
       <AgGridReact
-        rowData={rowData}
         columnDefs={colDefs}
+        rowBuffer={0}
         colResizeDefault="shift"
+        rowModelType="infinite"
+        cacheBlockSize={100}
+        maxBlocksInCache={10}
+        maxConcurrentDatasourceRequests={1}
+        cacheOverflowSize={2}
+        infiniteInitialRowCount={20}
+        paginationPageSize={20}
         pagination
         localeText={AG_GRID_LOCALE_ES}
-        defaultColDef={{
-          resizable: false,
-          sortable: true,
-          filter: true,
-          filterParams: {
-            filterOptions: ["contains", "equals"],
-            maxNumConditions: 1,
-          },
-          flex: 1,
-          wrapText: true,
-          autoHeight: true,
-        }}
+        defaultColDef={defaultColDef}
         suppressCellFocus
         cellSelection={false}
+        onGridReady={onGridReady}
       />
+
       <EditDialog dialog={editDialog}>
         <EditPatientForm
           props={{
@@ -213,11 +240,7 @@ export default function PatientTable({
         />
       </EditDialog>
       <EditDialog dialog={emergencyContactDialog}>
-        <EmergencyContactEditForm
-          props={{
-            patient: selectedPatient,
-          }}
-        />
+        <EmergencyContactEditForm props={{ patient: selectedPatient }} />
       </EditDialog>
     </div>
   );
