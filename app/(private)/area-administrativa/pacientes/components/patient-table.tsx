@@ -61,6 +61,8 @@ export default function PatientTable({
       {
         field: "birth_date",
         headerName: "Fecha de nacimiento",
+        filter: false,
+        sortable: true,
         valueFormatter: (params) =>
           params.value ? new Date(params.value).toLocaleDateString() : "",
       },

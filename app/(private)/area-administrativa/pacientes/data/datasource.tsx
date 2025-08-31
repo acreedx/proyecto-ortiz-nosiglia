@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
-import { rolesList } from "../../../../../lib/nextauth/rolesList";
 import { prisma } from "../../../../../lib/prisma/prisma";
+import { rolesList } from "../../../../../lib/nextauth/rolesList";
 
 type FilterModel = Record<
   string,
@@ -19,17 +19,18 @@ type SortModel = {
 }[];
 
 // Convierte "patient.allergies" => { patient: { allergies: {...} } }
-function setNestedFilter(obj: any, path: string[], value: any) {
+function setNestedObject(obj: any, path: string[], value: any) {
   const [head, ...rest] = path;
   if (!head) return;
   if (rest.length === 0) {
     obj[head] = value;
   } else {
     obj[head] = obj[head] || {};
-    setNestedFilter(obj[head], rest, value);
+    setNestedObject(obj[head], rest, value);
   }
 }
 
+// Construye el where para filtros
 function buildPatientFilter(filterModel?: FilterModel) {
   if (!filterModel) return {};
 
@@ -44,13 +45,27 @@ function buildPatientFilter(filterModel?: FilterModel) {
       }
 
       if (field.includes(".")) {
-        setNestedFilter(where, field.split("."), condition);
+        setNestedObject(where, field.split("."), condition);
       } else {
         where[field] = condition;
       }
     }
   }
   return where;
+}
+
+// Construye orderBy para columnas anidadas
+function buildOrderBy(sortModel?: SortModel) {
+  if (!sortModel || sortModel.length === 0) return [{ last_name: "asc" }];
+
+  return sortModel.map((s) => {
+    if (s.colId.includes(".")) {
+      const nested: any = {};
+      setNestedObject(nested, s.colId.split("."), s.sort);
+      return nested;
+    }
+    return { [s.colId]: s.sort };
+  });
 }
 
 export async function getPatients({
@@ -67,16 +82,14 @@ export async function getPatients({
   const take = endRow - startRow;
   const skip = startRow;
 
+  const filters = buildPatientFilter(filterModel);
+
   const where = {
-    role: {
-      role_name: rolesList.PACIENTE,
-    },
-    ...buildPatientFilter(filterModel),
+    role: { role_name: rolesList.PACIENTE },
+    ...filters,
   };
-  let orderBy: any = { last_name: "asc" };
-  if (sortModel && sortModel.length > 0) {
-    orderBy = sortModel.map((s) => ({ [s.colId]: s.sort }));
-  }
+
+  const orderBy = buildOrderBy(sortModel);
 
   const [rows, total] = await Promise.all([
     prisma.user.findMany({
