@@ -1,6 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import type { ColDef } from "ag-grid-community";
+import React, { useCallback, useMemo, useState } from "react";
+import type {
+  ColDef,
+  GridReadyEvent,
+  IDatasource,
+  IGetRowsParams,
+} from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { IconButton, useDialog } from "@chakra-ui/react";
@@ -12,8 +17,8 @@ import {
   FaUserTimes,
   FaCalendarCheck,
 } from "react-icons/fa";
-import { AgGridReact } from "ag-grid-react";
-import { Appointment, Prisma, User } from "@prisma/client";
+import { AgGridReact, CustomCellRendererProps } from "ag-grid-react";
+import { Appointment, User } from "@prisma/client";
 import { appointmentStatusList } from "../../../../../types/statusList";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
@@ -27,30 +32,13 @@ import AppointmentsCompleteForm from "./appointments-complete-form";
 import AppointmentsCancelForm from "./appointments-cancel-form";
 import AppointmentsViewForm from "./appointments-view-form";
 import { Tooltip } from "../../../../../components/ui/tooltip";
+import { getAppointments } from "../data/datasource";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function AppointmentsTable({
   props,
 }: {
   props: {
-    citas: Prisma.AppointmentGetPayload<{
-      include: {
-        patient: {
-          include: {
-            user: true;
-          };
-        };
-        doctor: {
-          include: {
-            staff: {
-              include: {
-                user: true;
-              };
-            };
-          };
-        };
-      };
-    }>[];
     doctores: User[];
   };
 }) {
@@ -59,8 +47,6 @@ export default function AppointmentsTable({
   const cancelAppointmentDialog = useDialog();
   const viewAppointmentDialog = useDialog();
   const [selectedAppointment, setselectedAppointment] = useState<Appointment>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [rowData, setRowData] = useState<any[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
     {
@@ -99,134 +85,144 @@ export default function AppointmentsTable({
       field: "doctor.staff.user.first_name",
       headerName: "Doctor",
       filter: true,
-      valueFormatter: (params) =>
-        params.value + " " + params.data.doctor.staff.user.last_name,
+      cellRenderer: (props: CustomCellRendererProps) => {
+        if (props.data !== undefined) {
+          return props.value + " " + props.data.doctor.staff.user.last_name;
+        }
+      },
     },
     {
       field: "patient.user.first_name",
       headerName: "Paciente",
       filter: true,
-      valueFormatter: (params) =>
-        params.value + " " + params.data.patient.user.last_name,
+      cellRenderer: (props: CustomCellRendererProps) => {
+        if (props.data !== undefined) {
+          return props.value + " " + props.data.patient.user.last_name;
+        }
+      },
     },
     {
       field: "status",
       headerName: "Estado",
       filter: true,
-      valueFormatter: (params) => {
-        switch (params.value) {
-          case appointmentStatusList.STATUS_CANCELADA:
-            return "Cancelada";
-          case appointmentStatusList.STATUS_PENDIENTE:
-            return "Pendiente";
-          case appointmentStatusList.STATUS_CONFIRMADA:
-            return "Confirmada";
-          case appointmentStatusList.STATUS_COMPLETADA:
-            return "Completada";
-          case appointmentStatusList.STATUS_NO_ASISTIDA:
-            return "No asistida";
-          default:
-            return "—";
+      cellRenderer: (props: CustomCellRendererProps) => {
+        if (props.value !== undefined) {
+          switch (props.value) {
+            case appointmentStatusList.STATUS_CANCELADA:
+              return "Cancelada";
+            case appointmentStatusList.STATUS_PENDIENTE:
+              return "Pendiente";
+            case appointmentStatusList.STATUS_CONFIRMADA:
+              return "Confirmada";
+            case appointmentStatusList.STATUS_COMPLETADA:
+              return "Completada";
+            case appointmentStatusList.STATUS_NO_ASISTIDA:
+              return "No asistida";
+            default:
+              return "—";
+          }
         }
       },
     },
     {
+      minWidth: 200,
       field: "actions",
       headerName: "Acciones",
       sortable: false,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      cellRenderer: (params: any) => {
-        const estado = params.data.status;
-        const isEditable =
-          estado !== appointmentStatusList.STATUS_CANCELADA &&
-          estado !== appointmentStatusList.STATUS_COMPLETADA &&
-          estado !== appointmentStatusList.STATUS_NO_ASISTIDA;
-        return (
-          <div className="flex flex-row items-center justify-center w-full gap-1">
-            {isEditable && (
-              <Tooltip content="Editar cita">
-                <IconButton
-                  size="sm"
-                  colorPalette="orange"
-                  variant="outline"
-                  aria-label="Editar"
-                  ml={2}
-                  onClick={async () => handleEdit(params.data)}
-                >
-                  <FaEdit color="orange" />
-                </IconButton>
-              </Tooltip>
-            )}
-
-            {estado === appointmentStatusList.STATUS_PENDIENTE && (
-              <Tooltip content="Confirmar cita">
-                <IconButton
-                  size="sm"
-                  colorPalette="teal"
-                  variant="outline"
-                  aria-label="Confirmar cita"
-                  onClick={async () => handleConfirm(params.data.id)}
-                >
-                  <FaCalendarCheck color="teal" />
-                </IconButton>
-              </Tooltip>
-            )}
-
-            {estado === appointmentStatusList.STATUS_CONFIRMADA && (
-              <>
-                <Tooltip content="Completar cita">
+      cellRenderer: (props: CustomCellRendererProps) => {
+        if (props.data !== undefined) {
+          const estado = props.data.status;
+          const isEditable =
+            estado !== appointmentStatusList.STATUS_CANCELADA &&
+            estado !== appointmentStatusList.STATUS_COMPLETADA &&
+            estado !== appointmentStatusList.STATUS_NO_ASISTIDA;
+          return (
+            <div className="flex flex-row items-center justify-center w-full gap-1">
+              {isEditable && (
+                <Tooltip content="Editar cita">
                   <IconButton
                     size="sm"
-                    colorPalette="green"
+                    colorPalette="orange"
                     variant="outline"
-                    aria-label="Completar cita"
-                    onClick={async () => handleComplete(params.data)}
+                    aria-label="Editar"
+                    ml={2}
+                    onClick={async () => handleEdit(props.data)}
                   >
-                    <FaCheck color="green" />
+                    <FaEdit color="orange" />
                   </IconButton>
                 </Tooltip>
-                <Tooltip content="Marcar como no asistida">
+              )}
+
+              {estado === appointmentStatusList.STATUS_PENDIENTE && (
+                <Tooltip content="Confirmar cita">
                   <IconButton
                     size="sm"
-                    colorPalette="purple"
+                    colorPalette="teal"
                     variant="outline"
-                    aria-label="Marcar como no asistida"
-                    onClick={async () => handleMarkAsMissed(params.data.id)}
+                    aria-label="Confirmar cita"
+                    onClick={async () => handleConfirm(props.data.id)}
                   >
-                    <FaUserTimes color="purple" />
+                    <FaCalendarCheck color="teal" />
                   </IconButton>
                 </Tooltip>
-              </>
-            )}
+              )}
 
-            {isEditable && (
-              <Tooltip content="Cancelar cita">
-                <IconButton
-                  size="sm"
-                  colorPalette="red"
-                  variant="outline"
-                  aria-label="Cancelar cita"
-                  onClick={async () => handleCancel(params.data)}
-                >
-                  <FaTrash color="red" />
-                </IconButton>
-              </Tooltip>
-            )}
-            {!isEditable && (
-              <Tooltip content="Ver detalles de la cita">
-                <IconButton
-                  size="sm"
-                  colorPalette="blue"
-                  variant="outline"
-                  aria-label="Ver detalles de la cita"
-                  onClick={async () => handleViewDetails(params.data)}
-                >
-                  <FaEye color="blue" />
-                </IconButton>
-              </Tooltip>
-            )}
-          </div>
-        );
+              {estado === appointmentStatusList.STATUS_CONFIRMADA && (
+                <>
+                  <Tooltip content="Completar cita">
+                    <IconButton
+                      size="sm"
+                      colorPalette="green"
+                      variant="outline"
+                      aria-label="Completar cita"
+                      onClick={async () => handleComplete(props.data)}
+                    >
+                      <FaCheck color="green" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip content="Marcar como no asistida">
+                    <IconButton
+                      size="sm"
+                      colorPalette="purple"
+                      variant="outline"
+                      aria-label="Marcar como no asistida"
+                      onClick={async () => handleMarkAsMissed(props.data.id)}
+                    >
+                      <FaUserTimes color="purple" />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              )}
+
+              {isEditable && (
+                <Tooltip content="Cancelar cita">
+                  <IconButton
+                    size="sm"
+                    colorPalette="red"
+                    variant="outline"
+                    aria-label="Cancelar cita"
+                    onClick={async () => handleCancel(props.data)}
+                  >
+                    <FaTrash color="red" />
+                  </IconButton>
+                </Tooltip>
+              )}
+              {!isEditable && (
+                <Tooltip content="Ver detalles de la cita">
+                  <IconButton
+                    size="sm"
+                    colorPalette="blue"
+                    variant="outline"
+                    aria-label="Ver detalles de la cita"
+                    onClick={async () => handleViewDetails(props.data)}
+                  >
+                    <FaEye color="blue" />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </div>
+          );
+        }
       },
     },
     {
@@ -289,34 +285,59 @@ export default function AppointmentsTable({
     setselectedAppointment(appointment);
     viewAppointmentDialog.setOpen(true);
   };
-  useEffect(() => {
-    setRowData([...props.citas]);
-  }, [props.citas]);
+  const onGridReady = useCallback((params: GridReadyEvent) => {
+    const datasource: IDatasource = {
+      rowCount: undefined,
+      getRows: async (gridParams: IGetRowsParams) => {
+        try {
+          const { rows, total } = await getAppointments({
+            startRow: gridParams.startRow,
+            endRow: gridParams.endRow,
+            filterModel: gridParams.filterModel,
+            sortModel: gridParams.sortModel,
+          });
+          gridParams.successCallback(rows, total);
+        } catch (err) {
+          console.error("Error cargando pacientes:", err);
+          gridParams.failCallback();
+        }
+      },
+    };
+    params.api.setGridOption("datasource", datasource);
+  }, []);
+  const defaultColDef = useMemo<ColDef>(
+    () => ({
+      flex: 1,
+      minWidth: 100,
+      resizable: false,
+      sortable: true,
+      filter: false,
+      filterParams: {
+        filterOptions: ["contains", "equals"],
+        maxNumConditions: 1,
+      },
+    }),
+    []
+  );
   return (
     <div className="w-full h-full mb-4 pt-4">
       <AgGridReact
-        rowData={rowData}
         columnDefs={colDefs}
+        rowBuffer={0}
         colResizeDefault="shift"
+        rowModelType="infinite"
+        cacheBlockSize={100}
+        maxBlocksInCache={10}
+        maxConcurrentDatasourceRequests={1}
+        cacheOverflowSize={2}
+        infiniteInitialRowCount={20}
+        paginationPageSize={20}
         pagination
         localeText={AG_GRID_LOCALE_ES}
-        defaultColDef={{
-          flex: 1,
-          resizable: false,
-          sortable: true,
-          filter: false,
-          filterParams: {
-            filterOptions: ["contains", "equals"],
-            maxNumConditions: 1,
-          },
-          wrapText: true,
-          autoHeight: true,
-        }}
+        defaultColDef={defaultColDef}
         suppressCellFocus
         cellSelection={false}
-        autoSizeStrategy={{
-          type: "fitGridWidth",
-        }}
+        onGridReady={onGridReady}
       />
       <EditDialog dialog={editDialog}>
         <AppointmentsEditForm

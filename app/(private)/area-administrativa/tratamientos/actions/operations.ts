@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "../../../../../lib/prisma/prisma";
 import {
+  debtsStatusList,
   encounterStatusList,
   treatmentStatusList,
   userStatusList,
@@ -207,7 +208,18 @@ export async function complete({
         },
       },
     });
-
+    await prisma.account.update({
+      where: {
+        id: updatedCarePlan.patient.account_id,
+      },
+      data: {
+        billing_status: debtsStatusList.CON_DEUDA,
+        calculated_at: new Date(),
+        balance: {
+          increment: updatedCarePlan.cost,
+        },
+      },
+    });
     await prisma.invoice.create({
       data: {
         account_id: updatedCarePlan.patient.account.id,

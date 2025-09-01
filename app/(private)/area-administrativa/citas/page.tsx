@@ -10,24 +10,6 @@ import { rolesList } from "../../../../lib/nextauth/rolesList";
 import CreateExtraLargeDialog from "../../../../components/admin/dialog/create-xl-dialog";
 
 export default async function Page() {
-  const appointments = await prisma.appointment.findMany({
-    include: {
-      patient: {
-        include: {
-          user: true,
-        },
-      },
-      doctor: {
-        include: {
-          staff: {
-            include: {
-              user: true,
-            },
-          },
-        },
-      },
-    },
-  });
   const doctores = await prisma.user.findMany({
     where: {
       status: userStatusList.ACTIVO,
@@ -61,7 +43,6 @@ export default async function Page() {
         </div>
         <AppointmentsTable
           props={{
-            citas: appointments,
             doctores: doctores,
           }}
         />

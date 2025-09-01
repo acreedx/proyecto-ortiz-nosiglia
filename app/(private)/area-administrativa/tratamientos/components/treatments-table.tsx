@@ -1,12 +1,17 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import type { ColDef } from "ag-grid-community";
+import React, { useCallback, useMemo, useState } from "react";
+import type {
+  ColDef,
+  GridReadyEvent,
+  IDatasource,
+  IGetRowsParams,
+} from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { IconButton, useDialog } from "@chakra-ui/react";
 import { FaCheck, FaEdit, FaTrash, FaUndo } from "react-icons/fa";
-import { CarePlan, Treatment } from "@prisma/client";
-import { AgGridReact } from "ag-grid-react";
+import { CarePlan } from "@prisma/client";
+import { AgGridReact, CustomCellRendererProps } from "ag-grid-react";
 import {
   treatmentStatusList,
   userStatusList,
@@ -17,20 +22,12 @@ import { toaster } from "../../../../../components/ui/toaster";
 import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import TreatmentsEditForm from "./treatments-edit-form";
 import { Tooltip } from "../../../../../components/ui/tooltip";
+import { getCarePlans } from "../data/datasource";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-export default function TreatmentsTable({
-  props,
-}: {
-  props: {
-    careplans: CarePlan[];
-    treatments: Treatment[];
-  };
-}) {
+export default function TreatmentsTable() {
   const editDialog = useDialog();
   const [selectedTreatment, setselectedTreatment] = useState<CarePlan>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [rowData, setRowData] = useState<any[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
     {
@@ -75,10 +72,10 @@ export default function TreatmentsTable({
     {
       field: "patient.user.first_name",
       headerName: "Paciente",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      cellRenderer: (params: any) => {
-        return `
-          ${params.data.patient.user.first_name} ${params.data.patient.user.last_name}`;
+      cellRenderer: (props: CustomCellRendererProps) => {
+        if (props.data !== undefined) {
+          return `${props.data.patient.user.first_name} ${props.data.patient.user.last_name}`;
+        }
       },
     },
     {
@@ -109,68 +106,69 @@ export default function TreatmentsTable({
       field: "actions",
       headerName: "Acciones",
       sortable: false,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      cellRenderer: (params: any) => {
-        return (
-          <div className="flex flex-row items-center justify-center w-full">
-            {params.data.status === userStatusList.ACTIVO && (
-              <Tooltip content="Editar tratamiento">
-                <IconButton
-                  size="sm"
-                  colorPalette="orange"
-                  variant="outline"
-                  aria-label="Editar"
-                  onClick={() => handleEdit(params.data)}
-                >
-                  <FaEdit color="orange" />
-                </IconButton>
-              </Tooltip>
-            )}
-            {params.data.status === userStatusList.ACTIVO && (
-              <Tooltip content="Deshabilitar tratamiento">
-                <IconButton
-                  size="sm"
-                  colorPalette="red"
-                  variant="outline"
-                  aria-label="Desactivar"
-                  ml={2}
-                  onClick={async () => handleDelete(params.data.id)}
-                >
-                  <FaTrash color="red" />
-                </IconButton>
-              </Tooltip>
-            )}
-            {params.data.status === userStatusList.ACTIVO && (
-              <Tooltip content="Completar tratamiento">
-                <IconButton
-                  size="sm"
-                  colorPalette="blue"
-                  variant="outline"
-                  aria-label="Completar"
-                  ml={2}
-                  onClick={async () => handleCompleteTreatment(params.data.id)}
-                >
-                  <FaCheck color="blue" />
-                </IconButton>
-              </Tooltip>
-            )}
-            {params.data.status === userStatusList.INACTIVO ||
-              (params.data.status === treatmentStatusList.COMPLETADO && (
-                <Tooltip content="Rehabilitar tratamiento">
+      cellRenderer: (props: CustomCellRendererProps) => {
+        if (props.data !== undefined) {
+          return (
+            <div className="flex flex-row items-center justify-center w-full">
+              {props.data.status === userStatusList.ACTIVO && (
+                <Tooltip content="Editar tratamiento">
                   <IconButton
                     size="sm"
-                    colorPalette="green"
+                    colorPalette="orange"
                     variant="outline"
-                    aria-label="Reactivar"
-                    ml={2}
-                    onClick={async () => handleRestore(params.data.id)}
+                    aria-label="Editar"
+                    onClick={() => handleEdit(props.data)}
                   >
-                    <FaUndo color="green" />
+                    <FaEdit color="orange" />
                   </IconButton>
                 </Tooltip>
-              ))}
-          </div>
-        );
+              )}
+              {props.data.status === userStatusList.ACTIVO && (
+                <Tooltip content="Deshabilitar tratamiento">
+                  <IconButton
+                    size="sm"
+                    colorPalette="red"
+                    variant="outline"
+                    aria-label="Desactivar"
+                    ml={2}
+                    onClick={async () => handleDelete(props.data.id)}
+                  >
+                    <FaTrash color="red" />
+                  </IconButton>
+                </Tooltip>
+              )}
+              {props.data.status === userStatusList.ACTIVO && (
+                <Tooltip content="Completar tratamiento">
+                  <IconButton
+                    size="sm"
+                    colorPalette="blue"
+                    variant="outline"
+                    aria-label="Completar"
+                    ml={2}
+                    onClick={async () => handleCompleteTreatment(props.data.id)}
+                  >
+                    <FaCheck color="blue" />
+                  </IconButton>
+                </Tooltip>
+              )}
+              {props.data.status === userStatusList.INACTIVO ||
+                (props.data.status === treatmentStatusList.COMPLETADO && (
+                  <Tooltip content="Rehabilitar tratamiento">
+                    <IconButton
+                      size="sm"
+                      colorPalette="green"
+                      variant="outline"
+                      aria-label="Reactivar"
+                      ml={2}
+                      onClick={async () => handleRestore(props.data.id)}
+                    >
+                      <FaUndo color="green" />
+                    </IconButton>
+                  </Tooltip>
+                ))}
+            </div>
+          );
+        }
       },
     },
     {
@@ -246,34 +244,59 @@ export default function TreatmentsTable({
       }
     }
   };
-  useEffect(() => {
-    setRowData([...props.careplans]);
-  }, [props.careplans]);
+  const defaultColDef = useMemo<ColDef>(
+    () => ({
+      flex: 1,
+      minWidth: 100,
+      resizable: false,
+      sortable: true,
+      filter: false,
+      filterParams: {
+        filterOptions: ["contains", "equals"],
+        maxNumConditions: 1,
+      },
+    }),
+    []
+  );
+  const onGridReady = useCallback((params: GridReadyEvent) => {
+    const datasource: IDatasource = {
+      rowCount: undefined,
+      getRows: async (gridParams: IGetRowsParams) => {
+        try {
+          const { rows, total } = await getCarePlans({
+            startRow: gridParams.startRow,
+            endRow: gridParams.endRow,
+            filterModel: gridParams.filterModel,
+            sortModel: gridParams.sortModel,
+          });
+          gridParams.successCallback(rows, total);
+        } catch (err) {
+          console.error("Error cargando pacientes:", err);
+          gridParams.failCallback();
+        }
+      },
+    };
+    params.api.setGridOption("datasource", datasource);
+  }, []);
   return (
     <div className="w-full h-full mb-4 pt-4">
       <AgGridReact
-        rowData={rowData}
         columnDefs={colDefs}
+        rowBuffer={0}
         colResizeDefault="shift"
+        rowModelType="infinite"
+        cacheBlockSize={100}
+        maxBlocksInCache={10}
+        maxConcurrentDatasourceRequests={1}
+        cacheOverflowSize={2}
+        infiniteInitialRowCount={20}
+        paginationPageSize={20}
         pagination
         localeText={AG_GRID_LOCALE_ES}
-        defaultColDef={{
-          flex: 1,
-          resizable: false,
-          sortable: true,
-          filter: false,
-          filterParams: {
-            filterOptions: ["contains", "equals"],
-            maxNumConditions: 1,
-          },
-          wrapText: true,
-          autoHeight: true,
-        }}
+        defaultColDef={defaultColDef}
         suppressCellFocus
         cellSelection={false}
-        autoSizeStrategy={{
-          type: "fitGridWidth",
-        }}
+        onGridReady={onGridReady}
       />
       <EditDialog dialog={editDialog}>
         <TreatmentsEditForm

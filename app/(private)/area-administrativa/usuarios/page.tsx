@@ -11,11 +11,6 @@ import { rolesList } from "../../../../lib/nextauth/rolesList";
 import { redirect } from "next/navigation";
 
 export default async function Page() {
-  const usuarios = await prisma.user.findMany({
-    include: {
-      role: true,
-    },
-  });
   const roles = await prisma.role.findMany({
     where: {
       status: userStatusList.ACTIVO,
@@ -41,9 +36,7 @@ export default async function Page() {
           />
         </CreateLargeDialog>
       </div>
-      <UsersTable
-        props={{ usuarios: usuarios, roles: roles, session: session }}
-      />
+      <UsersTable props={{ roles: roles, session: session }} />
     </main>
   );
 }
