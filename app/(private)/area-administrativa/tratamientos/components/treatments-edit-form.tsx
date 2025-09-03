@@ -7,6 +7,7 @@ import {
   Button,
   CloseButton,
   Input,
+  UseDialogReturn,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CarePlan } from "@prisma/client";
@@ -19,12 +20,16 @@ import {
   TEditCarePlanSchema,
 } from "../../../../../lib/zod/z-care-plan-schemas";
 import formatDateLocal from "../../../../../types/dateFormatter";
+import { GridApi, IDatasource } from "ag-grid-community";
 
 export default function TreatmentsEditForm({
   props,
 }: {
   props: {
     treatment: CarePlan | undefined;
+    dialog: UseDialogReturn;
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const {
@@ -49,6 +54,13 @@ export default function TreatmentsEditForm({
         description: "Tratamiento editado con éxito",
         type: "success",
       });
+      if (props.gridApiRef.current && props.datasourceRef.current) {
+        props.gridApiRef.current.setGridOption(
+          "datasource",
+          props.datasourceRef.current
+        );
+      }
+      props.dialog.setOpen(false);
     } else {
       toaster.create({
         description: "Error al editar el tratamiento",

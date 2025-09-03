@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import type {
   ColDef,
+  GridApi,
   GridReadyEvent,
   IDatasource,
   IGetRowsParams,
@@ -34,6 +35,20 @@ export default function UsersTable({
     session: Session;
   };
 }) {
+  const defaultColDef = useMemo<ColDef>(
+    () => ({
+      flex: 1,
+      minWidth: 100,
+      resizable: false,
+      sortable: true,
+      filter: true,
+      filterParams: {
+        filterOptions: ["contains", "equals"],
+        maxNumConditions: 1,
+      },
+    }),
+    []
+  );
   const editDialog = useDialog();
   const [selectedUser, setSelectedUser] =
     useState<Prisma.UserGetPayload<{ include: { role: true } }>>();
@@ -196,9 +211,14 @@ export default function UsersTable({
       toaster.create({
         description: res.ok
           ? "Usuario deshabilitado con éxito"
-          : "Error al deshabilitar",
+          : "Error al deshabilitar el usuario",
         type: res.ok ? "success" : "error",
       });
+      if (res.ok) {
+        if (gridApiRef.current && datasourceRef.current) {
+          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        }
+      }
     }
   };
 
@@ -214,9 +234,15 @@ export default function UsersTable({
           : "Error al rehabilitar",
         type: res.ok ? "success" : "error",
       });
+      if (res.ok) {
+        if (gridApiRef.current && datasourceRef.current) {
+          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        }
+      }
     }
   };
   const onGridReady = useCallback((params: GridReadyEvent) => {
+    gridApiRef.current = params.api;
     const datasource: IDatasource = {
       rowCount: undefined,
       getRows: async (gridParams: IGetRowsParams) => {
@@ -234,22 +260,11 @@ export default function UsersTable({
         }
       },
     };
+    datasourceRef.current = datasource;
     params.api.setGridOption("datasource", datasource);
   }, []);
-  const defaultColDef = useMemo<ColDef>(
-    () => ({
-      flex: 1,
-      minWidth: 100,
-      resizable: false,
-      sortable: true,
-      filter: true,
-      filterParams: {
-        filterOptions: ["contains", "equals"],
-        maxNumConditions: 1,
-      },
-    }),
-    []
-  );
+  const gridApiRef = useRef<GridApi | null>(null);
+  const datasourceRef = useRef<IDatasource | null>(null);
   return (
     <div className="w-full h-full mb-4 ag-theme-quartz">
       <AgGridReact
@@ -271,7 +286,15 @@ export default function UsersTable({
         onGridReady={onGridReady}
       />
       <EditDialog dialog={editDialog}>
-        <UsersEditForm props={{ user: selectedUser, roles: props.roles }} />
+        <UsersEditForm
+          props={{
+            user: selectedUser,
+            roles: props.roles,
+            dialog: editDialog,
+            gridApiRef: gridApiRef,
+            datasourceRef: datasourceRef,
+          }}
+        />
       </EditDialog>
     </div>
   );

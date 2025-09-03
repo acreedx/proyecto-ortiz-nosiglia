@@ -11,6 +11,7 @@ import {
   Image,
   Input,
   NativeSelect,
+  UseDialogReturn,
   useFileUpload,
 } from "@chakra-ui/react";
 import { toaster } from "../../../../../components/ui/toaster";
@@ -23,6 +24,7 @@ import {
 import formatDateLocal from "../../../../../types/dateFormatter";
 import ProfileUploadField from "../../../../../components/form/common/profileUploadField";
 import { userStatusList } from "../../../../../types/statusList";
+import { GridApi, IDatasource } from "ag-grid-community";
 
 export default function UsersEditForm({
   props,
@@ -36,6 +38,9 @@ export default function UsersEditForm({
         }>
       | undefined;
     roles: Role[];
+    dialog: UseDialogReturn;
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const fileUpload = useFileUpload({
@@ -67,6 +72,13 @@ export default function UsersEditForm({
         description: "Usuario editado con éxito",
         type: "success",
       });
+      if (props.gridApiRef.current && props.datasourceRef.current) {
+        props.gridApiRef.current.setGridOption(
+          "datasource",
+          props.datasourceRef.current
+        );
+      }
+      props.dialog.setOpen(false);
     } else {
       toaster.create({
         description: res.errorMessage

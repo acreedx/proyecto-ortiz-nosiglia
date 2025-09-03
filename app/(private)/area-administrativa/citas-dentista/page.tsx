@@ -20,10 +20,15 @@ export default async function Page() {
   if (!session) redirect("/login");
   const pacientes = await prisma.user.findMany({
     where: {
-      status: userStatusList.ACTIVO,
+      status: {
+        in: [userStatusList.ACTIVO, userStatusList.NUEVO],
+      },
       role: {
         role_name: rolesList.PACIENTE,
       },
+    },
+    orderBy: {
+      last_name: "asc",
     },
   });
   const usuario = await prisma.user.findUnique({

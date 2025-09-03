@@ -7,6 +7,7 @@ import {
   Button,
   CloseButton,
   Input,
+  UseDialogReturn,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Appointment } from "@prisma/client";
@@ -18,12 +19,16 @@ import {
   TCancelAppointmentSchema,
 } from "../../../../../lib/zod/z-appointment-schemas";
 import { cancelAppointment } from "../actions/operations";
+import { GridApi, IDatasource } from "ag-grid-community";
 
 export default function AppointmentsCancelForm({
   props,
 }: {
   props: {
     selectedAppointment: Appointment | undefined;
+    dialog: UseDialogReturn;
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const {
@@ -45,6 +50,13 @@ export default function AppointmentsCancelForm({
         description: "Cita cancelada con éxito",
         type: "success",
       });
+      if (props.gridApiRef.current && props.datasourceRef.current) {
+        props.gridApiRef.current.setGridOption(
+          "datasource",
+          props.datasourceRef.current
+        );
+      }
+      props.dialog.setOpen(false);
     }
     if (!res.ok) {
       toaster.create({

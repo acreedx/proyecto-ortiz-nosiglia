@@ -125,7 +125,7 @@ export default function AppointmentsCreateCalendarForm({
               >
                 {props.doctores.map((doctor) => (
                   <option key={doctor.id} value={doctor.id}>
-                    {doctor.first_name} {doctor.last_name}
+                    {doctor.last_name} {doctor.first_name}
                   </option>
                 ))}
               </NativeSelect.Field>

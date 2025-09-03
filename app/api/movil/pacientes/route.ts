@@ -37,7 +37,9 @@ export async function GET(): Promise<
         role: {
           role_name: rolesList.PACIENTE,
         },
-        status: userStatusList.ACTIVO,
+        status: {
+          in: [userStatusList.ACTIVO, userStatusList.NUEVO],
+        },
       },
       select: {
         id: true,
@@ -57,6 +59,9 @@ export async function GET(): Promise<
         address_city: true,
         identification: true,
         photo_url: true,
+      },
+      orderBy: {
+        last_name: "asc",
       },
     });
     return NextResponse.json({ pacientes: pacientes });

@@ -11,6 +11,7 @@ import {
   Input,
   NativeSelect,
   Textarea,
+  UseDialogReturn,
 } from "@chakra-ui/react";
 import { toaster } from "../../../../../components/ui/toaster";
 import { Organization, Prisma } from "@prisma/client";
@@ -20,6 +21,7 @@ import {
 } from "../../../../../lib/zod/z-patient-schemas";
 import { userStatusList } from "../../../../../types/statusList";
 import { editPatient } from "../actions/operations";
+import { GridApi, IDatasource } from "ag-grid-community";
 
 export default function EditPatientForm({
   props,
@@ -33,6 +35,9 @@ export default function EditPatientForm({
         }>
       | undefined;
     organizations: Organization[];
+    dialog: UseDialogReturn;
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const {
@@ -53,13 +58,19 @@ export default function EditPatientForm({
     },
   });
   const onSubmit = async (data: TEditPatientSchema) => {
-    console.log(data);
     const res = await editPatient({ data: data });
     if (res.ok) {
       toaster.create({
         description: "Información del paciente editada con éxito",
         type: "success",
       });
+      if (props.gridApiRef.current && props.datasourceRef.current) {
+        props.gridApiRef.current.setGridOption(
+          "datasource",
+          props.datasourceRef.current
+        );
+      }
+      props.dialog.setOpen(false);
     }
     if (!res.ok) {
       toaster.create({

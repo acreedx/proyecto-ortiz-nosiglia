@@ -17,6 +17,20 @@ import { getAccounts } from "../data/datasource";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function DebtsTable() {
+  const defaultColDef = useMemo<ColDef>(
+    () => ({
+      flex: 1,
+      minWidth: 100,
+      resizable: false,
+      sortable: true,
+      filter: false,
+      filterParams: {
+        filterOptions: ["contains", "equals"],
+        maxNumConditions: 1,
+      },
+    }),
+    []
+  );
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
     {
@@ -113,20 +127,6 @@ export default function DebtsTable() {
     };
     params.api.setGridOption("datasource", datasource);
   }, []);
-  const defaultColDef = useMemo<ColDef>(
-    () => ({
-      flex: 1,
-      minWidth: 100,
-      resizable: false,
-      sortable: true,
-      filter: false,
-      filterParams: {
-        filterOptions: ["contains", "equals"],
-        maxNumConditions: 1,
-      },
-    }),
-    []
-  );
   return (
     <div className="w-full h-full mb-4 pt-4">
       <AgGridReact

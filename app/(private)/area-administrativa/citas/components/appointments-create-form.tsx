@@ -124,7 +124,7 @@ export default function AppointmentsCreateForm({
                 >
                   {props.pacientes.map((paciente) => (
                     <option key={paciente.id} value={paciente.id}>
-                      {paciente.first_name} {paciente.last_name}
+                      {paciente.last_name} {paciente.first_name}
                     </option>
                   ))}
                 </NativeSelect.Field>
@@ -338,7 +338,7 @@ export default function AppointmentsCreateForm({
                   >
                     {props.doctores.map((doctor) => (
                       <option key={doctor.id} value={doctor.id}>
-                        {doctor.first_name} {doctor.last_name}
+                        {doctor.last_name} {doctor.first_name}
                       </option>
                     ))}
                   </NativeSelect.Field>

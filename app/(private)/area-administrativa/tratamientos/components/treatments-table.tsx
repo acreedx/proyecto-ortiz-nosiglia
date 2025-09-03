@@ -1,7 +1,8 @@
 "use client";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import type {
   ColDef,
+  GridApi,
   GridReadyEvent,
   IDatasource,
   IGetRowsParams,
@@ -26,6 +27,20 @@ import { getCarePlans } from "../data/datasource";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function TreatmentsTable() {
+  const defaultColDef = useMemo<ColDef>(
+    () => ({
+      flex: 1,
+      minWidth: 100,
+      resizable: false,
+      sortable: true,
+      filter: false,
+      filterParams: {
+        filterOptions: ["contains", "equals"],
+        maxNumConditions: 1,
+      },
+    }),
+    []
+  );
   const editDialog = useDialog();
   const [selectedTreatment, setselectedTreatment] = useState<CarePlan>();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -104,6 +119,7 @@ export default function TreatmentsTable() {
     },
     {
       field: "actions",
+      minWidth: 200,
       headerName: "Acciones",
       sortable: false,
       cellRenderer: (props: CustomCellRendererProps) => {
@@ -151,21 +167,21 @@ export default function TreatmentsTable() {
                   </IconButton>
                 </Tooltip>
               )}
-              {props.data.status === userStatusList.INACTIVO ||
-                (props.data.status === treatmentStatusList.COMPLETADO && (
-                  <Tooltip content="Rehabilitar tratamiento">
-                    <IconButton
-                      size="sm"
-                      colorPalette="green"
-                      variant="outline"
-                      aria-label="Reactivar"
-                      ml={2}
-                      onClick={async () => handleRestore(props.data.id)}
-                    >
-                      <FaUndo color="green" />
-                    </IconButton>
-                  </Tooltip>
-                ))}
+              {props.data.status === userStatusList.INACTIVO && (
+                <Tooltip content="Rehabilitar tratamiento">
+                  <IconButton
+                    size="sm"
+                    colorPalette="green"
+                    variant="outline"
+                    aria-label="Reactivar"
+                    ml={2}
+                    onClick={async () => handleRestore(props.data.id)}
+                  >
+                    <FaUndo color="green" />
+                  </IconButton>
+                </Tooltip>
+              )}
+              {/*Agregar la vista para ver la informacion*/}
             </div>
           );
         }
@@ -194,6 +210,9 @@ export default function TreatmentsTable() {
           description: "Tratamiento completado con éxito",
           type: "success",
         });
+        if (gridApiRef.current && datasourceRef.current) {
+          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        }
       } else {
         toaster.create({
           description: "Error al completar el tratamiento",
@@ -215,6 +234,9 @@ export default function TreatmentsTable() {
           description: "Tratamiento deshabiltado con éxito",
           type: "success",
         });
+        if (gridApiRef.current && datasourceRef.current) {
+          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        }
       } else {
         toaster.create({
           description: "Error al deshabilitar el tratamiento",
@@ -223,42 +245,32 @@ export default function TreatmentsTable() {
       }
     }
   };
+
   const handleRestore = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
       mensaje: "Esta seguro de rehabilitar este tratamiento?",
     });
     if (isConfirmed) {
-      const res = await restore({
-        id: id,
-      });
+      const res = await restore({ id });
       if (res.ok) {
         toaster.create({
           description: "Tratamiento rehabilitado con éxito",
           type: "success",
         });
+        if (gridApiRef.current && datasourceRef.current) {
+          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        }
       } else {
         toaster.create({
-          description: "Error al rehabilitado el tratamiento",
+          description: "Error al rehabilitar el tratamiento",
           type: "error",
         });
       }
     }
   };
-  const defaultColDef = useMemo<ColDef>(
-    () => ({
-      flex: 1,
-      minWidth: 100,
-      resizable: false,
-      sortable: true,
-      filter: false,
-      filterParams: {
-        filterOptions: ["contains", "equals"],
-        maxNumConditions: 1,
-      },
-    }),
-    []
-  );
+
   const onGridReady = useCallback((params: GridReadyEvent) => {
+    gridApiRef.current = params.api;
     const datasource: IDatasource = {
       rowCount: undefined,
       getRows: async (gridParams: IGetRowsParams) => {
@@ -276,8 +288,11 @@ export default function TreatmentsTable() {
         }
       },
     };
+    datasourceRef.current = datasource;
     params.api.setGridOption("datasource", datasource);
   }, []);
+  const gridApiRef = useRef<GridApi | null>(null);
+  const datasourceRef = useRef<IDatasource | null>(null);
   return (
     <div className="w-full h-full mb-4 pt-4">
       <AgGridReact
@@ -302,6 +317,9 @@ export default function TreatmentsTable() {
         <TreatmentsEditForm
           props={{
             treatment: selectedTreatment,
+            dialog: editDialog,
+            gridApiRef: gridApiRef,
+            datasourceRef: datasourceRef,
           }}
         />
       </EditDialog>

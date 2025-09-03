@@ -12,10 +12,15 @@ import CreateExtraLargeDialog from "../../../../components/admin/dialog/create-x
 export default async function Page() {
   const pacientes = await prisma.user.findMany({
     where: {
-      status: userStatusList.ACTIVO,
+      status: {
+        in: [userStatusList.ACTIVO, userStatusList.NUEVO],
+      },
       role: {
         role_name: rolesList.PACIENTE,
       },
+    },
+    orderBy: {
+      last_name: "asc",
     },
   });
   const treatmentTypes = await prisma.treatment.findMany();

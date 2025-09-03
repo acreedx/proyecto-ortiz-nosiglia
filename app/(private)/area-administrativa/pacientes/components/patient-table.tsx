@@ -3,6 +3,7 @@ import { Organization } from "@prisma/client";
 import { AgGridReact, CustomCellRendererProps } from "ag-grid-react";
 import type {
   ColDef,
+  GridApi,
   GridReadyEvent,
   IDatasource,
   IGetRowsParams,
@@ -19,7 +20,7 @@ import { LuSiren } from "react-icons/lu";
 import EmergencyContactEditForm from "./emergency-contact-edit-form";
 import { Tooltip } from "../../../../../components/ui/tooltip";
 import { getPatients } from "../data/datasource";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function PatientTable({
@@ -192,6 +193,7 @@ export default function PatientTable({
   );
 
   const onGridReady = useCallback((params: GridReadyEvent) => {
+    gridApiRef.current = params.api;
     const datasource: IDatasource = {
       rowCount: undefined,
       getRows: async (gridParams: IGetRowsParams) => {
@@ -209,9 +211,11 @@ export default function PatientTable({
         }
       },
     };
+    datasourceRef.current = datasource;
     params.api.setGridOption("datasource", datasource);
   }, []);
-
+  const gridApiRef = useRef<GridApi | null>(null);
+  const datasourceRef = useRef<IDatasource | null>(null);
   return (
     <div className="w-full h-full mb-4 ag-theme-quartz">
       <AgGridReact
@@ -232,17 +236,26 @@ export default function PatientTable({
         cellSelection={false}
         onGridReady={onGridReady}
       />
-
       <EditDialog dialog={editDialog}>
         <EditPatientForm
           props={{
             patient: selectedPatient,
             organizations: props.organizations,
+            dialog: editDialog,
+            gridApiRef: gridApiRef,
+            datasourceRef: datasourceRef,
           }}
         />
       </EditDialog>
       <EditDialog dialog={emergencyContactDialog}>
-        <EmergencyContactEditForm props={{ patient: selectedPatient }} />
+        <EmergencyContactEditForm
+          props={{
+            patient: selectedPatient,
+            dialog: emergencyContactDialog,
+            gridApiRef: gridApiRef,
+            datasourceRef: datasourceRef,
+          }}
+        />
       </EditDialog>
     </div>
   );

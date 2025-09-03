@@ -196,9 +196,11 @@ export default async function Page() {
       return diferenciaEnMinutos;
     });
   const totalTiempoPagos = pagosTiempo.reduce((sum, t) => sum + t, 0);
-  const promedioDeCobroDeudas = invoices.length
+  const promedioDeCobroDeudasMinutos = invoices.length
     ? totalTiempoPagos / invoices.filter((e) => e.date_payment).length
     : 0;
+  const promedioDeCobroDeudasHoras = promedioDeCobroDeudasMinutos / 60;
+  const promedioDeCobroDeudasDias = promedioDeCobroDeudasHoras / 24;
   return (
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
@@ -224,8 +226,7 @@ export default async function Page() {
         <div className="w-full h-[400px] flex items-center justify-center  mt-4">
           <PieChart labels={labelsPie} data={dataPie} />
         </div>
-        {/*
-        <div className="w-full h-[400px] flex items-center justify-center  mt-4">
+        {/*<div className="w-full h-[400px] flex items-center justify-center  mt-4">
           <ScatterChart data={puntos} />
         </div>*/}
         <div className="w-full h-[400px] flex items-center justify-center  mt-4">
@@ -283,8 +284,8 @@ export default async function Page() {
           <div className="w-full md:w-1/2 items-center justify-center flex">
             <KPIIndicator
               texto="Tiempo promedio de cobro de deudas"
-              valor={promedioDeCobroDeudas}
-              medida="minutos"
+              valor={promedioDeCobroDeudasDias}
+              medida="días"
             />
           </div>
         </div>

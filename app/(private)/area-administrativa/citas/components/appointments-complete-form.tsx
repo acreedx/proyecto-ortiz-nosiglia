@@ -7,6 +7,7 @@ import {
   Button,
   CloseButton,
   Input,
+  UseDialogReturn,
 } from "@chakra-ui/react";
 import { Appointment } from "@prisma/client";
 import React from "react";
@@ -18,12 +19,16 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { completeAppointment } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
+import { GridApi, IDatasource } from "ag-grid-community";
 
 export default function AppointmentsCompleteForm({
   props,
 }: {
   props: {
     selectedAppointment: Appointment | undefined;
+    dialog: UseDialogReturn;
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const {
@@ -45,6 +50,13 @@ export default function AppointmentsCompleteForm({
         description: "Cita completada con éxito",
         type: "success",
       });
+      if (props.gridApiRef.current && props.datasourceRef.current) {
+        props.gridApiRef.current.setGridOption(
+          "datasource",
+          props.datasourceRef.current
+        );
+      }
+      props.dialog.setOpen(false);
     }
     if (!res.ok) {
       toaster.create({

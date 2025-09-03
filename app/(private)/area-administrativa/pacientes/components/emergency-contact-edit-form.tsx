@@ -9,6 +9,7 @@ import {
   Field,
   Flex,
   Input,
+  UseDialogReturn,
 } from "@chakra-ui/react";
 import { toaster } from "../../../../../components/ui/toaster";
 import { Prisma } from "@prisma/client";
@@ -17,6 +18,7 @@ import {
   EditEmergencyContact,
   TEditEmergencyContact,
 } from "../../../../../lib/zod/z-emergency-contact";
+import { GridApi, IDatasource } from "ag-grid-community";
 
 export default function EmergencyContactEditForm({
   props,
@@ -29,6 +31,9 @@ export default function EmergencyContactEditForm({
           };
         }>
       | undefined;
+    dialog: UseDialogReturn;
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const {
@@ -51,6 +56,13 @@ export default function EmergencyContactEditForm({
         description: "Información del paciente editada con éxito",
         type: "success",
       });
+      if (props.gridApiRef.current && props.datasourceRef.current) {
+        props.gridApiRef.current.setGridOption(
+          "datasource",
+          props.datasourceRef.current
+        );
+      }
+      props.dialog.setOpen(false);
     }
     if (!res.ok) {
       toaster.create({

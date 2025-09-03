@@ -1,7 +1,8 @@
 "use client";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import type {
   ColDef,
+  GridApi,
   GridReadyEvent,
   IDatasource,
   IGetRowsParams,
@@ -42,6 +43,20 @@ export default function AppointmentsTable({
     doctores: User[];
   };
 }) {
+  const defaultColDef = useMemo<ColDef>(
+    () => ({
+      flex: 1,
+      minWidth: 100,
+      resizable: false,
+      sortable: true,
+      filter: false,
+      filterParams: {
+        filterOptions: ["contains", "equals"],
+        maxNumConditions: 1,
+      },
+    }),
+    []
+  );
   const editDialog = useDialog();
   const completeAppointmentDialog = useDialog();
   const cancelAppointmentDialog = useDialog();
@@ -250,6 +265,9 @@ export default function AppointmentsTable({
           description: "Éxito al marcar la cita",
           type: "success",
         });
+        if (gridApiRef.current && datasourceRef.current) {
+          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        }
       } else {
         toaster.create({
           description: "Error al marcar la cita",
@@ -273,6 +291,9 @@ export default function AppointmentsTable({
           description: "Éxito al confirmar la cita",
           type: "success",
         });
+        if (gridApiRef.current && datasourceRef.current) {
+          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        }
       } else {
         toaster.create({
           description: "Error al confirmar la cita",
@@ -286,6 +307,7 @@ export default function AppointmentsTable({
     viewAppointmentDialog.setOpen(true);
   };
   const onGridReady = useCallback((params: GridReadyEvent) => {
+    gridApiRef.current = params.api;
     const datasource: IDatasource = {
       rowCount: undefined,
       getRows: async (gridParams: IGetRowsParams) => {
@@ -303,22 +325,11 @@ export default function AppointmentsTable({
         }
       },
     };
+    datasourceRef.current = datasource;
     params.api.setGridOption("datasource", datasource);
   }, []);
-  const defaultColDef = useMemo<ColDef>(
-    () => ({
-      flex: 1,
-      minWidth: 100,
-      resizable: false,
-      sortable: true,
-      filter: false,
-      filterParams: {
-        filterOptions: ["contains", "equals"],
-        maxNumConditions: 1,
-      },
-    }),
-    []
-  );
+  const gridApiRef = useRef<GridApi | null>(null);
+  const datasourceRef = useRef<IDatasource | null>(null);
   return (
     <div className="w-full h-full mb-4 pt-4">
       <AgGridReact
@@ -344,6 +355,9 @@ export default function AppointmentsTable({
           props={{
             selectedAppointment: selectedAppointment,
             doctores: props.doctores,
+            dialog: editDialog,
+            gridApiRef: gridApiRef,
+            datasourceRef: datasourceRef,
           }}
         />
       </EditDialog>
@@ -351,6 +365,9 @@ export default function AppointmentsTable({
         <AppointmentsCompleteForm
           props={{
             selectedAppointment: selectedAppointment,
+            dialog: completeAppointmentDialog,
+            gridApiRef: gridApiRef,
+            datasourceRef: datasourceRef,
           }}
         />
       </EditDialog>
@@ -358,6 +375,9 @@ export default function AppointmentsTable({
         <AppointmentsCancelForm
           props={{
             selectedAppointment: selectedAppointment,
+            dialog: cancelAppointmentDialog,
+            gridApiRef: gridApiRef,
+            datasourceRef: datasourceRef,
           }}
         />
       </EditDialog>

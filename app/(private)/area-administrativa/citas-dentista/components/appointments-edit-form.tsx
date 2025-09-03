@@ -155,8 +155,8 @@ export default function AppointmentsEditForm({
                     </Avatar.Root>
 
                     <Text fontWeight="bold" fontSize="lg">
-                      {props.selectedAppointment.patient.user.first_name}{" "}
-                      {props.selectedAppointment.patient.user.last_name}
+                      {props.selectedAppointment.patient.user.last_name}{" "}
+                      {props.selectedAppointment.patient.user.first_name}
                     </Text>
 
                     <Box w="full">

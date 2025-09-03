@@ -8,6 +8,7 @@ import {
   Input,
   NativeSelect,
   Textarea,
+  UseDialogReturn,
 } from "@chakra-ui/react";
 import { Appointment, User } from "@prisma/client";
 import React, { useEffect, useState } from "react";
@@ -20,6 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { edit, horariosDisponibles } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
 import formatDateLocal from "../../../../../types/dateFormatter";
+import { GridApi, IDatasource } from "ag-grid-community";
 
 export default function AppointmentsEditForm({
   props,
@@ -27,6 +29,9 @@ export default function AppointmentsEditForm({
   props: {
     selectedAppointment: Appointment | undefined;
     doctores: User[];
+    dialog: UseDialogReturn;
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const {
@@ -60,6 +65,13 @@ export default function AppointmentsEditForm({
         description: "Cita editada con éxito",
         type: "success",
       });
+      if (props.gridApiRef.current && props.datasourceRef.current) {
+        props.gridApiRef.current.setGridOption(
+          "datasource",
+          props.datasourceRef.current
+        );
+      }
+      props.dialog.setOpen(false);
     }
     if (!res.ok) {
       toaster.create({
@@ -235,7 +247,7 @@ export default function AppointmentsEditForm({
             >
               {props.doctores.map((doctor) => (
                 <option key={doctor.id} value={doctor.id}>
-                  {doctor.first_name} {doctor.last_name}
+                  {doctor.last_name} {doctor.first_name}
                 </option>
               ))}
             </NativeSelect.Field>
