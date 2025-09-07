@@ -19,7 +19,7 @@ import {
   FaCalendarCheck,
 } from "react-icons/fa";
 import { AgGridReact, CustomCellRendererProps } from "ag-grid-react";
-import { Appointment, User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import { appointmentStatusList } from "../../../../../types/statusList";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
@@ -63,7 +63,26 @@ export default function AppointmentsTable({
   const completeAppointmentDialog = useDialog();
   const cancelAppointmentDialog = useDialog();
   const viewAppointmentDialog = useDialog();
-  const [selectedAppointment, setselectedAppointment] = useState<Appointment>();
+  const [selectedAppointment, setselectedAppointment] = useState<
+    Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true;
+          };
+        };
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true;
+              };
+            };
+          };
+        };
+      };
+    }>
+  >();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
     {
@@ -248,11 +267,49 @@ export default function AppointmentsTable({
       hide: true,
     },
   ]);
-  const handleEdit = async (appointment: Appointment) => {
+  const handleEdit = async (
+    appointment: Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true;
+          };
+        };
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true;
+              };
+            };
+          };
+        };
+      };
+    }>
+  ) => {
     setselectedAppointment(appointment);
     editDialog.setOpen(true);
   };
-  const handleCancel = async (appointment: Appointment) => {
+  const handleCancel = async (
+    appointment: Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true;
+          };
+        };
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true;
+              };
+            };
+          };
+        };
+      };
+    }>
+  ) => {
     setselectedAppointment(appointment);
     cancelAppointmentDialog.setOpen(true);
   };
@@ -281,7 +338,26 @@ export default function AppointmentsTable({
       }
     }
   };
-  const handleComplete = async (appointment: Appointment) => {
+  const handleComplete = async (
+    appointment: Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true;
+          };
+        };
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true;
+              };
+            };
+          };
+        };
+      };
+    }>
+  ) => {
     setselectedAppointment(appointment);
     completeAppointmentDialog.setOpen(true);
   };
@@ -310,7 +386,26 @@ export default function AppointmentsTable({
       }
     }
   };
-  const handleViewDetails = async (appointment: Appointment) => {
+  const handleViewDetails = async (
+    appointment: Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true;
+          };
+        };
+        doctor: {
+          include: {
+            staff: {
+              include: {
+                user: true;
+              };
+            };
+          };
+        };
+      };
+    }>
+  ) => {
     setselectedAppointment(appointment);
     viewAppointmentDialog.setOpen(true);
   };

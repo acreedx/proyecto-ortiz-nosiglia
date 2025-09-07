@@ -10,7 +10,7 @@ import {
   Textarea,
   UseDialogReturn,
 } from "@chakra-ui/react";
-import { Appointment, User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -27,7 +27,26 @@ export default function AppointmentsEditForm({
   props,
 }: {
   props: {
-    selectedAppointment: Appointment | undefined;
+    selectedAppointment:
+      | Prisma.AppointmentGetPayload<{
+          include: {
+            patient: {
+              include: {
+                user: true;
+              };
+            };
+            doctor: {
+              include: {
+                staff: {
+                  include: {
+                    user: true;
+                  };
+                };
+              };
+            };
+          };
+        }>
+      | undefined;
     doctores: User[];
     dialog: UseDialogReturn;
     gridApiRef: React.RefObject<GridApi | null>;
@@ -56,6 +75,7 @@ export default function AppointmentsEditForm({
       note: props.selectedAppointment?.note ?? undefined,
       patient_instruction:
         props.selectedAppointment?.patient_instruction ?? undefined,
+      doctor_id: props.selectedAppointment?.doctor.staff.user_id,
     },
   });
   const onSubmit = async (data: TEditAppointmentSchema) => {
@@ -104,7 +124,7 @@ export default function AppointmentsEditForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Dialog.Header>
-        <Dialog.Title>Edita la información del paciente</Dialog.Title>
+        <Dialog.Title>Edita la información de la cita</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body>
         <Flex wrap="wrap" gapY={4} mb={4} w="full">
