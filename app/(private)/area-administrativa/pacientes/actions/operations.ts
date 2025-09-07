@@ -287,8 +287,9 @@ export async function createPatient({
                 },
               },
             },
-            allergies: data.allergies,
-            preconditions: data.preconditions,
+            allergies: data.allergies === "" ? null : data.allergies,
+            preconditions:
+              data.preconditions === "" ? null : data.preconditions,
             status: userStatusList.ACTIVO,
             account: {
               create: {
@@ -434,7 +435,6 @@ export async function editRow({
   };
 }): Promise<{ ok: boolean; message?: string }> {
   try {
-    console.log(data.fecha);
     const session = await auth();
     if (!session) {
       return {
@@ -501,8 +501,8 @@ export async function editPatient({
         id: data.id,
       },
       data: {
-        allergies: data.allergies,
-        preconditions: data.preconditions,
+        allergies: data.allergies === "" ? null : data.allergies,
+        preconditions: data.preconditions === "" ? null : data.preconditions,
         organization_id: data.organization_id ?? null,
       },
     });

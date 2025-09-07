@@ -35,7 +35,6 @@ export async function createUser({
         ok: false,
       };
     }
-    console.log(data);
     const tryParse = createUserSchema.safeParse(data);
     if (!tryParse.success) {
       console.log(tryParse.error);
@@ -281,8 +280,9 @@ export async function createUser({
                 },
               },
             },
-            allergies: data.allergies,
-            preconditions: data.preconditions,
+            allergies: data.allergies === "" ? null : data.allergies,
+            preconditions:
+              data.preconditions === "" ? null : data.preconditions,
             status: userStatusList.ACTIVO,
             account: {
               create: {
