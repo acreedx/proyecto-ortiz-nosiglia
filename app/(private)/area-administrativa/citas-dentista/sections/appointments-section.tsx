@@ -87,33 +87,38 @@ export default function AppointmentsSection({
   }, [props.appointments]);
   return (
     <div className="flex flex-row w-full pt-4 gap-4 h-full">
-      <div className="w-1/4 h-auto px-4">
-        <Heading>Listado de citas</Heading>
-        <AppointmentAccordion
-          props={{
-            appointments: props.appointments,
-            createAppointmentDialog: createAppointmentDialog,
-            editAppointmentDialog: editAppointmentDialog,
-            completeAppointmentDialog: completeAppointmentDialog,
-            cancelAppointmentDialog: cancelAppointmentDialog,
-            viewAppointmentDialog: viewAppointmentDialog,
-            setselectedAppointment: setselectedAppointment,
-          }}
-        />
-      </div>
-      <div className="w-3/4 h-auto">
-        <AppointmentsCalendar
-          props={{
-            appointments: Events,
-            setselectedDate: setselectedDate,
-            createAppointmentDialog: createAppointmentDialog,
-            editAppointmentDialog: editAppointmentDialog,
-            completeAppointmentDialog: completeAppointmentDialog,
-            cancelAppointmentDialog: cancelAppointmentDialog,
-            viewAppointmentDialog: viewAppointmentDialog,
-            setselectedAppointment: setselectedAppointment,
-          }}
-        />
+      <div className="flex flex-col lg:flex-row w-full h-auto">
+        {/* Listado de citas */}
+        <div className="w-full lg:w-1/4 h-auto px-4 mb-4 lg:mb-0 min-h-[700px]">
+          <Heading>Listado de citas</Heading>
+          <AppointmentAccordion
+            props={{
+              appointments: props.appointments,
+              createAppointmentDialog: createAppointmentDialog,
+              editAppointmentDialog: editAppointmentDialog,
+              completeAppointmentDialog: completeAppointmentDialog,
+              cancelAppointmentDialog: cancelAppointmentDialog,
+              viewAppointmentDialog: viewAppointmentDialog,
+              setselectedAppointment: setselectedAppointment,
+            }}
+          />
+        </div>
+
+        {/* Calendario */}
+        <div className="w-full lg:w-3/4 h-auto">
+          <AppointmentsCalendar
+            props={{
+              appointments: Events,
+              setselectedDate: setselectedDate,
+              createAppointmentDialog: createAppointmentDialog,
+              editAppointmentDialog: editAppointmentDialog,
+              completeAppointmentDialog: completeAppointmentDialog,
+              cancelAppointmentDialog: cancelAppointmentDialog,
+              viewAppointmentDialog: viewAppointmentDialog,
+              setselectedAppointment: setselectedAppointment,
+            }}
+          />
+        </div>
       </div>
       <EditLargeDialog dialog={createAppointmentDialog}>
         <AppointmentsCreateCalendarForm

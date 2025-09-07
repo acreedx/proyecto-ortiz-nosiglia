@@ -361,12 +361,25 @@ export async function create({
         media: url,
       } as Files);
     }
+    const findUser = await prisma.user.findFirst({
+      where: {
+        id: data.patient_id,
+      },
+      include: {
+        patient: true,
+      },
+    });
+    if (!findUser || !findUser.patient) {
+      return {
+        ok: false,
+      };
+    }
     const createdImagingStudy = await prisma.imagingStudy.create({
       data: {
         description: data.description,
         cost: Number(data.cost),
         status: userStatusList.ACTIVO,
-        patient_id: data.patient_id,
+        patient_id: findUser.patient.id,
         files: {
           createMany: {
             data: uploadedFiles,
@@ -377,6 +390,7 @@ export async function create({
         patient: {
           include: {
             account: true,
+            user: true,
           },
         },
       },
@@ -760,6 +774,95 @@ export async function odontogramReportData({
     });
     return {
       odontogram: odontogram,
+      ok: true,
+    };
+  } catch (e) {
+    console.log(e);
+    return { ok: false };
+  }
+}
+
+export async function patienHistoryReportData({
+  patientId,
+}: {
+  patientId: string;
+}): Promise<{
+  patientHistory?: Prisma.UserGetPayload<{
+    include: {
+      patient: {
+        include: {
+          care_plan: true;
+          appointment: true;
+          encounter: true;
+          emergency_contact: true;
+          imaging_study: true;
+          odontogram: {
+            include: {
+              odontogram_row: true;
+            };
+          };
+          organization: true;
+        };
+      };
+    };
+  }>;
+  ok?: boolean;
+}> {
+  try {
+    const session = await auth();
+    if (!session) {
+      return {
+        ok: false,
+      };
+    }
+    const historialPaciente = await prisma.user.findUnique({
+      where: {
+        id: Number(patientId),
+        role: {
+          role_name: rolesList.PACIENTE,
+        },
+        OR: [
+          {
+            status: userStatusList.ACTIVO,
+          },
+          {
+            status: userStatusList.NUEVO,
+          },
+        ],
+      },
+      include: {
+        patient: {
+          include: {
+            care_plan: true,
+            appointment: true,
+            encounter: true,
+            emergency_contact: true,
+            imaging_study: true,
+            odontogram: {
+              include: {
+                odontogram_row: true,
+              },
+            },
+            organization: true,
+          },
+        },
+      },
+    });
+    if (!historialPaciente) {
+      return {
+        ok: false,
+      };
+    }
+    await registerLog({
+      type: "sistema",
+      detail: "Se genero un historial clínico de un paciente",
+      action: "crear informe",
+      module: "pacientes",
+      person_name: session.user.first_name + " " + session.user.last_name,
+      person_role: session.user.role,
+    });
+    return {
+      patientHistory: historialPaciente,
       ok: true,
     };
   } catch (e) {

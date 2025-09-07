@@ -18,6 +18,7 @@ import {
   TEditAppointmentSchema,
 } from "../../../../../lib/zod/z-appointment-calendar.schemas";
 import { registerLog } from "../../../../../lib/logs/logger";
+import { sendEmail } from "../../../../../lib/nodemailer/mailer";
 
 export async function createDentistAppointment({
   data,
@@ -232,7 +233,7 @@ export async function cancelAppointment({
         ok: false,
       };
     }
-    await prisma.appointment.update({
+    const appt = await prisma.appointment.update({
       where: {
         id: data.id,
       },
@@ -242,6 +243,32 @@ export async function cancelAppointment({
         cancellation_date: new Date(),
         cancellation_reason: data.cancellation_reason,
       },
+      include: {
+        patient: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    await sendEmail({
+      email: appt.patient.user.email,
+      subject: "Notificación de cancelación de cita - Centro Ortiz Nosiglia",
+      message: `
+      Hola ${appt.patient.user.first_name} ${appt.patient.user.last_name},
+      
+      Te informamos que tu cita para el dia ${appt.programed_date_time.toLocaleDateString()} 
+      ha sido cancelada.
+      
+      Motivo de la cancelación: ${appt.cancellation_reason || "No especificado"}.
+      
+      Si deseas reprogramar tu cita o tienes alguna consulta adicional, 
+      por favor comunícate con nuestro equipo de atención.
+      
+      Muchas gracias por tu comprensión,
+      Centro Ortiz Nosiglia
+      `,
     });
     await registerLog({
       type: "sistema",

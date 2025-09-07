@@ -38,7 +38,9 @@ function buildAccountFilter(filterModel?: FilterModel) {
   const where: any = {
     patient: {
       user: {
-        status: userStatusList.ACTIVO,
+        status: {
+          in: [userStatusList.ACTIVO, userStatusList.NUEVO],
+        },
         role: {
           role_name: rolesList.PACIENTE,
         },

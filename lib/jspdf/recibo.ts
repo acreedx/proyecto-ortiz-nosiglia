@@ -48,9 +48,21 @@ export async function reporteRecibo({
     14,
     68
   );
-  doc.text(`CI: ${data.account.patient?.user.identification}`, 14, 76);
-  doc.text(`Nacimiento: ${data.account.patient?.user.identification}`, 14, 84);
-  doc.text(`Teléfono: ${data.account.patient?.user.identification}`, 14, 92);
+  doc.text(
+    `CI: ${data.account.patient?.user.identification ?? "ninguno"}`,
+    14,
+    76
+  );
+  doc.text(
+    `Nacimiento: ${data.account.patient?.user.birth_date.toLocaleDateString() ?? "ninguno"}`,
+    14,
+    84
+  );
+  doc.text(
+    `Teléfono: ${data.account.patient?.user.phone ?? "ninguno"}`,
+    14,
+    92
+  );
   doc.text(
     `Dirección: ${data.account.patient?.user.address_line}, ${data.account.patient?.user.address_city}`,
     14,

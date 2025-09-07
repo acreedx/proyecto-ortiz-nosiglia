@@ -13,8 +13,12 @@ import { rolesList } from "../../../../../../lib/nextauth/rolesList";
 import { prisma } from "../../../../../../lib/prisma/prisma";
 import CanStaff from "../../../../../../lib/rbac/can-staff";
 import { FaArrowCircleLeft } from "react-icons/fa";
-import { userStatusList } from "../../../../../../types/statusList";
+import {
+  treatmentStatusList,
+  userStatusList,
+} from "../../../../../../types/statusList";
 import { timeFormatter } from "../../../../../../types/dateFormatter";
+import PatientGenerateHistoryButton from "../../components/patient-generate-history-button";
 
 export default async function Page({
   params,
@@ -291,6 +295,14 @@ export default async function Page({
                             tratamiento.start_date
                           ).toLocaleDateString()}
                         </Text>
+                        <Text>
+                          <strong>Estado del tratamiento:</strong>{" "}
+                          {{
+                            [userStatusList.ACTIVO]: "Activo",
+                            [userStatusList.INACTIVO]: "Inactivo",
+                            [treatmentStatusList.COMPLETADO]: "Completado",
+                          }[tratamiento.status] ?? "—"}
+                        </Text>
                       </Box>
                     )
                   )}
@@ -300,6 +312,7 @@ export default async function Page({
           ) : (
             <div>Ningun tratamiento registrado</div>
           )}
+          <PatientGenerateHistoryButton props={{ patientId: id }} />
         </Stack>
       </main>
     </CanStaff>

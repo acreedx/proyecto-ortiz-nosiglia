@@ -20,6 +20,7 @@ export interface menu {
       route: string;
       permissionCode: string[];
     }[];
+    permissionCode: string[];
   }[];
 }
 export const menuOptions: menu[] = [
@@ -37,6 +38,7 @@ export const menuOptions: menu[] = [
             permissionCode: ["dsh_adm"],
           },
         ],
+        permissionCode: ["dsh_adm"],
       },
       {
         icon: <FaHospitalUser color="white" />,
@@ -59,6 +61,7 @@ export const menuOptions: menu[] = [
             permissionCode: ["dsh_pct_adm", "dsh_org_adm"],
           },
         ],
+        permissionCode: ["dsh_pct_adm", "dsh_org_adm"],
       },
       {
         icon: <LuCalendar color="white" />,
@@ -78,9 +81,10 @@ export const menuOptions: menu[] = [
           {
             label: "Reportes",
             route: "/area-administrativa/citas/reportes",
-            permissionCode: ["dsh_cts_adm"],
+            permissionCode: ["dsh_cts_adm", "dsh_cts_adm_dent"],
           },
         ],
+        permissionCode: ["dsh_cts_adm", "dsh_cts_adm_dent"],
       },
       {
         icon: <LuUser color="white" />,
@@ -108,6 +112,7 @@ export const menuOptions: menu[] = [
             permissionCode: ["dsh_usu_adm", "dsh_rol_adm", "dsh_log_adm"],
           },
         ],
+        permissionCode: ["dsh_usu_adm", "dsh_rol_adm", "dsh_log_adm"],
       },
       {
         icon: <LuMonitor color="white" />,
@@ -125,6 +130,7 @@ export const menuOptions: menu[] = [
             permissionCode: ["dsh_per_adm"],
           },
         ],
+        permissionCode: ["dsh_per_adm"],
       },
       {
         icon: <LuBookOpen color="white" />,
@@ -147,6 +153,7 @@ export const menuOptions: menu[] = [
             permissionCode: ["dsh_trs_adm", "dsh_ttrs_adm"],
           },
         ],
+        permissionCode: ["dsh_trs_adm", "dsh_ttrs_adm"],
       },
       {
         icon: <LuCreditCard color="white" />,
@@ -164,6 +171,7 @@ export const menuOptions: menu[] = [
             permissionCode: ["dsh_deu_adm"],
           },
         ],
+        permissionCode: ["dsh_deu_adm"],
       },
       {
         icon: <LuCog color="white" />,
@@ -176,6 +184,7 @@ export const menuOptions: menu[] = [
             permissionCode: ["dsh_conf_adm"],
           },
         ],
+        permissionCode: ["dsh_conf_adm"],
       },
     ],
   },

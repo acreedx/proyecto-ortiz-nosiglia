@@ -78,10 +78,10 @@ export async function reporteDeudas({
       account.balance,
       account.patient?.user.first_name + " " + account.patient?.user.last_name,
       account.billing_status,
-      account.created_at?.toLocaleDateString(),
+      account.calculated_at?.toLocaleDateString(),
     ]) as RowInput[];
     autoTable(doc, {
-      head: [["#", "Balance", "Paciente", "Estado", "Fecha de Registro"]],
+      head: [["#", "Deuda total", "Paciente", "Estado", "Fecha de calculo"]],
       body: tableData,
       startY: 62,
       theme: "grid",

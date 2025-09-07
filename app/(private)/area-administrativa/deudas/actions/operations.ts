@@ -59,6 +59,9 @@ export async function accountsReportData({
         ...whereClause,
         patient: {
           user: {
+            status: {
+              in: [userStatusList.ACTIVO, userStatusList.NUEVO],
+            },
             role: {
               role_name: rolesList.PACIENTE,
             },
@@ -71,6 +74,9 @@ export async function accountsReportData({
             user: true,
           },
         },
+      },
+      orderBy: {
+        balance: "desc",
       },
     });
     await registerLog({

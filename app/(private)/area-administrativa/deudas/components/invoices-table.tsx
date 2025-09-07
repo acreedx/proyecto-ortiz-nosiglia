@@ -132,7 +132,6 @@ export default function InvoicesTable({
                     await reporteRecibo({
                       data: res.invoice!,
                     });
-                    console.log(res.invoice!);
                     if (isConfirmed) {
                       toaster.create({
                         description: "Recibo creado con éxito",
