@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cronjobs/notificaciones_de_citas",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cronjobs/notificaciones_de_tratamiento",
+      "schedule": "0 12 * * 1"
+    }
+  ]
+}
