@@ -54,8 +54,7 @@ export default function CreatePatientForm({
       if (res.ok) {
         toaster.create({
           title: "Usuario creado con éxito",
-          description:
-            "Cambia tu contraseña mientras hayas iniciado sesión, sino deberás reestablecerla",
+          description: "Se ha enviado un correo electrónico con tu contraseña",
           type: "success",
           duration: 8000,
         });

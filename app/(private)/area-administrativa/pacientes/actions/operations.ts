@@ -535,6 +535,7 @@ export async function editEmergencyContact({
     }
     const tryParse = EditEmergencyContact.safeParse(data);
     if (!tryParse.success) {
+      console.log(tryParse.error);
       return {
         ok: false,
       };
@@ -549,8 +550,8 @@ export async function editEmergencyContact({
             update: {
               relation: data.relation,
               name: data.name,
-              phone: data.phone,
-              mobile: data.mobile,
+              phone: data.phone.toString(),
+              mobile: data.mobile.toString(),
               address_line: data.address_line,
               address_city: data.address_city,
             },
@@ -558,8 +559,8 @@ export async function editEmergencyContact({
               status: userStatusList.ACTIVO,
               relation: data.relation,
               name: data.name,
-              phone: data.phone,
-              mobile: data.mobile,
+              phone: data.phone.toString(),
+              mobile: data.mobile.toString(),
               address_line: data.address_line,
               address_city: data.address_city,
             },

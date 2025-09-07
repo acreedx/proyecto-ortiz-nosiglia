@@ -9,9 +9,13 @@ import ClientSection from "./components/clientSection";
 export default async function Page() {
   const doctores = await prisma.user.findMany({
     where: {
-      status: userStatusList.ACTIVO,
+      status: {
+        in: [userStatusList.ACTIVO, userStatusList.NUEVO],
+      },
       role: {
-        role_name: rolesList.DENTISTA,
+        role_name: {
+          in: [rolesList.DENTISTA, rolesList.MEDICO_TEMPORAL],
+        },
       },
     },
   });

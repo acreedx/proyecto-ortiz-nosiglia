@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const CreateUserSchema = z.object({
-  identification: z
+  identification: z.coerce
     .string({ message: "Ingresa un Carnet válido" })
     .min(7, "El carnet de identidad es requerido")
     .max(9, "El tamaño máximo de carácteres es de 9")
@@ -16,16 +16,30 @@ export const CreateUserSchema = z.object({
     .min(1, "Los apellidos son requeridos")
     .max(50, "El tamaño máximo de carácteres es de 50"),
   birth_date: z
-    .string()
-    .min(1, "La fecha de nacimiento es requerida")
-    .max(50, "El tamaño máximo de carácteres es de 50"),
-  phone: z
+    .string({ required_error: "La fecha de nacimiento es obligatoria" })
+    .refine(
+      (val) => {
+        const date = new Date(val);
+        if (isNaN(date.getTime())) return false;
+        const today = new Date();
+        const minDate = new Date(
+          today.getFullYear() - 2,
+          today.getMonth(),
+          today.getDate()
+        );
+        return date <= minDate;
+      },
+      {
+        message: "El paciente debe tener al menos 2 años de edad",
+      }
+    ),
+  phone: z.coerce
     .string({ message: "Ingresa un teléfono válido" })
     .min(7, "El teléfono debe ser de mínimo 7 carácteres")
     .max(7, "El tamaño máximo de carácteres es de 7")
     .regex(/^(?!.*(\d)\1{6})[234]\d{6}$/, "Ingresa un teléfono válido")
     .transform((val) => parseInt(val, 10)),
-  mobile: z
+  mobile: z.coerce
     .string({ message: "Ingresa un teléfono válido" })
     .min(8, "El celular debe ser de mínimo 8 carácteres")
     .max(8, "El tamaño máximo de carácteres es de 8")
@@ -51,11 +65,10 @@ export type TCreateUserSchema = z.infer<typeof CreateUserSchema>;
 export const EditUserSchema = z.object({
   id: z.number().min(1, "El id es obligatorio"),
   identification: z.coerce
-    .string({ message: "Ingresa un Carnet válido" })
+    .string({ required_error: "Ingresa un Carnet válido" })
     .min(7, "El carnet de identidad es requerido")
-    .max(9, "El tamaño máximo de carácteres es de 9")
-    .regex(/^\d+$/, "Ingresa un Carnet válido")
-    .transform((val) => parseInt(val, 10)),
+    .max(9, "El tamaño máximo de caracteres es de 9")
+    .regex(/^\d+$/, "Ingresa un Carnet válido"),
   first_name: z
     .string()
     .min(1, "Los nombres son requeridos")
@@ -65,9 +78,23 @@ export const EditUserSchema = z.object({
     .min(1, "Los apellidos son requeridos")
     .max(50, "El tamaño máximo de carácteres es de 50"),
   birth_date: z
-    .string()
-    .min(1, "La fecha de nacimiento es requerida")
-    .max(50, "El tamaño máximo de carácteres es de 50"),
+    .string({ required_error: "La fecha de nacimiento es obligatoria" })
+    .refine(
+      (val) => {
+        const date = new Date(val);
+        if (isNaN(date.getTime())) return false;
+        const today = new Date();
+        const minDate = new Date(
+          today.getFullYear() - 2,
+          today.getMonth(),
+          today.getDate()
+        );
+        return date <= minDate;
+      },
+      {
+        message: "El paciente debe tener al menos 2 años de edad",
+      }
+    ),
   phone: z.coerce
     .string({ message: "Ingresa un teléfono válido" })
     .min(7, "El teléfono debe ser de mínimo 7 carácteres")

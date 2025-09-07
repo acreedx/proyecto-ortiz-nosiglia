@@ -15,9 +15,23 @@ export const createUserSchema = z.object({
     .min(1, "Los apellidos son requeridos")
     .max(50, "El tamaño máximo de carácteres es de 50"),
   birth_date: z
-    .string()
-    .min(1, "La fecha de nacimiento es requerida")
-    .max(50, "El tamaño máximo de carácteres es de 50"),
+    .string({ required_error: "La fecha de nacimiento es obligatoria" })
+    .refine(
+      (val) => {
+        const date = new Date(val);
+        if (isNaN(date.getTime())) return false;
+        const today = new Date();
+        const minDate = new Date(
+          today.getFullYear() - 2,
+          today.getMonth(),
+          today.getDate()
+        );
+        return date <= minDate;
+      },
+      {
+        message: "El paciente debe tener al menos 2 años de edad",
+      }
+    ),
   phone: z.coerce
     .string({ message: "Ingresa un teléfono válido" })
     .min(7, "El teléfono debe ser de mínimo 7 carácteres")

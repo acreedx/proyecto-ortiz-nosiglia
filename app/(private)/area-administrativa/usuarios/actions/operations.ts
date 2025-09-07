@@ -334,6 +334,7 @@ export async function edit({
   image: File | undefined;
 }): Promise<{ ok: boolean; errorMessage?: string }> {
   try {
+    console.log("aqui");
     const session = await auth();
     if (!session) {
       return {
@@ -342,6 +343,7 @@ export async function edit({
     }
     const tryParse = EditUserSchema.safeParse(data);
     if (!tryParse.success) {
+      console.log(tryParse.error);
       return {
         ok: false,
       };

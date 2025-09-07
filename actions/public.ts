@@ -35,8 +35,10 @@ export async function createUser({
         ok: false,
       };
     }
+    console.log(data);
     const tryParse = createUserSchema.safeParse(data);
     if (!tryParse.success) {
+      console.log(tryParse.error);
       return {
         ok: false,
       };

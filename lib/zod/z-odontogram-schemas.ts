@@ -19,8 +19,8 @@ export const EditOdontogramSchema = z.object({
       const today = new Date();
       inputDate.setHours(0, 0, 0, 0);
       today.setHours(0, 0, 0, 0);
-      return inputDate >= today;
-    }, "La fecha no puede ser anterior a hoy")
+      return inputDate <= today;
+    }, "La fecha no puede ser posterior a hoy")
     .optional()
     .nullable(),
 });
