@@ -7,6 +7,7 @@ import {
 } from "../../../../../lib/zod/z-imaging-study-schemas";
 import { fileUploader } from "../../../../../lib/firebase/file-uploader";
 import {
+  debtsStatusList,
   encounterStatusList,
   userStatusList,
 } from "../../../../../types/statusList";
@@ -396,6 +397,31 @@ export async function create({
         },
       },
     });
+    if (createdImagingStudy != null) {
+      const checkAccount = await prisma.account.findUnique({
+        where: {
+          id: createdImagingStudy.patient.account.id,
+        },
+      });
+      if (!checkAccount) {
+        return { ok: false };
+      }
+      await prisma.account.update({
+        where: {
+          id: createdImagingStudy.patient.account.id,
+        },
+        data: {
+          balance: {
+            increment: createdImagingStudy.cost ?? 0,
+          },
+          calculated_at: new Date(),
+          billing_status:
+            checkAccount.balance + createdImagingStudy.cost! > 0
+              ? debtsStatusList.CON_DEUDA
+              : debtsStatusList.SIN_DEUDA,
+        },
+      });
+    }
     await prisma.invoice.create({
       data: {
         account_id: createdImagingStudy.patient.account.id,
@@ -403,7 +429,10 @@ export async function create({
         type: encounterStatusList.ESTUDIO_RADIOGRAFICO,
         total: createdImagingStudy.cost || 0,
         note: "ninguna",
-        status: userStatusList.ACTIVO,
+        status:
+          createdImagingStudy.cost != null && createdImagingStudy.cost > 0
+            ? userStatusList.ACTIVO
+            : userStatusList.INACTIVO,
         staff_id: session.user.id_db,
       },
     });

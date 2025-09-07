@@ -67,6 +67,7 @@ export default function DebtsTable() {
     {
       field: "patient.user.first_name",
       headerName: "Paciente",
+      filter: true,
       cellRenderer: (props: CustomCellRendererProps) => {
         if (props.data !== undefined) {
           return props.value + " " + props.data.patient.user.last_name;
