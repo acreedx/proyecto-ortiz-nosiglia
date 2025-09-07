@@ -10,6 +10,7 @@ import {
   Input,
   useFileUpload,
   NativeSelect,
+  UseDialogReturn,
 } from "@chakra-ui/react";
 import React from "react";
 import { toaster } from "../../../../../components/ui/toaster";
@@ -20,12 +21,16 @@ import {
   TCreateUserSchema,
 } from "../schemas/zcreate-user-schema";
 import { create } from "../actions/operations";
+import { GridApi, IDatasource } from "ag-grid-community";
 
 export default function UsersCreateForm({
   props,
 }: {
   props: {
     roles: Role[];
+    dialog: UseDialogReturn;
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const fileUpload = useFileUpload({
@@ -50,7 +55,14 @@ export default function UsersCreateForm({
         description: "Usuario creado con éxito",
         type: "success",
       });
+      if (props.gridApiRef.current && props.datasourceRef.current) {
+        props.gridApiRef.current.setGridOption(
+          "datasource",
+          props.datasourceRef.current
+        );
+      }
       reset();
+      props.dialog.setOpen(false);
     } else {
       toaster.create({
         description: res.message ? res.message : "Error al crear el usuario",

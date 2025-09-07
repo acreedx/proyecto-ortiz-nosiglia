@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import type {
   ColDef,
   GridApi,
@@ -8,7 +8,6 @@ import type {
   IGetRowsParams,
 } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { IconButton, useDialog } from "@chakra-ui/react";
 import { FaCheck, FaEdit, FaTrash, FaUndo } from "react-icons/fa";
 import { CarePlan } from "@prisma/client";
@@ -24,9 +23,15 @@ import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import TreatmentsEditForm from "./treatments-edit-form";
 import { Tooltip } from "../../../../../components/ui/tooltip";
 import { getCarePlans } from "../data/datasource";
-ModuleRegistry.registerModules([AllCommunityModule]);
 
-export default function TreatmentsTable() {
+export default function TreatmentsTable({
+  props,
+}: {
+  props: {
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
+  };
+}) {
   const defaultColDef = useMemo<ColDef>(
     () => ({
       flex: 1,
@@ -210,8 +215,11 @@ export default function TreatmentsTable() {
           description: "Tratamiento completado con éxito",
           type: "success",
         });
-        if (gridApiRef.current && datasourceRef.current) {
-          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        if (props.gridApiRef.current && props.datasourceRef.current) {
+          props.gridApiRef.current.setGridOption(
+            "datasource",
+            props.datasourceRef.current
+          );
         }
       } else {
         toaster.create({
@@ -234,8 +242,11 @@ export default function TreatmentsTable() {
           description: "Tratamiento deshabiltado con éxito",
           type: "success",
         });
-        if (gridApiRef.current && datasourceRef.current) {
-          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        if (props.gridApiRef.current && props.datasourceRef.current) {
+          props.gridApiRef.current.setGridOption(
+            "datasource",
+            props.datasourceRef.current
+          );
         }
       } else {
         toaster.create({
@@ -257,8 +268,11 @@ export default function TreatmentsTable() {
           description: "Tratamiento rehabilitado con éxito",
           type: "success",
         });
-        if (gridApiRef.current && datasourceRef.current) {
-          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        if (props.gridApiRef.current && props.datasourceRef.current) {
+          props.gridApiRef.current.setGridOption(
+            "datasource",
+            props.datasourceRef.current
+          );
         }
       } else {
         toaster.create({
@@ -270,7 +284,7 @@ export default function TreatmentsTable() {
   };
 
   const onGridReady = useCallback((params: GridReadyEvent) => {
-    gridApiRef.current = params.api;
+    props.gridApiRef.current = params.api;
     const datasource: IDatasource = {
       rowCount: undefined,
       getRows: async (gridParams: IGetRowsParams) => {
@@ -288,11 +302,9 @@ export default function TreatmentsTable() {
         }
       },
     };
-    datasourceRef.current = datasource;
+    props.datasourceRef.current = datasource;
     params.api.setGridOption("datasource", datasource);
   }, []);
-  const gridApiRef = useRef<GridApi | null>(null);
-  const datasourceRef = useRef<IDatasource | null>(null);
   return (
     <div className="w-full h-full mb-4 pt-4">
       <AgGridReact
@@ -318,8 +330,8 @@ export default function TreatmentsTable() {
           props={{
             treatment: selectedTreatment,
             dialog: editDialog,
-            gridApiRef: gridApiRef,
-            datasourceRef: datasourceRef,
+            gridApiRef: props.gridApiRef,
+            datasourceRef: props.datasourceRef,
           }}
         />
       </EditDialog>

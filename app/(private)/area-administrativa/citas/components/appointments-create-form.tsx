@@ -15,6 +15,7 @@ import {
   Box,
   Heading,
   Stack,
+  UseDialogReturn,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { toaster } from "../../../../../components/ui/toaster";
@@ -24,6 +25,7 @@ import {
 } from "../../../../../lib/zod/z-appointment-schemas";
 import { create, horariosDisponibles } from "../actions/operations";
 import { User } from "@prisma/client";
+import { GridApi, IDatasource } from "ag-grid-community";
 
 export default function AppointmentsCreateForm({
   props,
@@ -31,6 +33,9 @@ export default function AppointmentsCreateForm({
   props: {
     doctores: User[];
     pacientes: User[];
+    dialog: UseDialogReturn;
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const [horarios, sethorarios] = useState<string[]>([]);
@@ -51,7 +56,14 @@ export default function AppointmentsCreateForm({
         description: "Cita creada con éxito",
         type: "success",
       });
+      if (props.gridApiRef.current && props.datasourceRef.current) {
+        props.gridApiRef.current.setGridOption(
+          "datasource",
+          props.datasourceRef.current
+        );
+      }
       reset();
+      props.dialog.setOpen(false);
     }
     if (!res.ok) {
       toaster.create({

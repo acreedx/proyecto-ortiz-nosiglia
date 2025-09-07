@@ -15,6 +15,7 @@ import {
   Box,
   Stack,
   Text,
+  UseDialogReturn,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { toaster } from "../../../../../components/ui/toaster";
@@ -24,6 +25,7 @@ import {
   TCreateCarePlanSchema,
 } from "../../../../../lib/zod/z-care-plan-schemas";
 import { Treatment, User } from "@prisma/client";
+import { GridApi, IDatasource } from "ag-grid-community";
 
 export default function TreatmentsCreateForm({
   props,
@@ -31,6 +33,9 @@ export default function TreatmentsCreateForm({
   props: {
     pacientes: User[];
     treatmentTypes: Treatment[];
+    dialog: UseDialogReturn;
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const {
@@ -91,7 +96,14 @@ export default function TreatmentsCreateForm({
         description: "Tratamiento creado con éxito",
         type: "success",
       });
+      if (props.gridApiRef.current && props.datasourceRef.current) {
+        props.gridApiRef.current.setGridOption(
+          "datasource",
+          props.datasourceRef.current
+        );
+      }
       reset();
+      props.dialog.setOpen(false);
     } else {
       toaster.create({
         description: "Error al crear el tratamiento",

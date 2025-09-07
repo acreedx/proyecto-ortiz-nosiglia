@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import type {
   ColDef,
   GridApi,
@@ -33,6 +33,8 @@ export default function UsersTable({
   props: {
     roles: Role[];
     session: Session;
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const defaultColDef = useMemo<ColDef>(
@@ -215,8 +217,11 @@ export default function UsersTable({
         type: res.ok ? "success" : "error",
       });
       if (res.ok) {
-        if (gridApiRef.current && datasourceRef.current) {
-          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        if (props.gridApiRef.current && props.datasourceRef.current) {
+          props.gridApiRef.current.setGridOption(
+            "datasource",
+            props.datasourceRef.current
+          );
         }
       }
     }
@@ -235,14 +240,17 @@ export default function UsersTable({
         type: res.ok ? "success" : "error",
       });
       if (res.ok) {
-        if (gridApiRef.current && datasourceRef.current) {
-          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        if (props.gridApiRef.current && props.datasourceRef.current) {
+          props.gridApiRef.current.setGridOption(
+            "datasource",
+            props.datasourceRef.current
+          );
         }
       }
     }
   };
   const onGridReady = useCallback((params: GridReadyEvent) => {
-    gridApiRef.current = params.api;
+    props.gridApiRef.current = params.api;
     const datasource: IDatasource = {
       rowCount: undefined,
       getRows: async (gridParams: IGetRowsParams) => {
@@ -260,11 +268,9 @@ export default function UsersTable({
         }
       },
     };
-    datasourceRef.current = datasource;
+    props.datasourceRef.current = datasource;
     params.api.setGridOption("datasource", datasource);
   }, []);
-  const gridApiRef = useRef<GridApi | null>(null);
-  const datasourceRef = useRef<IDatasource | null>(null);
   return (
     <div className="w-full h-full mb-4 ag-theme-quartz">
       <AgGridReact
@@ -291,8 +297,8 @@ export default function UsersTable({
             user: selectedUser,
             roles: props.roles,
             dialog: editDialog,
-            gridApiRef: gridApiRef,
-            datasourceRef: datasourceRef,
+            gridApiRef: props.gridApiRef,
+            datasourceRef: props.datasourceRef,
           }}
         />
       </EditDialog>

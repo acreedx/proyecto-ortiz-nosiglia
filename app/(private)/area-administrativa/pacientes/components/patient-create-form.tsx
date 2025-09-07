@@ -10,6 +10,7 @@ import {
   Input,
   NativeSelect,
   Textarea,
+  UseDialogReturn,
 } from "@chakra-ui/react";
 import React from "react";
 import { Organization } from "@prisma/client";
@@ -21,12 +22,16 @@ import {
 } from "../../../../../lib/zod/z-patient-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ProfileUploadField from "../../../../../components/form/common/profileUploadField";
+import { GridApi, IDatasource } from "ag-grid-community";
 
 export default function PatientCreateForm({
   props,
 }: {
   props: {
     organizations: Organization[];
+    dialog: UseDialogReturn;
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const fileUpload = useFileUpload({
@@ -51,7 +56,14 @@ export default function PatientCreateForm({
         description: "Usuario creado con éxito",
         type: "success",
       });
+      if (props.gridApiRef.current && props.datasourceRef.current) {
+        props.gridApiRef.current.setGridOption(
+          "datasource",
+          props.datasourceRef.current
+        );
+      }
       reset();
+      props.dialog.setOpen(false);
     } else {
       toaster.create({
         description: res.message ? res.message : "Error al crear el usuario",

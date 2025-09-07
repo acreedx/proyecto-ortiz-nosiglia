@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import type {
   ColDef,
   GridApi,
@@ -41,6 +41,8 @@ export default function AppointmentsTable({
 }: {
   props: {
     doctores: User[];
+    gridApiRef: React.RefObject<GridApi | null>;
+    datasourceRef: React.RefObject<IDatasource | null>;
   };
 }) {
   const defaultColDef = useMemo<ColDef>(
@@ -265,8 +267,11 @@ export default function AppointmentsTable({
           description: "Éxito al marcar la cita",
           type: "success",
         });
-        if (gridApiRef.current && datasourceRef.current) {
-          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        if (props.gridApiRef.current && props.datasourceRef.current) {
+          props.gridApiRef.current.setGridOption(
+            "datasource",
+            props.datasourceRef.current
+          );
         }
       } else {
         toaster.create({
@@ -291,8 +296,11 @@ export default function AppointmentsTable({
           description: "Éxito al confirmar la cita",
           type: "success",
         });
-        if (gridApiRef.current && datasourceRef.current) {
-          gridApiRef.current.setGridOption("datasource", datasourceRef.current);
+        if (props.gridApiRef.current && props.datasourceRef.current) {
+          props.gridApiRef.current.setGridOption(
+            "datasource",
+            props.datasourceRef.current
+          );
         }
       } else {
         toaster.create({
@@ -307,7 +315,7 @@ export default function AppointmentsTable({
     viewAppointmentDialog.setOpen(true);
   };
   const onGridReady = useCallback((params: GridReadyEvent) => {
-    gridApiRef.current = params.api;
+    props.gridApiRef.current = params.api;
     const datasource: IDatasource = {
       rowCount: undefined,
       getRows: async (gridParams: IGetRowsParams) => {
@@ -325,11 +333,9 @@ export default function AppointmentsTable({
         }
       },
     };
-    datasourceRef.current = datasource;
+    props.datasourceRef.current = datasource;
     params.api.setGridOption("datasource", datasource);
   }, []);
-  const gridApiRef = useRef<GridApi | null>(null);
-  const datasourceRef = useRef<IDatasource | null>(null);
   return (
     <div className="w-full h-full mb-4 pt-4">
       <AgGridReact
@@ -356,8 +362,8 @@ export default function AppointmentsTable({
             selectedAppointment: selectedAppointment,
             doctores: props.doctores,
             dialog: editDialog,
-            gridApiRef: gridApiRef,
-            datasourceRef: datasourceRef,
+            gridApiRef: props.gridApiRef,
+            datasourceRef: props.datasourceRef,
           }}
         />
       </EditDialog>
@@ -366,8 +372,8 @@ export default function AppointmentsTable({
           props={{
             selectedAppointment: selectedAppointment,
             dialog: completeAppointmentDialog,
-            gridApiRef: gridApiRef,
-            datasourceRef: datasourceRef,
+            gridApiRef: props.gridApiRef,
+            datasourceRef: props.datasourceRef,
           }}
         />
       </EditDialog>
@@ -376,8 +382,8 @@ export default function AppointmentsTable({
           props={{
             selectedAppointment: selectedAppointment,
             dialog: cancelAppointmentDialog,
-            gridApiRef: gridApiRef,
-            datasourceRef: datasourceRef,
+            gridApiRef: props.gridApiRef,
+            datasourceRef: props.datasourceRef,
           }}
         />
       </EditDialog>

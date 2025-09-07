@@ -1,14 +1,11 @@
 import React from "react";
 import BreadCrumb from "../../../../components/admin/breadcrumb";
-import { Heading } from "@chakra-ui/react";
-import UsersTable from "./components/users-table";
 import { prisma } from "../../../../lib/prisma/prisma";
-import UsersCreateForm from "./components/users-create-form";
-import CreateLargeDialog from "../../../../components/admin/dialog/create-large-dialog";
 import { userStatusList } from "../../../../types/statusList";
 import { auth } from "../../../../lib/nextauth/auth";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
 import { redirect } from "next/navigation";
+import ClientSection from "./components/clientSection";
 
 export default async function Page() {
   const roles = await prisma.role.findMany({
@@ -26,17 +23,7 @@ export default async function Page() {
   return (
     <main className="w-full flex flex-col h-full flex-grow">
       <BreadCrumb pageName="Usuarios" />
-      <div className="flex flex-row w-full items-center justify-between">
-        <Heading>Usuarios</Heading>
-        <CreateLargeDialog>
-          <UsersCreateForm
-            props={{
-              roles: roles,
-            }}
-          />
-        </CreateLargeDialog>
-      </div>
-      <UsersTable props={{ roles: roles, session: session }} />
+      <ClientSection props={{ roles: roles, session: session }} />
     </main>
   );
 }

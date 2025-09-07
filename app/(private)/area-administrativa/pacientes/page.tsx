@@ -1,11 +1,8 @@
 import BreadCrumb from "../../../../components/admin/breadcrumb";
-import PatientTable from "./components/patient-table";
 import { prisma } from "../../../../lib/prisma/prisma";
 import CanStaff from "../../../../lib/rbac/can-staff";
-import { Heading } from "@chakra-ui/react";
-import CreateLargeDialog from "../../../../components/admin/dialog/create-large-dialog";
-import PatientCreateForm from "./components/patient-create-form";
 import { userStatusList } from "../../../../types/statusList";
+import ClientSection from "./components/clientSection";
 export default async function Page() {
   const organizations = await prisma.organization.findMany();
   const activeOrganizations = organizations.filter(
@@ -15,17 +12,12 @@ export default async function Page() {
     <CanStaff>
       <main className="w-full flex flex-col h-full flex-grow">
         <BreadCrumb pageName="Pacientes" />
-        <div className="flex flex-row w-full items-center justify-between mb-2">
-          <Heading>Pacientes</Heading>
-          <CreateLargeDialog>
-            <PatientCreateForm
-              props={{
-                organizations: activeOrganizations,
-              }}
-            />
-          </CreateLargeDialog>
-        </div>
-        <PatientTable props={{ organizations: organizations }} />
+        <ClientSection
+          props={{
+            organizations: organizations,
+            activeOrganizations: activeOrganizations,
+          }}
+        />
       </main>
     </CanStaff>
   );
