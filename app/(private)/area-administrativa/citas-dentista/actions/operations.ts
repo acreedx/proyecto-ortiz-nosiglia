@@ -144,8 +144,9 @@ export async function createDentistAppointment({
         programed_end_date_time: fechaFin,
         specialty: data.specialty,
         reason: data.reason,
-        note: data.note,
-        patient_instruction: data.patient_instruction,
+        note: data.note === "" ? null : data.note,
+        patient_instruction:
+          data.patient_instruction === "" ? null : data.patient_instruction,
         patient_id: userPatient.patient!.id,
         doctor_id: userDoctor.staff!.doctor!.id,
         status: appointmentStatusList.STATUS_PENDIENTE,
@@ -202,8 +203,9 @@ export async function edit({
         programed_end_date_time: fechaFin,
         specialty: data.specialty,
         reason: data.reason,
-        note: data.note,
-        patient_instruction: data.patient_instruction,
+        note: data.note === "" ? null : data.note,
+        patient_instruction:
+          data.patient_instruction === "" ? null : data.patient_instruction,
       },
     });
     await registerLog({

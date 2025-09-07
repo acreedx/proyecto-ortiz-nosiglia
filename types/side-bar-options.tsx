@@ -3,7 +3,6 @@ import { FaHospitalUser } from "react-icons/fa";
 import {
   LuBookOpen,
   LuCalendar,
-  LuCog,
   LuCreditCard,
   LuGauge,
   LuMonitor,
@@ -173,6 +172,7 @@ export const menuOptions: menu[] = [
         ],
         permissionCode: ["dsh_deu_adm"],
       },
+      /*
       {
         icon: <LuCog color="white" />,
         label: "Configuración",
@@ -185,7 +185,7 @@ export const menuOptions: menu[] = [
           },
         ],
         permissionCode: ["dsh_conf_adm"],
-      },
+      },*/
     ],
   },
 ];

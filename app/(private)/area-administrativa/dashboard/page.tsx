@@ -120,7 +120,6 @@ export default async function Page() {
     "Dentistas",
     "Enfermeros",
     "Médicos temporales",
-    "Pacientes",
     "Secretarios",
     "Otros roles",
   ];
@@ -130,7 +129,6 @@ export default async function Page() {
     usuarios.filter((e) => e.role.role_name === rolesList.ENFERMERO).length,
     usuarios.filter((e) => e.role.role_name === rolesList.MEDICO_TEMPORAL)
       .length,
-    usuarios.filter((e) => e.role.role_name === rolesList.PACIENTE).length,
     usuarios.filter((e) => e.role.role_name === rolesList.SECRETARIO).length,
     usuarios.filter(
       (e) =>

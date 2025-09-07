@@ -62,7 +62,7 @@ export const BarChart: React.FC<BarChartProps> = ({ labels, data }) => {
 
       title: {
         display: true,
-        text: "Distribución de usuarios con roles",
+        text: "Distribución de roles del personal",
       },
     },
   };
