@@ -11,6 +11,17 @@ export const CreateAppointmentSchema = z.object({
       {
         message: "La fecha no es válida",
       }
+    )
+    .refine(
+      (val) => {
+        const date = new Date(val);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Ignorar horas/minutos/segundos para comparar solo fechas
+        return date <= today;
+      },
+      {
+        message: "La fecha no puede ser mayor a hoy",
+      }
     ),
   hora_cita: z.string(),
   specialty: z
@@ -45,6 +56,17 @@ export const EditAppointmentSchema = z.object({
       },
       {
         message: "La fecha no es válida",
+      }
+    )
+    .refine(
+      (val) => {
+        const date = new Date(val);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Ignorar horas/minutos/segundos para comparar solo fechas
+        return date <= today;
+      },
+      {
+        message: "La fecha no puede ser mayor a hoy",
       }
     ),
   hora_cita: z.string(),

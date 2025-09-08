@@ -36,6 +36,19 @@ export async function create({
         ok: false,
       };
     }
+    const checkUser = await prisma.user.findFirst({
+      where: {
+        id: data.patient_id,
+      },
+      include: {
+        patient: true,
+      },
+    });
+    if (!checkUser || !checkUser.patient) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.carePlan.create({
       data: {
         treatment_type: data.treatment_type,
@@ -46,7 +59,7 @@ export async function create({
         days_between_appointments: data.days_between_appointments,
         cost: data.cost,
         status: userStatusList.ACTIVO,
-        patient_id: data.patient_id,
+        patient_id: checkUser.patient.id,
       },
     });
     await registerLog({
