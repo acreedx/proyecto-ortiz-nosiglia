@@ -1,5 +1,6 @@
 import { sendEmail } from "../../../../lib/nodemailer/mailer";
 import { prisma } from "../../../../lib/prisma/prisma";
+import formatDateLocal from "../../../../types/dateFormatter";
 import {
   appointmentStatusList,
   debtsStatusList,
@@ -36,7 +37,12 @@ export async function GET(req: Request) {
           const total = invoice.total;
           const fecha = invoice.date_issued;
           return (
-            "Descripción: " + nota + ", Total: " + total + ", Fecha: " + fecha
+            "- Descripción: " +
+            nota +
+            ", Costo: " +
+            total +
+            ", Fecha: " +
+            formatDateLocal(fecha)
           );
         })
         .join("\n");
@@ -44,27 +50,31 @@ export async function GET(req: Request) {
         email: paciente.user.email,
         subject: "⏰ ¡Recordatorio de tu pago de deudas! 🦷",
         message: `
-          Hola ${paciente.user.first_name} ${paciente.user.last_name}, 👋
+        Hola ${paciente.user.first_name} ${paciente.user.last_name}, 👋
 
-          Queremos recordarte que **tienes una deuda pendiente**.
+        Queremos recordarte que **tienes una deuda pendiente**.
 
-          No dejes pasar más tiempo, tu salud dental es muy importante para nosotros. Si tienes alguna duda o necesitas más información, ¡no dudes en contactarnos!
+        No dejes pasar más tiempo, tu salud dental es muy importante para nosotros. Si tienes alguna duda o necesitas más información, ¡no dudes en contactarnos!
 
-          El costo total de tu deuda es de: ${paciente.account.balance} Bs.
+        El costo total de tu deuda es de: ${paciente.account.balance} Bs.
 
-          📄 Detalle de tus deudas:
-          ${detalleDeudasPaciente}
+        📄 Detalle de tus deudas:
+        ${detalleDeudasPaciente}
 
-          ¡Nos vemos pronto! 💙
+        ¡Nos vemos pronto! 💙
 
-          Saludos cordiales,  
-          El equipo de Ortiz Nosiglia
-          `,
+        Saludos cordiales,  
+        El equipo de Ortiz Nosiglia
+        `,
       });
     }
     /*Notificaciones de tratamientos*/
     const pacientesConTratamientosActivos = pacientes.filter((e) =>
-      e.care_plan.some((e) => e.status === userStatusList.ACTIVO)
+      e.care_plan.some(
+        (e) =>
+          e.status === userStatusList.ACTIVO ||
+          e.status === userStatusList.NUEVO
+      )
     );
     for (const paciente of pacientesConTratamientosActivos) {
       if (

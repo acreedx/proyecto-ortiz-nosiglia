@@ -27,7 +27,9 @@ export async function GET(req: Request) {
         },
         patient: {
           user: {
-            status: userStatusList.ACTIVO,
+            status: {
+              in: [userStatusList.ACTIVO, userStatusList.NUEVO],
+            },
           },
         },
       },
