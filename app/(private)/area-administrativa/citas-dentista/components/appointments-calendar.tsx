@@ -21,6 +21,8 @@ import { convertirAppointmentsAEventos } from "../../../../../types/appointmentS
 import { updateAppointmentDateTime } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
 import { appointmentStatusList } from "../../../../../types/statusList";
+import { isTodayOrFuture, normalizarFecha } from "../../../../../hooks/utils";
+
 export default function AppointmentsCalendar({
   props,
 }: {
@@ -62,15 +64,6 @@ export default function AppointmentsCalendar({
     >;
   };
 }) {
-  function normalizarFecha(fecha: Date) {
-    return new Date(
-      fecha.getFullYear(),
-      fecha.getMonth(),
-      fecha.getDate(),
-      fecha.getUTCHours(),
-      fecha.getUTCMinutes()
-    );
-  }
   const handleEventChange = async (e: EventChangeArg) => {
     const eventoEncontrado = props.appointments.find(
       (appointments) => appointments.id === Number(e.event.id)
@@ -122,12 +115,6 @@ export default function AppointmentsCalendar({
       }
     }
   };
-  const isTodayOrFuture = (date: Date) => {
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-    date.setUTCHours(0, 0, 0, 0);
-    return date.getTime() >= today.getTime();
-  };
   const handleDateSelect = async (e: DateSelectArg) => {
     if (isTodayOrFuture(e.start)) {
       props.setselectedDate(e.start);
@@ -164,6 +151,14 @@ export default function AppointmentsCalendar({
       locale={esLocale}
       slotMinTime="08:00:00"
       slotMaxTime="17:00:00"
+      eventDidMount={(info) => {
+        const border = info.event.borderColor || "gray";
+        const text = info.event.textColor || "white";
+        const background = info.event.backgroundColor || "black";
+        info.el.style.borderColor = border;
+        info.el.style.color = text;
+        info.el.style.backgroundColor = background;
+      }}
       events={convertirAppointmentsAEventos(props.appointments)}
       eventClick={handleClickEvent}
     />

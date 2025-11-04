@@ -13,10 +13,7 @@ import { Prisma } from "@prisma/client";
 import { appointmentStatusList } from "../../../../../types/statusList";
 import { timeFormatter } from "../../../../../types/dateFormatter";
 import AppointmentActions from "./appointment-actions";
-import {
-  statusColorMap,
-  statusLabelMap,
-} from "../../../../../types/appointmentStatusMaps";
+import { statusColorMap, statusLabelMap } from "../../../../../types/consts";
 
 export default function AppointmentAccordion({
   props,
@@ -97,11 +94,11 @@ export default function AppointmentAccordion({
                 No hay citas
               </Text>
             ) : (
-              <Stack gap={4} mt={2} mb={4} maxH={690} overflowY="scroll">
+              <Stack gap={2} mt={2} mb={2} maxH={690} overflowY="scroll">
                 {list.map((appt) => (
                   <Card.Root key={appt.id} variant="outline">
-                    <Card.Body>
-                      <Stack gap={1}>
+                    <Card.Body p={4}>
+                      <Stack fontSize={"sm"} gap={0}>
                         <Text fontWeight="bold">
                           {appt.patient.user.first_name}{" "}
                           {appt.patient.user.last_name}
@@ -118,6 +115,10 @@ export default function AppointmentAccordion({
                           {timeFormatter(appt.programed_end_date_time)}
                         </Text>
                         <Text>Motivo: {appt.reason}</Text>
+                        <Text>
+                          Dentista: {appt.doctor.staff.user.first_name}{" "}
+                          {appt.doctor.staff.user.last_name}
+                        </Text>
                         <Badge
                           colorPalette={
                             appt.status ? statusColorMap[appt.status] : "gray"

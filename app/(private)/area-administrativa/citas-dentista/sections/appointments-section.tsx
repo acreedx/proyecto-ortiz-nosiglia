@@ -87,9 +87,9 @@ export default function AppointmentsSection({
   }, [props.appointments]);
   return (
     <div className="flex flex-row w-full pt-4 gap-4 h-full">
-      <div className="flex flex-col lg:flex-row w-full h-auto">
+      <div className="flex flex-col xl:flex-row w-full h-auto">
         {/* Listado de citas */}
-        <div className="w-full lg:w-1/4 h-auto px-4 mb-4 lg:mb-0 min-h-[700px]">
+        <div className="w-full xl:w-1/4 h-auto px-4 mb-4 xl:mb-0 min-h-[700px]">
           <Heading>Listado de citas</Heading>
           <AppointmentAccordion
             props={{
@@ -105,7 +105,7 @@ export default function AppointmentsSection({
         </div>
 
         {/* Calendario */}
-        <div className="w-full lg:w-3/4 h-auto">
+        <div className="w-full xl:w-3/4 h-auto">
           <AppointmentsCalendar
             props={{
               appointments: Events,

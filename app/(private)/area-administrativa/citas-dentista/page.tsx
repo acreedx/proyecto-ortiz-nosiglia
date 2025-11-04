@@ -7,14 +7,8 @@ import { userStatusList } from "../../../../types/statusList";
 import { prisma } from "../../../../lib/prisma/prisma";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
 import AppointmentsSection from "./sections/appointments-section";
-export interface MockAppointment {
-  id: string;
-  patientName: string;
-  date: string;
-  time: string;
-  reason: string;
-  status: string;
-}
+import { statusColorMap, statusLabelMap } from "../../../../types/consts";
+
 export default async function Page() {
   const session = await auth();
   if (!session) redirect("/login");
@@ -78,6 +72,33 @@ export default async function Page() {
       <Heading>
         Citas del dentista {session.user.first_name} {session.user.last_name}
       </Heading>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "16px",
+          padding: "8px 0",
+          flexWrap: "wrap",
+        }}
+      >
+        <span style={{ fontWeight: 600 }}>Colores de la cita:</span>
+        {Object.keys(statusColorMap).map((status) => (
+          <div key={status} className="flex items-center gap-4 flex-wrap">
+            <span
+              style={{
+                display: "inline-block",
+                width: "16px",
+                height: "16px",
+                borderRadius: "50%",
+                backgroundColor: statusColorMap[status],
+                border: "1px solid #ccc",
+              }}
+            />
+            {/* Label */}
+            <span style={{ fontSize: "0.9rem" }}>{statusLabelMap[status]}</span>
+          </div>
+        ))}
+      </div>
       <AppointmentsSection
         props={{
           appointments: appointments,
