@@ -4,6 +4,7 @@ import MarginHandler from "../../components/admin/margin-handler";
 import Header from "../../components/admin/header";
 import { Flex } from "@chakra-ui/react";
 import SideBarSession from "../../components/admin/side-bar-session";
+import { DialogProvider } from "../../providers/DialogProvider";
 
 export default function ControlPanelLayout({
   children,
@@ -23,6 +24,7 @@ export default function ControlPanelLayout({
           </MarginHandler>
         </div>
       </main>
+      <DialogProvider />
     </SideBarProvider>
   );
 }

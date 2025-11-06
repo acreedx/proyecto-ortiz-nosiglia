@@ -18,6 +18,8 @@ import {
 } from "../../citas/actions/operations";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { Tooltip } from "../../../../../components/ui/tooltip";
+import { dialog } from "../../../../../providers/DialogProvider";
+import AppointmentsEditForm from "./appointments-edit-form";
 
 export default function AppointmentActions({
   props,
@@ -84,8 +86,15 @@ export default function AppointmentActions({
       };
     }>
   ) => {
-    props.setselectedAppointment(appointment);
-    props.editAppointmentDialog.setOpen(true);
+    dialog.open("test", {
+      title: "Hola!",
+      description: "Esto es un overlay desde el layout 😎",
+      content: (
+        <AppointmentsEditForm props={{ selectedAppointment: appointment }} />
+      ),
+    });
+    //props.setselectedAppointment(appointment);
+    //props.editAppointmentDialog.setOpen(true);
   };
   const handleCancel = async (
     appointment: Prisma.AppointmentGetPayload<{
