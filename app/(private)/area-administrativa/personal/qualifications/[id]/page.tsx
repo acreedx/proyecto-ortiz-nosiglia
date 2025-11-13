@@ -5,10 +5,9 @@ import BreadCrumb from "../../../../../../components/admin/breadcrumb";
 import { prisma } from "../../../../../../lib/prisma/prisma";
 import { rolesList } from "../../../../../../lib/nextauth/rolesList";
 import { FaArrowCircleLeft } from "react-icons/fa";
-import CreateDialog from "../../../../../../components/admin/dialog/create-dialog";
-import QualificationsCreateForm from "../../components/qualification-create-form";
 import QualificationCard from "../../components/qualification-card";
 import { Qualification } from "@prisma/client";
+import StaffClientButton from "../../components/staff-client-button";
 
 export default async function Page({
   params,
@@ -66,9 +65,7 @@ export default async function Page({
         />
         <div className="flex flex-row w-full items-center justify-between">
           <Heading>{`Títulos del Dentista ${doctor.first_name} ${doctor.last_name}`}</Heading>
-          <CreateDialog>
-            <QualificationsCreateForm doctor_id={doctor.id} />
-          </CreateDialog>
+          <StaffClientButton doctor_id={doctor.id} />
         </div>
         {doctor.staff.doctor.qualification.length > 0 ? (
           <Box as="section" mt={8}>

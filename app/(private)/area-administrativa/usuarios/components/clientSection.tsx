@@ -6,7 +6,8 @@ import { Session } from "next-auth";
 import React, { useRef } from "react";
 import UsersCreateForm from "./users-create-form";
 import UsersTable from "./users-table";
-import EditXlDialogWithButton from "../../../../../components/admin/dialog/edit-xl-dialog-with-button";
+import CreateButton from "../../../../../components/common/create-button";
+import { dialog } from "../../../../../providers/DialogProvider";
 
 export default function ClientSection({
   props,
@@ -19,20 +20,26 @@ export default function ClientSection({
   const createDialog = useDialog();
   const gridApiRef = useRef<GridApi | null>(null);
   const datasourceRef = useRef<IDatasource | null>(null);
+  const handleShowCreate = () => {
+    dialog.open("Treatments Dialog", {
+      content: (
+        <UsersCreateForm
+          props={{
+            roles: props.roles,
+            dialog: createDialog,
+            gridApiRef: gridApiRef,
+            datasourceRef: datasourceRef,
+          }}
+        />
+      ),
+      size: "xl",
+    });
+  };
   return (
     <>
       <div className="flex flex-row w-full items-center justify-between">
         <Heading>Usuarios</Heading>
-        <EditXlDialogWithButton dialog={createDialog}>
-          <UsersCreateForm
-            props={{
-              roles: props.roles,
-              dialog: createDialog,
-              gridApiRef: gridApiRef,
-              datasourceRef: datasourceRef,
-            }}
-          />
-        </EditXlDialogWithButton>
+        <CreateButton handleShowCreate={handleShowCreate} />
       </div>
       <UsersTable
         props={{

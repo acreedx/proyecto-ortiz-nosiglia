@@ -6,8 +6,7 @@ import { prisma } from "../../../../../../lib/prisma/prisma";
 import { rolesList } from "../../../../../../lib/nextauth/rolesList";
 import { FaArrowCircleLeft } from "react-icons/fa";
 import ImagingStudies from "../../components/imaging-studies";
-import ImagingStudiesCreateForm from "../../components/imaging-studies-create-form";
-import CreateLargeDialog from "../../../../../../components/admin/dialog/create-large-dialog";
+import PatientClientButton from "../../components/patient-client-button";
 
 export default async function Page({
   params,
@@ -58,9 +57,8 @@ export default async function Page({
         />
         <div className="flex flex-row w-full items-center justify-between">
           <Heading>{`Radiografías de ${paciente.first_name} ${paciente.last_name}`}</Heading>
-          <CreateLargeDialog>
-            <ImagingStudiesCreateForm props={{ patientId: Number(id) }} />
-          </CreateLargeDialog>
+
+          <PatientClientButton patientId={Number(id)} />
         </div>
         <section>
           <ImagingStudies studies={paciente.patient.imaging_study} />

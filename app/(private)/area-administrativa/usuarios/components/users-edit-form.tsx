@@ -11,7 +11,6 @@ import {
   Image,
   Input,
   NativeSelect,
-  UseDialogReturn,
   useFileUpload,
 } from "@chakra-ui/react";
 import { toaster } from "../../../../../components/ui/toaster";
@@ -38,7 +37,6 @@ export default function UsersEditForm({
         }>
       | undefined;
     roles: Role[];
-    dialog: UseDialogReturn;
     gridApiRef: React.RefObject<GridApi | null>;
     datasourceRef: React.RefObject<IDatasource | null>;
   };
@@ -78,7 +76,6 @@ export default function UsersEditForm({
           props.datasourceRef.current
         );
       }
-      props.dialog.setOpen(false);
     } else {
       toaster.create({
         description: res.errorMessage

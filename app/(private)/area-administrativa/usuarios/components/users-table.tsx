@@ -10,12 +10,11 @@ import type {
 } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { IconButton, useDialog } from "@chakra-ui/react";
+import { IconButton } from "@chakra-ui/react";
 import { FaCheck, FaEdit, FaTrash } from "react-icons/fa";
-import { Prisma, Role } from "@prisma/client";
+import { Role } from "@prisma/client";
 import { AgGridReact, CustomCellRendererProps } from "ag-grid-react";
 import { userStatusList } from "../../../../../types/statusList";
-import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
 import { eliminate, restore } from "../actions/operations";
@@ -25,6 +24,7 @@ import { rolesList } from "../../../../../lib/nextauth/rolesList";
 import { getUsers } from "../data/datasource";
 import { Tooltip } from "../../../../../components/ui/tooltip";
 import Image from "next/image";
+import { dialog } from "../../../../../providers/DialogProvider";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function UsersTable({
@@ -51,9 +51,6 @@ export default function UsersTable({
     }),
     []
   );
-  const editDialog = useDialog();
-  const [selectedUser, setSelectedUser] =
-    useState<Prisma.UserGetPayload<{ include: { role: true } }>>();
 
   const [colDefs] = useState<ColDef[]>([
     {
@@ -142,11 +139,11 @@ export default function UsersTable({
       headerName: "Acciones",
       sortable: false,
       filter: false,
-      cellRenderer: (props: CustomCellRendererProps) => {
-        if (props.data !== undefined) {
+      cellRenderer: (params: CustomCellRendererProps) => {
+        if (params.data !== undefined) {
           return (
             <div className="flex flex-row items-center justify-center w-full">
-              {props.data.role.role_name !== rolesList.ADMINISTRADOR && (
+              {params.data.role.role_name !== rolesList.ADMINISTRADOR && (
                 <Tooltip content="Editar usuario">
                   <IconButton
                     size="sm"
@@ -154,16 +151,29 @@ export default function UsersTable({
                     variant="outline"
                     aria-label="Editar"
                     onClick={() => {
-                      editDialog.setOpen(true);
-                      setSelectedUser(props.data);
+                      dialog.open("Treatments Dialog", {
+                        content: (
+                          <UsersEditForm
+                            props={{
+                              user: params.data,
+                              roles: props.roles,
+                              gridApiRef: props.gridApiRef,
+                              datasourceRef: props.datasourceRef,
+                            }}
+                          />
+                        ),
+                      });
+
+                      //editDialog.setOpen(true);
+                      //setSelectedUser(props.data);
                     }}
                   >
                     <FaEdit color="orange" />
                   </IconButton>
                 </Tooltip>
               )}
-              {props.data.status === userStatusList.ACTIVO &&
-                props.data.role.role_name !== rolesList.ADMINISTRADOR && (
+              {params.data.status === userStatusList.ACTIVO &&
+                params.data.role.role_name !== rolesList.ADMINISTRADOR && (
                   <Tooltip content="Deshabilitar usuario">
                     <IconButton
                       size="sm"
@@ -171,14 +181,14 @@ export default function UsersTable({
                       variant="outline"
                       aria-label="Deshabilitar"
                       ml={2}
-                      onClick={async () => handleDelete(props.data.id)}
+                      onClick={async () => handleDelete(params.data.id)}
                     >
                       <FaTrash color="red" />
                     </IconButton>
                   </Tooltip>
                 )}
-              {props.data.status === userStatusList.INACTIVO &&
-                props.data.role.role_name !== rolesList.ADMINISTRADOR && (
+              {params.data.status === userStatusList.INACTIVO &&
+                params.data.role.role_name !== rolesList.ADMINISTRADOR && (
                   <Tooltip content="Rehabilitar usuario">
                     <IconButton
                       size="sm"
@@ -186,7 +196,7 @@ export default function UsersTable({
                       variant="outline"
                       aria-label="Rehabilitar"
                       ml={2}
-                      onClick={async () => handleRestore(props.data.id)}
+                      onClick={async () => handleRestore(params.data.id)}
                     >
                       <FaCheck color="green" />
                     </IconButton>
@@ -291,17 +301,6 @@ export default function UsersTable({
         cellSelection={false}
         onGridReady={onGridReady}
       />
-      <EditDialog dialog={editDialog}>
-        <UsersEditForm
-          props={{
-            user: selectedUser,
-            roles: props.roles,
-            dialog: editDialog,
-            gridApiRef: props.gridApiRef,
-            datasourceRef: props.datasourceRef,
-          }}
-        />
-      </EditDialog>
     </div>
   );
 }

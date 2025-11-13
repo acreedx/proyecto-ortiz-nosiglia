@@ -132,7 +132,7 @@ export default function TreatmentsTable({
             colorScheme = "green";
             break;
           case "Inactivo":
-            colorScheme = "gray";
+            colorScheme = "red";
             break;
           case "Completado":
             colorScheme = "blue";
