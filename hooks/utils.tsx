@@ -29,11 +29,21 @@ export function getUserColor(user: {
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-
   hash = Math.abs(hash);
+  let h = hash % 360;
+  const s = 65 + (hash % 10);
+  const l = 50;
 
-  const h = hash % 360;
-  const s = 70 + (hash % 15);
-  const l = 45 + (hash % 10);
+  const forbiddenHues = [0, 120, 210, 50, 0];
+
+  const minDistance = 25;
+
+  for (const forbidden of forbiddenHues) {
+    const diff = Math.abs(h - forbidden);
+    if (diff < minDistance || 360 - diff < minDistance) {
+      h = (h + minDistance * 2) % 360;
+    }
+  }
+
   return `hsl(${h}, ${s}%, ${l}%)`;
 }

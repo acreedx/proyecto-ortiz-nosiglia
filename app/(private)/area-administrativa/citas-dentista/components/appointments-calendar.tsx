@@ -10,18 +10,19 @@ import {
   EventChangeArg,
   EventClickArg,
 } from "@fullcalendar/core/index.js";
-import { Dispatch, SetStateAction } from "react";
 import {
   mostrarAlertaConfirmacion,
   mostrarAlertaError,
 } from "../../../../../lib/sweetalert/alerts";
-import { UseDialogReturn } from "@chakra-ui/react";
-import { Prisma } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import { convertirAppointmentsAEventos } from "../../../../../types/appointmentStatusMaps";
 import { updateAppointmentDateTime } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
 import { appointmentStatusList } from "../../../../../types/statusList";
 import { isTodayOrFuture, normalizarFecha } from "../../../../../hooks/utils";
+import { dialog } from "../../../../../providers/DialogProvider";
+import AppointmentsCreateCalendarForm from "./appointments-create-calendar-form";
+import AppointmentsViewForm from "./appointments-view-form";
 
 export default function AppointmentsCalendar({
   props,
@@ -45,23 +46,7 @@ export default function AppointmentsCalendar({
         };
       };
     }>[];
-    setselectedDate: React.Dispatch<SetStateAction<Date | undefined>>;
-    createAppointmentDialog: UseDialogReturn;
-    editAppointmentDialog: UseDialogReturn;
-    completeAppointmentDialog: UseDialogReturn;
-    cancelAppointmentDialog: UseDialogReturn;
-    viewAppointmentDialog: UseDialogReturn;
-    setselectedAppointment: Dispatch<
-      SetStateAction<
-        | Prisma.AppointmentGetPayload<{
-            include: {
-              patient: { include: { user: true } };
-              doctor: { include: { staff: { include: { user: true } } } };
-            };
-          }>
-        | undefined
-      >
-    >;
+    patients: User[];
   };
 }) {
   const handleEventChange = async (e: EventChangeArg) => {
@@ -117,8 +102,14 @@ export default function AppointmentsCalendar({
   };
   const handleDateSelect = async (e: DateSelectArg) => {
     if (isTodayOrFuture(e.start)) {
-      props.setselectedDate(e.start);
-      props.createAppointmentDialog.setOpen(true);
+      dialog.open("Edit Dialog", {
+        content: (
+          <AppointmentsCreateCalendarForm
+            props={{ pacientes: props.patients, selectedDate: e.start }}
+          />
+        ),
+        size: "xl",
+      });
     } else {
       mostrarAlertaError({
         mensaje: "No se puede crear una cita en una fecha anterior",
@@ -129,8 +120,18 @@ export default function AppointmentsCalendar({
     const eventoEncontrado = props.appointments.find(
       (e) => e.id === Number(event.event.id)
     );
-    props.setselectedAppointment(eventoEncontrado);
-    props.viewAppointmentDialog.setOpen(true);
+    if (eventoEncontrado) {
+      dialog.open("Edit Dialog", {
+        content: (
+          <AppointmentsViewForm
+            props={{
+              selectedAppointment: eventoEncontrado,
+            }}
+          />
+        ),
+        size: "xl",
+      });
+    }
   };
   return (
     <FullCalendar

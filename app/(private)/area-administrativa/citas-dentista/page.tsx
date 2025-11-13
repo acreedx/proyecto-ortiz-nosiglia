@@ -7,7 +7,7 @@ import { userStatusList } from "../../../../types/statusList";
 import { prisma } from "../../../../lib/prisma/prisma";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
 import AppointmentsSection from "./sections/appointments-section";
-import { statusColorMap, statusLabelMap } from "../../../../types/consts";
+import AppointmentsColors from "./components/appointments-colors";
 
 export default async function Page() {
   const session = await auth();
@@ -41,9 +41,6 @@ export default async function Page() {
     return <div>No encontrado</div>;
   }
   const appointments = await prisma.appointment.findMany({
-    where: {
-      doctor_id: usuario.staff.doctor.id,
-    },
     orderBy: {
       programed_date_time: "desc",
     },
@@ -72,33 +69,8 @@ export default async function Page() {
       <Heading>
         Citas del dentista {session.user.first_name} {session.user.last_name}
       </Heading>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "16px",
-          padding: "8px 0",
-          flexWrap: "wrap",
-        }}
-      >
-        <span style={{ fontWeight: 600 }}>Colores de la cita:</span>
-        {Object.keys(statusColorMap).map((status) => (
-          <div key={status} className="flex items-center gap-4 flex-wrap">
-            <span
-              style={{
-                display: "inline-block",
-                width: "16px",
-                height: "16px",
-                borderRadius: "50%",
-                backgroundColor: statusColorMap[status],
-                border: "1px solid #ccc",
-              }}
-            />
-            {/* Label */}
-            <span style={{ fontSize: "0.9rem" }}>{statusLabelMap[status]}</span>
-          </div>
-        ))}
-      </div>
+
+      <AppointmentsColors />
       <AppointmentsSection
         props={{
           appointments: appointments,

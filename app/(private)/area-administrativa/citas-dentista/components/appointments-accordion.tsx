@@ -1,19 +1,11 @@
-import {
-  Box,
-  Stack,
-  Card,
-  Badge,
-  Text,
-  UseDialogReturn,
-  Tabs,
-} from "@chakra-ui/react";
-import { Dispatch, SetStateAction } from "react";
+import { Box, Stack, Card, Badge, Text, Tabs } from "@chakra-ui/react";
 import { FaCalendar, FaTimesCircle } from "react-icons/fa";
 import { Prisma } from "@prisma/client";
 import { appointmentStatusList } from "../../../../../types/statusList";
 import { timeFormatter } from "../../../../../types/dateFormatter";
 import AppointmentActions from "./appointment-actions";
 import { statusColorMap, statusLabelMap } from "../../../../../types/consts";
+import { getUserColor } from "../../../../../hooks/utils";
 
 export default function AppointmentAccordion({
   props,
@@ -37,22 +29,6 @@ export default function AppointmentAccordion({
         };
       };
     }>[];
-    createAppointmentDialog: UseDialogReturn;
-    editAppointmentDialog: UseDialogReturn;
-    completeAppointmentDialog: UseDialogReturn;
-    cancelAppointmentDialog: UseDialogReturn;
-    viewAppointmentDialog: UseDialogReturn;
-    setselectedAppointment: Dispatch<
-      SetStateAction<
-        | Prisma.AppointmentGetPayload<{
-            include: {
-              patient: { include: { user: true } };
-              doctor: { include: { staff: { include: { user: true } } } };
-            };
-          }>
-        | undefined
-      >
-    >;
   };
 }) {
   const grouped = {
@@ -116,8 +92,15 @@ export default function AppointmentAccordion({
                         </Text>
                         <Text>Motivo: {appt.reason}</Text>
                         <Text>
-                          Dentista: {appt.doctor.staff.user.first_name}{" "}
-                          {appt.doctor.staff.user.last_name}
+                          Dentista:{" "}
+                          <span
+                            style={{
+                              color: getUserColor(appt.doctor.staff.user),
+                            }}
+                          >
+                            {appt.doctor.staff.user.first_name}{" "}
+                            {appt.doctor.staff.user.last_name}
+                          </span>
                         </Text>
                         <Badge
                           colorPalette={
@@ -167,16 +150,6 @@ export default function AppointmentAccordion({
                         <AppointmentActions
                           props={{
                             appointment: appt,
-                            createAppointmentDialog:
-                              props.createAppointmentDialog,
-                            editAppointmentDialog: props.editAppointmentDialog,
-                            completeAppointmentDialog:
-                              props.completeAppointmentDialog,
-                            cancelAppointmentDialog:
-                              props.cancelAppointmentDialog,
-                            viewAppointmentDialog: props.viewAppointmentDialog,
-                            setselectedAppointment:
-                              props.setselectedAppointment,
                           }}
                         />
                       </Stack>

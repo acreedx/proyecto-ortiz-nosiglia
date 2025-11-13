@@ -1,7 +1,6 @@
 "use client";
-import { Dispatch, SetStateAction } from "react";
 import { appointmentStatusList } from "../../../../../types/statusList";
-import { IconButton, UseDialogReturn } from "@chakra-ui/react";
+import { IconButton } from "@chakra-ui/react";
 import {
   FaEdit,
   FaCalendarCheck,
@@ -20,6 +19,9 @@ import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts"
 import { Tooltip } from "../../../../../components/ui/tooltip";
 import { dialog } from "../../../../../providers/DialogProvider";
 import AppointmentsEditForm from "./appointments-edit-form";
+import AppointmentsCancelForm from "./appointments-cancel-form";
+import AppointmentsCompleteForm from "./appointments-complete-form";
+import AppointmentsViewForm from "./appointments-view-form";
 
 export default function AppointmentActions({
   props,
@@ -43,22 +45,6 @@ export default function AppointmentActions({
         };
       };
     }>;
-    createAppointmentDialog: UseDialogReturn;
-    editAppointmentDialog: UseDialogReturn;
-    completeAppointmentDialog: UseDialogReturn;
-    cancelAppointmentDialog: UseDialogReturn;
-    viewAppointmentDialog: UseDialogReturn;
-    setselectedAppointment: Dispatch<
-      SetStateAction<
-        | Prisma.AppointmentGetPayload<{
-            include: {
-              patient: { include: { user: true } };
-              doctor: { include: { staff: { include: { user: true } } } };
-            };
-          }>
-        | undefined
-      >
-    >;
   };
 }) {
   const isEditable =
@@ -86,15 +72,12 @@ export default function AppointmentActions({
       };
     }>
   ) => {
-    dialog.open("test", {
-      title: "Hola!",
-      description: "Esto es un overlay desde el layout 😎",
+    dialog.open("Edit Dialog", {
       content: (
         <AppointmentsEditForm props={{ selectedAppointment: appointment }} />
       ),
+      size: "xl",
     });
-    //props.setselectedAppointment(appointment);
-    //props.editAppointmentDialog.setOpen(true);
   };
   const handleCancel = async (
     appointment: Prisma.AppointmentGetPayload<{
@@ -116,8 +99,16 @@ export default function AppointmentActions({
       };
     }>
   ) => {
-    props.setselectedAppointment(appointment);
-    props.cancelAppointmentDialog.setOpen(true);
+    dialog.open("Cancel Dialog", {
+      content: (
+        <AppointmentsCancelForm
+          props={{
+            selectedAppointment: appointment,
+          }}
+        />
+      ),
+      size: "md",
+    });
   };
   const handleMarkAsMissed = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
@@ -158,8 +149,16 @@ export default function AppointmentActions({
       };
     }>
   ) => {
-    props.setselectedAppointment(appointment);
-    props.completeAppointmentDialog.setOpen(true);
+    dialog.open("Complete Dialog", {
+      content: (
+        <AppointmentsCompleteForm
+          props={{
+            selectedAppointment: appointment,
+          }}
+        />
+      ),
+      size: "md",
+    });
   };
   const handleConfirm = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
@@ -200,8 +199,16 @@ export default function AppointmentActions({
       };
     }>
   ) => {
-    props.setselectedAppointment(appointment);
-    props.viewAppointmentDialog.setOpen(true);
+    dialog.open("View Dialog", {
+      content: (
+        <AppointmentsViewForm
+          props={{
+            selectedAppointment: appointment,
+          }}
+        />
+      ),
+      size: "xl",
+    });
   };
   return (
     <div className="flex flex-row items-center justify-center w-full gap-1 mt-2">

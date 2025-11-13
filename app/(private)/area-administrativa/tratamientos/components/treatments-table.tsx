@@ -8,7 +8,7 @@ import type {
   IGetRowsParams,
 } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
-import { IconButton, useDialog } from "@chakra-ui/react";
+import { Badge, IconButton, useDialog } from "@chakra-ui/react";
 import { FaCheck, FaEdit, FaTrash, FaUndo } from "react-icons/fa";
 import { CarePlan } from "@prisma/client";
 import { AgGridReact, CustomCellRendererProps } from "ag-grid-react";
@@ -108,9 +108,11 @@ export default function TreatmentsTable({
     },
     {
       field: "status",
+      filter: true,
       headerName: "Estado",
-      valueFormatter: (params) => {
-        switch (params.value) {
+      valueGetter: (params) => {
+        if (!params.data) return "—";
+        switch (params.data.status) {
           case userStatusList.ACTIVO:
             return "Activo";
           case userStatusList.INACTIVO:
@@ -120,6 +122,37 @@ export default function TreatmentsTable({
           default:
             return "—";
         }
+      },
+      valueFormatter: (params) => params.value,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      cellRenderer: (params: any) => {
+        const value = params.value;
+        let colorScheme: string;
+        switch (value) {
+          case "Activo":
+            colorScheme = "green";
+            break;
+          case "Inactivo":
+            colorScheme = "gray";
+            break;
+          case "Completado":
+            colorScheme = "blue";
+            break;
+          default:
+            colorScheme = "yellow";
+            break;
+        }
+        return (
+          <Badge
+            colorPalette={colorScheme}
+            variant="solid"
+            borderRadius="full"
+            px={2}
+            py={1}
+          >
+            {value}
+          </Badge>
+        );
       },
     },
     {
