@@ -11,7 +11,7 @@ import {
   ModuleRegistry,
 } from "ag-grid-community";
 import { dialog } from "../../../../../providers/DialogProvider";
-import CreateButton from "./create-button";
+import CreateButton from "../../../../../components/common/create-button";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function ClientSection({

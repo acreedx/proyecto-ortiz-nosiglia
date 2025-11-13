@@ -5,7 +5,8 @@ import React, { useRef } from "react";
 import AppointmentsCreateForm from "./appointments-create-form";
 import AppointmentsTable from "./appointments-table";
 import { User } from "@prisma/client";
-import EditXlDialogWithButton from "../../../../../components/admin/dialog/edit-xl-dialog-with-button";
+import CreateButton from "../../../../../components/common/create-button";
+import { dialog } from "../../../../../providers/DialogProvider";
 
 export default function ClientSection({
   props,
@@ -18,21 +19,27 @@ export default function ClientSection({
   const createDialog = useDialog();
   const gridApiRef = useRef<GridApi | null>(null);
   const datasourceRef = useRef<IDatasource | null>(null);
+  const handleShowCreate = () => {
+    dialog.open("Create Dialog", {
+      content: (
+        <AppointmentsCreateForm
+          props={{
+            doctores: props.doctores,
+            pacientes: props.pacientes,
+            dialog: createDialog,
+            gridApiRef: gridApiRef,
+            datasourceRef: datasourceRef,
+          }}
+        />
+      ),
+      size: "md",
+    });
+  };
   return (
     <>
       <div className="flex flex-row w-full items-center justify-between">
         <Heading>Citas</Heading>
-        <EditXlDialogWithButton dialog={createDialog}>
-          <AppointmentsCreateForm
-            props={{
-              doctores: props.doctores,
-              pacientes: props.pacientes,
-              dialog: createDialog,
-              gridApiRef: gridApiRef,
-              datasourceRef: datasourceRef,
-            }}
-          />
-        </EditXlDialogWithButton>
+        <CreateButton handleShowCreate={handleShowCreate} />
       </div>
       <AppointmentsTable
         props={{

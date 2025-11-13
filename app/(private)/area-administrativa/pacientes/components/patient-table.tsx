@@ -14,13 +14,13 @@ import { IconButton, useDialog } from "@chakra-ui/react";
 import { FaBookMedical, FaEdit, FaFile, FaXRay } from "react-icons/fa";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import NextLink from "next/link";
-import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import EditPatientForm from "./patient-edit-form";
 import { LuSiren } from "react-icons/lu";
 import EmergencyContactEditForm from "./emergency-contact-edit-form";
 import { Tooltip } from "../../../../../components/ui/tooltip";
 import { getPatients } from "../data/datasource";
-import { useState, useMemo, useCallback } from "react";
+import { useMemo, useCallback } from "react";
+import { dialog } from "../../../../../providers/DialogProvider";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function PatientTable({
@@ -34,8 +34,6 @@ export default function PatientTable({
 }) {
   const editDialog = useDialog();
   const emergencyContactDialog = useDialog();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [selectedPatient, setselectedPatient] = useState<any>();
 
   const colDefs: ColDef[] = useMemo(
     () => [
@@ -90,8 +88,8 @@ export default function PatientTable({
         filter: false,
         minWidth: 240,
         sortable: false,
-        cellRenderer: (props: CustomCellRendererProps) => {
-          if (props.data !== undefined) {
+        cellRenderer: (params: CustomCellRendererProps) => {
+          if (params.data !== undefined) {
             return (
               <div className="flex flex-row justify-center items-center">
                 <Tooltip content="Editar paciente">
@@ -102,8 +100,19 @@ export default function PatientTable({
                     aria-label="Editar paciente"
                     mr={2}
                     onClick={() => {
-                      editDialog.setOpen(true);
-                      setselectedPatient(props.data.patient);
+                      dialog.open("Edit Dialog", {
+                        content: (
+                          <EditPatientForm
+                            props={{
+                              patient: params.data.patient,
+                              organizations: props.organizations,
+                              dialog: editDialog,
+                              gridApiRef: props.gridApiRef,
+                              datasourceRef: props.datasourceRef,
+                            }}
+                          />
+                        ),
+                      });
                     }}
                   >
                     <FaEdit color="orange" />
@@ -117,8 +126,18 @@ export default function PatientTable({
                     aria-label="Contacto de emergencia"
                     mr={2}
                     onClick={() => {
-                      emergencyContactDialog.setOpen(true);
-                      setselectedPatient(props.data.patient);
+                      dialog.open("Contact Dialog", {
+                        content: (
+                          <EmergencyContactEditForm
+                            props={{
+                              patient: params.data.patient,
+                              dialog: emergencyContactDialog,
+                              gridApiRef: props.gridApiRef,
+                              datasourceRef: props.datasourceRef,
+                            }}
+                          />
+                        ),
+                      });
                     }}
                   >
                     <LuSiren color="red" />
@@ -127,7 +146,7 @@ export default function PatientTable({
 
                 <Tooltip content="Odontograma">
                   <NextLink
-                    href={`/area-administrativa/pacientes/odontograma/${props.data.id}`}
+                    href={`/area-administrativa/pacientes/odontograma/${params.data.id}`}
                     className="flex flex-row"
                   >
                     <IconButton
@@ -143,7 +162,7 @@ export default function PatientTable({
                 </Tooltip>
                 <Tooltip content="Radiografías">
                   <NextLink
-                    href={`/area-administrativa/pacientes/imaging-studies/${props.data.id}`}
+                    href={`/area-administrativa/pacientes/imaging-studies/${params.data.id}`}
                     className="flex flex-row"
                   >
                     <IconButton
@@ -159,7 +178,7 @@ export default function PatientTable({
                 </Tooltip>
                 <Tooltip content="Historial clínico">
                   <NextLink
-                    href={`/area-administrativa/pacientes/historial/${props.data.id}`}
+                    href={`/area-administrativa/pacientes/historial/${params.data.id}`}
                     className="flex flex-row"
                   >
                     <IconButton
@@ -238,27 +257,6 @@ export default function PatientTable({
         cellSelection={false}
         onGridReady={onGridReady}
       />
-      <EditDialog dialog={editDialog}>
-        <EditPatientForm
-          props={{
-            patient: selectedPatient,
-            organizations: props.organizations,
-            dialog: editDialog,
-            gridApiRef: props.gridApiRef,
-            datasourceRef: props.datasourceRef,
-          }}
-        />
-      </EditDialog>
-      <EditDialog dialog={emergencyContactDialog}>
-        <EmergencyContactEditForm
-          props={{
-            patient: selectedPatient,
-            dialog: emergencyContactDialog,
-            gridApiRef: props.gridApiRef,
-            datasourceRef: props.datasourceRef,
-          }}
-        />
-      </EditDialog>
     </div>
   );
 }

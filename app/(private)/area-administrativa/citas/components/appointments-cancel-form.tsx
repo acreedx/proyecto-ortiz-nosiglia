@@ -7,7 +7,6 @@ import {
   Button,
   CloseButton,
   Input,
-  UseDialogReturn,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Appointment } from "@prisma/client";
@@ -26,7 +25,6 @@ export default function AppointmentsCancelForm({
 }: {
   props: {
     selectedAppointment: Appointment | undefined;
-    dialog: UseDialogReturn;
     gridApiRef: React.RefObject<GridApi | null>;
     datasourceRef: React.RefObject<IDatasource | null>;
   };
@@ -56,7 +54,6 @@ export default function AppointmentsCancelForm({
           props.datasourceRef.current
         );
       }
-      props.dialog.setOpen(false);
     }
     if (!res.ok) {
       toaster.create({

@@ -3,7 +3,7 @@
 
 import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
-import { IconButton, useDialog } from "@chakra-ui/react";
+import { IconButton } from "@chakra-ui/react";
 import { Organization } from "@prisma/client";
 import { AgGridReact } from "ag-grid-react";
 import { useEffect, useState } from "react";
@@ -12,13 +12,13 @@ import { FaEdit, FaTrash, FaUndo } from "react-icons/fa";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { userStatusList } from "../../../../../types/statusList";
 import { toaster } from "../../../../../components/ui/toaster";
-import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import EditOrganizationsForm from "./organizations-edit-form";
 import {
   eliminateOrganization,
   rehabilitateOrganization,
 } from "../actions/operations";
 import { Tooltip } from "../../../../../components/ui/tooltip";
+import { dialog } from "../../../../../providers/DialogProvider";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function OrganizationsTable({
@@ -28,11 +28,6 @@ export default function OrganizationsTable({
     organizations: Organization[];
   };
 }) {
-  //Manejo de modal de editar
-  const editDialog = useDialog();
-  const [selectedOrganization, setselectedOrganization] =
-    useState<Organization>();
-
   //Definición de la tabla
   const [rowData, setRowData] = useState<any[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -104,8 +99,10 @@ export default function OrganizationsTable({
 
   //Acciones para el manejo de datos
   const handleEdit = (e: any) => {
-    setselectedOrganization(e as Organization);
-    editDialog.setOpen(true);
+    dialog.open("Create Dialog", {
+      content: <EditOrganizationsForm organization={e} />,
+      size: "md",
+    });
   };
   const handleDelete = async (e: any) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
@@ -179,9 +176,6 @@ export default function OrganizationsTable({
           type: "fitGridWidth",
         }}
       />
-      <EditDialog dialog={editDialog}>
-        <EditOrganizationsForm organization={selectedOrganization} />
-      </EditDialog>
     </div>
   );
 }

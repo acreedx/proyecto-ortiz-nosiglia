@@ -7,7 +7,6 @@ import {
   Button,
   CloseButton,
   Input,
-  UseDialogReturn,
 } from "@chakra-ui/react";
 import { Appointment } from "@prisma/client";
 import React from "react";
@@ -26,7 +25,6 @@ export default function AppointmentsCompleteForm({
 }: {
   props: {
     selectedAppointment: Appointment | undefined;
-    dialog: UseDialogReturn;
     gridApiRef: React.RefObject<GridApi | null>;
     datasourceRef: React.RefObject<IDatasource | null>;
   };
@@ -56,7 +54,6 @@ export default function AppointmentsCompleteForm({
           props.datasourceRef.current
         );
       }
-      props.dialog.setOpen(false);
     }
     if (!res.ok) {
       toaster.create({

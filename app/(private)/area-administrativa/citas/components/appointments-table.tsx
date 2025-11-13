@@ -9,7 +9,7 @@ import type {
 } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { IconButton, useDialog } from "@chakra-ui/react";
+import { IconButton } from "@chakra-ui/react";
 import {
   FaEye,
   FaEdit,
@@ -23,7 +23,6 @@ import { Prisma, User } from "@prisma/client";
 import { appointmentStatusList } from "../../../../../types/statusList";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { toaster } from "../../../../../components/ui/toaster";
-import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import {
   confirmAppointment,
   markAppointmentNotAssisted,
@@ -34,6 +33,7 @@ import AppointmentsCancelForm from "./appointments-cancel-form";
 import AppointmentsViewForm from "./appointments-view-form";
 import { Tooltip } from "../../../../../components/ui/tooltip";
 import { getAppointments } from "../data/datasource";
+import { dialog } from "../../../../../providers/DialogProvider";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function AppointmentsTable({
@@ -59,30 +59,6 @@ export default function AppointmentsTable({
     }),
     []
   );
-  const editDialog = useDialog();
-  const completeAppointmentDialog = useDialog();
-  const cancelAppointmentDialog = useDialog();
-  const viewAppointmentDialog = useDialog();
-  const [selectedAppointment, setselectedAppointment] = useState<
-    Prisma.AppointmentGetPayload<{
-      include: {
-        patient: {
-          include: {
-            user: true;
-          };
-        };
-        doctor: {
-          include: {
-            staff: {
-              include: {
-                user: true;
-              };
-            };
-          };
-        };
-      };
-    }>
-  >();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
     {
@@ -287,8 +263,19 @@ export default function AppointmentsTable({
       };
     }>
   ) => {
-    setselectedAppointment(appointment);
-    editDialog.setOpen(true);
+    dialog.open("Edit Dialog", {
+      content: (
+        <AppointmentsEditForm
+          props={{
+            selectedAppointment: appointment,
+            doctores: props.doctores,
+            gridApiRef: props.gridApiRef,
+            datasourceRef: props.datasourceRef,
+          }}
+        />
+      ),
+      size: "md",
+    });
   };
   const handleCancel = async (
     appointment: Prisma.AppointmentGetPayload<{
@@ -310,8 +297,18 @@ export default function AppointmentsTable({
       };
     }>
   ) => {
-    setselectedAppointment(appointment);
-    cancelAppointmentDialog.setOpen(true);
+    dialog.open("Cancel Dialog", {
+      content: (
+        <AppointmentsCancelForm
+          props={{
+            selectedAppointment: appointment,
+            gridApiRef: props.gridApiRef,
+            datasourceRef: props.datasourceRef,
+          }}
+        />
+      ),
+      size: "md",
+    });
   };
   const handleMarkAsMissed = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
@@ -358,8 +355,18 @@ export default function AppointmentsTable({
       };
     }>
   ) => {
-    setselectedAppointment(appointment);
-    completeAppointmentDialog.setOpen(true);
+    dialog.open("Complete Dialog", {
+      content: (
+        <AppointmentsCompleteForm
+          props={{
+            selectedAppointment: appointment,
+            gridApiRef: props.gridApiRef,
+            datasourceRef: props.datasourceRef,
+          }}
+        />
+      ),
+      size: "md",
+    });
   };
   const handleConfirm = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
@@ -406,8 +413,16 @@ export default function AppointmentsTable({
       };
     }>
   ) => {
-    setselectedAppointment(appointment);
-    viewAppointmentDialog.setOpen(true);
+    dialog.open("View Dialog", {
+      content: (
+        <AppointmentsViewForm
+          props={{
+            selectedAppointment: appointment,
+          }}
+        />
+      ),
+      size: "md",
+    });
   };
   const onGridReady = useCallback((params: GridReadyEvent) => {
     props.gridApiRef.current = params.api;
@@ -451,44 +466,6 @@ export default function AppointmentsTable({
         cellSelection={false}
         onGridReady={onGridReady}
       />
-      <EditDialog dialog={editDialog}>
-        <AppointmentsEditForm
-          props={{
-            selectedAppointment: selectedAppointment,
-            doctores: props.doctores,
-            dialog: editDialog,
-            gridApiRef: props.gridApiRef,
-            datasourceRef: props.datasourceRef,
-          }}
-        />
-      </EditDialog>
-      <EditDialog dialog={completeAppointmentDialog}>
-        <AppointmentsCompleteForm
-          props={{
-            selectedAppointment: selectedAppointment,
-            dialog: completeAppointmentDialog,
-            gridApiRef: props.gridApiRef,
-            datasourceRef: props.datasourceRef,
-          }}
-        />
-      </EditDialog>
-      <EditDialog dialog={cancelAppointmentDialog}>
-        <AppointmentsCancelForm
-          props={{
-            selectedAppointment: selectedAppointment,
-            dialog: cancelAppointmentDialog,
-            gridApiRef: props.gridApiRef,
-            datasourceRef: props.datasourceRef,
-          }}
-        />
-      </EditDialog>
-      <EditDialog dialog={viewAppointmentDialog}>
-        <AppointmentsViewForm
-          props={{
-            selectedAppointment: selectedAppointment,
-          }}
-        />
-      </EditDialog>
     </div>
   );
 }

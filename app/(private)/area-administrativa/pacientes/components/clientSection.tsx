@@ -5,7 +5,8 @@ import PatientCreateForm from "./patient-create-form";
 import PatientTable from "./patient-table";
 import { Organization } from "@prisma/client";
 import { GridApi, IDatasource } from "ag-grid-community";
-import EditXlDialogWithButton from "../../../../../components/admin/dialog/edit-xl-dialog-with-button";
+import { dialog } from "../../../../../providers/DialogProvider";
+import CreateButton from "../../../../../components/common/create-button";
 
 export default function ClientSection({
   props,
@@ -15,20 +16,26 @@ export default function ClientSection({
   const createDialog = useDialog();
   const gridApiRef = useRef<GridApi | null>(null);
   const datasourceRef = useRef<IDatasource | null>(null);
+  const handleShowCreate = () => {
+    dialog.open("Create Dialog", {
+      content: (
+        <PatientCreateForm
+          props={{
+            organizations: props.activeOrganizations,
+            dialog: createDialog,
+            gridApiRef: gridApiRef,
+            datasourceRef: datasourceRef,
+          }}
+        />
+      ),
+      size: "xl",
+    });
+  };
   return (
     <>
       <div className="flex flex-row w-full items-center justify-between mb-2">
         <Heading>Pacientes</Heading>
-        <EditXlDialogWithButton dialog={createDialog}>
-          <PatientCreateForm
-            props={{
-              organizations: props.activeOrganizations,
-              dialog: createDialog,
-              gridApiRef: gridApiRef,
-              datasourceRef: datasourceRef,
-            }}
-          />
-        </EditXlDialogWithButton>
+        <CreateButton handleShowCreate={handleShowCreate} />
       </div>
       <PatientTable
         props={{

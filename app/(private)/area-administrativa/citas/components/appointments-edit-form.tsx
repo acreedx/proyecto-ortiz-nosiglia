@@ -8,7 +8,6 @@ import {
   Input,
   NativeSelect,
   Textarea,
-  UseDialogReturn,
 } from "@chakra-ui/react";
 import { Prisma, User } from "@prisma/client";
 import React, { useEffect, useState } from "react";
@@ -48,7 +47,6 @@ export default function AppointmentsEditForm({
         }>
       | undefined;
     doctores: User[];
-    dialog: UseDialogReturn;
     gridApiRef: React.RefObject<GridApi | null>;
     datasourceRef: React.RefObject<IDatasource | null>;
   };
@@ -91,7 +89,6 @@ export default function AppointmentsEditForm({
           props.datasourceRef.current
         );
       }
-      props.dialog.setOpen(false);
     }
     if (!res.ok) {
       toaster.create({
