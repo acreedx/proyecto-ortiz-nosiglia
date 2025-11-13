@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import type { ColDef } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { IconButton, useDialog } from "@chakra-ui/react";
+import { IconButton } from "@chakra-ui/react";
 import { FaEdit, FaTrash, FaUndo } from "react-icons/fa";
 import { AgGridReact } from "ag-grid-react";
 import { userStatusList } from "../../../../../types/statusList";
@@ -11,9 +11,9 @@ import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts"
 import { eliminate, restore } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
 import { Treatment } from "@prisma/client";
-import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import TreatmentTypeEditForm from "./treatment-type-edit-form";
 import { Tooltip } from "../../../../../components/ui/tooltip";
+import { dialog } from "../../../../../providers/DialogProvider";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function TreatmentTypeTable({
@@ -23,8 +23,6 @@ export default function TreatmentTypeTable({
     treatments: Treatment[];
   };
 }) {
-  const editDialog = useDialog();
-  const [selectedTreatment, setselectedTreatment] = useState<Treatment>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [rowData, setRowData] = useState<any[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -170,8 +168,15 @@ export default function TreatmentTypeTable({
     }
   };
   const handleEdit = (treatment: Treatment) => {
-    editDialog.setOpen(true);
-    setselectedTreatment(treatment);
+    dialog.open("Qualification Dialog", {
+      content: (
+        <TreatmentTypeEditForm
+          props={{
+            treatment: treatment,
+          }}
+        />
+      ),
+    });
   };
   useEffect(() => {
     setRowData([...props.treatments]);
@@ -202,13 +207,6 @@ export default function TreatmentTypeTable({
           type: "fitGridWidth",
         }}
       />
-      <EditDialog dialog={editDialog}>
-        <TreatmentTypeEditForm
-          props={{
-            treatment: selectedTreatment,
-          }}
-        />
-      </EditDialog>
     </div>
   );
 }

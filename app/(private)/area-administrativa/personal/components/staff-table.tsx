@@ -5,14 +5,14 @@ import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { Prisma } from "@prisma/client";
 import { AgGridReact } from "ag-grid-react";
-import { IconButton, Image, useDialog } from "@chakra-ui/react";
+import { IconButton, Image } from "@chakra-ui/react";
 import { FaMoneyBill, FaScroll } from "react-icons/fa";
 import NextLink from "next/link";
 import { userStatusList } from "../../../../../types/statusList";
-import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import EditPayrollForm from "./payroll-edit-form";
 import { rolesList } from "../../../../../lib/nextauth/rolesList";
 import { Tooltip } from "../../../../../components/ui/tooltip";
+import { dialog } from "../../../../../providers/DialogProvider";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function StaffTable({
@@ -31,19 +31,6 @@ export default function StaffTable({
     }>[];
   };
 }) {
-  const editDialog = useDialog();
-  const [selectedUser, setselectedUser] = useState<
-    Prisma.UserGetPayload<{
-      include: {
-        staff: {
-          include: {
-            payroll: true;
-          };
-        };
-        role: true;
-      };
-    }>
-  >();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [rowData, setRowData] = useState<any[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -110,8 +97,9 @@ export default function StaffTable({
               aria-label="Pagos"
               ml={2}
               onClick={() => {
-                editDialog.setOpen(true);
-                setselectedUser(params.data);
+                dialog.open("Edit Dialog", {
+                  content: <EditPayrollForm user={params.data} />,
+                });
               }}
             >
               <FaMoneyBill color="green" />
@@ -173,9 +161,6 @@ export default function StaffTable({
           type: "fitGridWidth",
         }}
       />
-      <EditDialog dialog={editDialog}>
-        <EditPayrollForm user={selectedUser} />
-      </EditDialog>
     </div>
   );
 }

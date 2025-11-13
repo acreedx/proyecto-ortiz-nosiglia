@@ -88,13 +88,14 @@ export default function TreatmentsTable({
       headerName: "Días entre Citas",
     },
     {
-      field: "patient.user.first_name",
+      field: "patient.user.last_name",
       headerName: "Paciente",
       cellRenderer: (props: CustomCellRendererProps) => {
         if (props.data !== undefined) {
-          return `${props.data.patient.user.first_name} ${props.data.patient.user.last_name}`;
+          return `${props.data.patient.user.last_name} ${props.data.patient.user.first_name} `;
         }
       },
+      filter: true,
     },
     {
       field: "cost",
@@ -242,8 +243,6 @@ export default function TreatmentsTable({
       ),
       size: "xl",
     });
-    //editDialog.setOpen(true);
-    //setselectedTreatment(tratamiento);
   };
   const handleCompleteTreatment = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({

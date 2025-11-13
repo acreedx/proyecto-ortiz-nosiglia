@@ -7,26 +7,22 @@ import {
   Flex,
   Box,
   SimpleGrid,
-  useDialog,
 } from "@chakra-ui/react";
 import { Qualification } from "@prisma/client";
-import React, { useState } from "react";
+import React from "react";
 import { FaTrash, FaArchive, FaEdit } from "react-icons/fa";
 import { toaster } from "../../../../../components/ui/toaster";
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { userStatusList } from "../../../../../types/statusList";
 import { eliminate, restore } from "../actions/operations";
-import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import QualificationEditForm from "./qualification-edit-form";
+import { dialog } from "../../../../../providers/DialogProvider";
 
 export default function QualificationCard({
   qualifications,
 }: {
   qualifications: Qualification[];
 }) {
-  const editdialog = useDialog();
-  const [selectedQualification, setselectedQualification] =
-    useState<Qualification>();
   return (
     <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
       {qualifications.map((qualification) => (
@@ -98,10 +94,17 @@ export default function QualificationCard({
                   colorPalette={"orange"}
                   px={2}
                   onClick={async () => {
-                    editdialog.setOpen(true);
-                    setselectedQualification(qualification);
+                    dialog.open("Qualification Dialog", {
+                      content: (
+                        <QualificationEditForm
+                          props={{
+                            qualification: qualification,
+                          }}
+                        />
+                      ),
+                    });
                   }}
-                  size={"sm"}
+                  size={"md"}
                 >
                   <FaEdit color="white" /> Editar
                 </IconButton>
@@ -138,13 +141,6 @@ export default function QualificationCard({
           </VStack>
         </Box>
       ))}
-      <EditDialog dialog={editdialog}>
-        <QualificationEditForm
-          props={{
-            qualification: selectedQualification,
-          }}
-        />
-      </EditDialog>
     </SimpleGrid>
   );
 }
