@@ -7,7 +7,6 @@ import {
   Button,
   CloseButton,
   Input,
-  UseDialogReturn,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CarePlan } from "@prisma/client";
@@ -27,7 +26,6 @@ export default function TreatmentsEditForm({
 }: {
   props: {
     treatment: CarePlan | undefined;
-    dialog: UseDialogReturn;
     gridApiRef: React.RefObject<GridApi | null>;
     datasourceRef: React.RefObject<IDatasource | null>;
   };
@@ -60,7 +58,6 @@ export default function TreatmentsEditForm({
           props.datasourceRef.current
         );
       }
-      props.dialog.setOpen(false);
     } else {
       toaster.create({
         description: "Error al editar el tratamiento",

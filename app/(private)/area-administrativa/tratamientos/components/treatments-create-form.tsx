@@ -15,7 +15,6 @@ import {
   Box,
   Stack,
   Text,
-  UseDialogReturn,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { toaster } from "../../../../../components/ui/toaster";
@@ -33,7 +32,6 @@ export default function TreatmentsCreateForm({
   props: {
     pacientes: User[];
     treatmentTypes: Treatment[];
-    dialog: UseDialogReturn;
     gridApiRef: React.RefObject<GridApi | null>;
     datasourceRef: React.RefObject<IDatasource | null>;
   };
@@ -103,7 +101,6 @@ export default function TreatmentsCreateForm({
         );
       }
       reset();
-      props.dialog.setOpen(false);
     } else {
       toaster.create({
         description: "Error al crear el tratamiento",

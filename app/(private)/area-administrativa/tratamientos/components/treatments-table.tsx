@@ -8,7 +8,7 @@ import type {
   IGetRowsParams,
 } from "ag-grid-community";
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
-import { Badge, IconButton, useDialog } from "@chakra-ui/react";
+import { Badge, IconButton } from "@chakra-ui/react";
 import { FaCheck, FaEdit, FaTrash, FaUndo } from "react-icons/fa";
 import { CarePlan } from "@prisma/client";
 import { AgGridReact, CustomCellRendererProps } from "ag-grid-react";
@@ -19,10 +19,10 @@ import {
 import { mostrarAlertaConfirmacion } from "../../../../../lib/sweetalert/alerts";
 import { complete, eliminate, restore } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
-import EditDialog from "../../../../../components/admin/dialog/edit-dialog";
 import TreatmentsEditForm from "./treatments-edit-form";
 import { Tooltip } from "../../../../../components/ui/tooltip";
 import { getCarePlans } from "../data/datasource";
+import { dialog } from "../../../../../providers/DialogProvider";
 
 export default function TreatmentsTable({
   props,
@@ -46,8 +46,6 @@ export default function TreatmentsTable({
     }),
     []
   );
-  const editDialog = useDialog();
-  const [selectedTreatment, setselectedTreatment] = useState<CarePlan>();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [colDefs, setColDefs] = useState<ColDef[]>([
     {
@@ -232,8 +230,20 @@ export default function TreatmentsTable({
     },
   ]);
   const handleEdit = (tratamiento: CarePlan) => {
-    editDialog.setOpen(true);
-    setselectedTreatment(tratamiento);
+    dialog.open("Edit Dialog", {
+      content: (
+        <TreatmentsEditForm
+          props={{
+            treatment: tratamiento,
+            gridApiRef: props.gridApiRef,
+            datasourceRef: props.datasourceRef,
+          }}
+        />
+      ),
+      size: "xl",
+    });
+    //editDialog.setOpen(true);
+    //setselectedTreatment(tratamiento);
   };
   const handleCompleteTreatment = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
@@ -358,16 +368,6 @@ export default function TreatmentsTable({
         cellSelection={false}
         onGridReady={onGridReady}
       />
-      <EditDialog dialog={editDialog}>
-        <TreatmentsEditForm
-          props={{
-            treatment: selectedTreatment,
-            dialog: editDialog,
-            gridApiRef: props.gridApiRef,
-            datasourceRef: props.datasourceRef,
-          }}
-        />
-      </EditDialog>
     </div>
   );
 }
