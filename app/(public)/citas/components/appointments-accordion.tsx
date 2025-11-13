@@ -13,10 +13,7 @@ import { Appointment, Prisma } from "@prisma/client";
 import AppointmentActions from "./appointment-actions";
 import { appointmentStatusList } from "../../../../types/statusList";
 import { timeFormatter } from "../../../../types/dateFormatter";
-import {
-  statusColorMap,
-  statusLabelMap,
-} from "../../../../types/appointmentStatusMaps";
+import { statusColorMap, statusLabelMap } from "../../../../types/consts";
 
 export default function AppointmentAccordion({
   props,

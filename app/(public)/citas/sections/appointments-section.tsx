@@ -9,7 +9,7 @@ import AppointmentsEditForm from "../components/appointments-edit-form";
 import AppointmentsViewForm from "../components/appointments-view-form";
 import AppointmentAccordion from "../components/appointments-accordion";
 import AppointmentsCalendar from "../components/appointments-calendar";
-import EditDialog from "../../../../components/admin/dialog/edit-dialog";
+
 export default function AppointmentsSection({
   props,
 }: {
