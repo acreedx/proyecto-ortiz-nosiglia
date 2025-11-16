@@ -1,15 +1,7 @@
-import {
-  Box,
-  Stack,
-  Card,
-  Badge,
-  Text,
-  UseDialogReturn,
-  Tabs,
-} from "@chakra-ui/react";
+import { Box, Stack, Card, Badge, Text, Tabs } from "@chakra-ui/react";
 import React from "react";
 import { FaCalendar, FaTimesCircle } from "react-icons/fa";
-import { Appointment, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import AppointmentActions from "./appointment-actions";
 import { appointmentStatusList } from "../../../../types/statusList";
 import { timeFormatter } from "../../../../types/dateFormatter";
@@ -37,14 +29,6 @@ export default function AppointmentAccordion({
         };
       };
     }>[];
-    createAppointmentDialog: UseDialogReturn;
-    editAppointmentDialog: UseDialogReturn;
-    completeAppointmentDialog: UseDialogReturn;
-    cancelAppointmentDialog: UseDialogReturn;
-    viewAppointmentDialog: UseDialogReturn;
-    setselectedAppointment: React.Dispatch<
-      React.SetStateAction<Appointment | undefined>
-    >;
   };
 }) {
   const grouped = {
@@ -157,16 +141,6 @@ export default function AppointmentAccordion({
                         <AppointmentActions
                           props={{
                             appointment: appt,
-                            createAppointmentDialog:
-                              props.createAppointmentDialog,
-                            editAppointmentDialog: props.editAppointmentDialog,
-                            completeAppointmentDialog:
-                              props.completeAppointmentDialog,
-                            cancelAppointmentDialog:
-                              props.cancelAppointmentDialog,
-                            viewAppointmentDialog: props.viewAppointmentDialog,
-                            setselectedAppointment:
-                              props.setselectedAppointment,
                           }}
                         />
                       </Stack>

@@ -102,7 +102,7 @@ export default function AppointmentsCalendar({
   };
   const handleDateSelect = async (e: DateSelectArg) => {
     if (isTodayOrFuture(e.start)) {
-      dialog.open("Edit Dialog", {
+      dialog.open("Create Dialog", {
         content: (
           <AppointmentsCreateCalendarForm
             props={{ pacientes: props.patients, selectedDate: e.start }}

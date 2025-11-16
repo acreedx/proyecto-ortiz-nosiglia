@@ -1,12 +1,16 @@
 "use client";
 import React from "react";
-import { IconButton, UseDialogReturn } from "@chakra-ui/react";
+import { IconButton } from "@chakra-ui/react";
 import { FaEdit, FaCalendarCheck, FaTrash, FaEye } from "react-icons/fa";
 import { Appointment, Prisma } from "@prisma/client";
 import { appointmentStatusList } from "../../../../types/statusList";
 import { mostrarAlertaConfirmacion } from "../../../../lib/sweetalert/alerts";
 import { confirmAppointment } from "../actions/operations";
 import { toaster } from "../../../../components/ui/toaster";
+import { dialog } from "../../../../providers/DialogProvider";
+import AppointmentsEditForm from "./appointments-edit-form";
+import AppointmentsCancelForm from "./appointments-cancel-form";
+import AppointmentsViewForm from "./appointments-view-form";
 
 export default function AppointmentActions({
   props,
@@ -30,14 +34,6 @@ export default function AppointmentActions({
         };
       };
     }>;
-    createAppointmentDialog: UseDialogReturn;
-    editAppointmentDialog: UseDialogReturn;
-    completeAppointmentDialog: UseDialogReturn;
-    cancelAppointmentDialog: UseDialogReturn;
-    viewAppointmentDialog: UseDialogReturn;
-    setselectedAppointment: React.Dispatch<
-      React.SetStateAction<Appointment | undefined>
-    >;
   };
 }) {
   const isEditable =
@@ -47,12 +43,24 @@ export default function AppointmentActions({
     props.appointment.status !== appointmentStatusList.STATUS_CONFIRMADA;
 
   const handleEdit = async (appointment: Appointment) => {
-    props.setselectedAppointment(appointment);
-    props.editAppointmentDialog.setOpen(true);
+    dialog.open("Edit Dialog", {
+      content: (
+        <AppointmentsEditForm props={{ selectedAppointment: appointment }} />
+      ),
+      size: "xl",
+    });
   };
   const handleCancel = async (appointment: Appointment) => {
-    props.setselectedAppointment(appointment);
-    props.cancelAppointmentDialog.setOpen(true);
+    dialog.open("Cancel Dialog", {
+      content: (
+        <AppointmentsCancelForm
+          props={{
+            selectedAppointment: appointment,
+          }}
+        />
+      ),
+      size: "md",
+    });
   };
   const handleConfirm = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
@@ -74,8 +82,16 @@ export default function AppointmentActions({
     }
   };
   const handleViewDetails = async (appointment: Appointment) => {
-    props.setselectedAppointment(appointment);
-    props.viewAppointmentDialog.setOpen(true);
+    dialog.open("View Dialog", {
+      content: (
+        <AppointmentsViewForm
+          props={{
+            selectedAppointment: appointment,
+          }}
+        />
+      ),
+      size: "xl",
+    });
   };
   return (
     <div className="flex flex-row items-center justify-center w-full gap-1 mt-2">
