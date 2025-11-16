@@ -7,7 +7,7 @@ import { userStatusList } from "../../../types/statusList";
 export default async function Home() {
   const session = await auth();
   return (
-    <main className="rounded-sm border border-stroke bg-white shadow-default ">
+    <main className="rounded-sm border border-stroke bg-white shadow-default flex-grow">
       <div className="flex flex-wrap items-center ">
         <Banner />
         {!session ? (

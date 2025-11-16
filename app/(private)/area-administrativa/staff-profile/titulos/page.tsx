@@ -5,10 +5,9 @@ import { prisma } from "../../../../../lib/prisma/prisma";
 import { auth } from "../../../../../lib/nextauth/auth";
 import { redirect } from "next/navigation";
 import { rolesList } from "../../../../../lib/nextauth/rolesList";
-import QualificationsCreateForm from "../components/qualifications-create-form";
-import CreateDialog from "../../../../../components/admin/dialog/create-dialog";
 import QualificationCard from "../components/qualification-card";
 import { Qualification } from "@prisma/client";
+import QualificationsClient from "../components/qualifitacions-client";
 
 export default async function Page() {
   const session = await auth();
@@ -44,9 +43,7 @@ export default async function Page() {
       <BreadCrumb pageName="Títulos" />
       <div className="flex flex-row w-full items-center justify-between">
         <Heading>{`Tus títulos`}</Heading>
-        <CreateDialog>
-          <QualificationsCreateForm doctor_id={doctor.id} />
-        </CreateDialog>
+        <QualificationsClient doctor_id={doctor.id} />
       </div>
       {doctor.staff.doctor.qualification.length > 0 ? (
         <Box as="section" mt={8}>
