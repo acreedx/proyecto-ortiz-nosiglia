@@ -9,7 +9,12 @@ type Props = {
 
 function CreateButton({ handleShowCreate }: Props) {
   return (
-    <Button variant="outline" size="sm" onClick={handleShowCreate}>
+    <Button
+      variant="outline"
+      className="text-black dark:text-white"
+      size="sm"
+      onClick={handleShowCreate}
+    >
       <LuPlus color="orange" /> Crear
     </Button>
   );

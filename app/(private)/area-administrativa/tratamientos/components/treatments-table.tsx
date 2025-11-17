@@ -106,27 +106,14 @@ export default function TreatmentsTable({
           : "Bs. 0.00",
     },
     {
-      field: "status",
-      filter: true,
+      field: "statusText",
       headerName: "Estado",
-      valueGetter: (params) => {
-        if (!params.data) return "—";
-        switch (params.data.status) {
-          case userStatusList.ACTIVO:
-            return "Activo";
-          case userStatusList.INACTIVO:
-            return "Inactivo";
-          case treatmentStatusList.COMPLETADO:
-            return "Completado";
-          default:
-            return "—";
-        }
-      },
-      valueFormatter: (params) => params.value,
+      filter: true,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: (params: any) => {
         const value = params.value;
-        let colorScheme: string;
+        let colorScheme = "yellow";
+
         switch (value) {
           case "Activo":
             colorScheme = "green";
@@ -137,10 +124,8 @@ export default function TreatmentsTable({
           case "Completado":
             colorScheme = "blue";
             break;
-          default:
-            colorScheme = "yellow";
-            break;
         }
+
         return (
           <Badge
             colorPalette={colorScheme}
@@ -298,7 +283,6 @@ export default function TreatmentsTable({
       }
     }
   };
-
   const handleRestore = async (id: number) => {
     const isConfirmed = await mostrarAlertaConfirmacion({
       mensaje: "Esta seguro de rehabilitar este tratamiento?",
@@ -337,7 +321,18 @@ export default function TreatmentsTable({
             filterModel: gridParams.filterModel,
             sortModel: gridParams.sortModel,
           });
-          gridParams.successCallback(rows, total);
+          const mappedRows = rows.map((row) => ({
+            ...row,
+            statusText:
+              row.status === userStatusList.ACTIVO
+                ? "Activo"
+                : row.status === userStatusList.INACTIVO
+                  ? "Inactivo"
+                  : row.status === treatmentStatusList.COMPLETADO
+                    ? "Completado"
+                    : "—",
+          }));
+          gridParams.successCallback(mappedRows, total);
         } catch (err) {
           console.error("Error cargando pacientes:", err);
           gridParams.failCallback();
@@ -348,7 +343,7 @@ export default function TreatmentsTable({
     params.api.setGridOption("datasource", datasource);
   }, []);
   return (
-    <div className="w-full h-full mb-4 pt-4">
+    <div className="w-full h-full mb-4 pt-4 ">
       <AgGridReact
         columnDefs={colDefs}
         rowBuffer={0}

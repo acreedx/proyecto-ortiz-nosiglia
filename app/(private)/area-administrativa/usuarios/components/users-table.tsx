@@ -162,10 +162,8 @@ export default function UsersTable({
                             }}
                           />
                         ),
+                        size: "xl",
                       });
-
-                      //editDialog.setOpen(true);
-                      //setSelectedUser(props.data);
                     }}
                   >
                     <FaEdit color="orange" />

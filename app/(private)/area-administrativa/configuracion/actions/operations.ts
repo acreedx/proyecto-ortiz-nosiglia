@@ -7,6 +7,7 @@ import generateStrongPassword, {
 } from "../../../../../lib/bcrypt/password-generator";
 import { hashPassword } from "../../../../../lib/bcrypt/hasher";
 import { ImportPatient } from "../models/import-patient";
+import { revalidatePath } from "next/cache";
 
 export async function createPatients({
   data,
@@ -281,6 +282,70 @@ export async function createPatients({
     return { ok: false };
   }
 }
+
 const extractDigits = (value: string): string => {
   return value.replace(/\D/g, "");
 };
+
+export async function createDefaultConfiguration(): Promise<{ ok: boolean }> {
+  try {
+    await prisma.configuration.create({
+      data: {
+        openHour: new Date("2025-01-01T08:00:00Z"),
+        closeHour: new Date("2025-01-01T18:00:00Z"),
+        monday: true,
+        tuesday: true,
+        wednesday: true,
+        thursday: true,
+        friday: true,
+        saturday: false,
+        sunday: false,
+      },
+    });
+    return { ok: true };
+  } catch (e) {
+    console.log(e);
+    return { ok: false };
+  }
+}
+
+export async function updateConfiguration(data: {
+  openHour: Date;
+  closeHour: Date;
+  monday: boolean;
+  tuesday: boolean;
+  wednesday: boolean;
+  thursday: boolean;
+  friday: boolean;
+  saturday: boolean;
+  sunday: boolean;
+}): Promise<{ ok: boolean; message?: string }> {
+  try {
+    if (data.openHour >= data.closeHour) {
+      return {
+        ok: false,
+        message:
+          "La hora de apertura no puede ser mayor o igual a la hora de cierre.",
+      };
+    }
+    await prisma.configuration.update({
+      where: { id: 1 },
+      data: {
+        openHour: data.openHour,
+        closeHour: data.closeHour,
+        monday: data.monday,
+        tuesday: data.tuesday,
+        wednesday: data.wednesday,
+        thursday: data.thursday,
+        friday: data.friday,
+        saturday: data.saturday,
+        sunday: data.sunday,
+      },
+    });
+    revalidatePath("/area-administrativa/configuracion/horarios-y-dias");
+    return { ok: true };
+  } catch (e) {
+    console.error("Error al actualizar configuración:", e);
+    return { ok: false };
+  }
+}

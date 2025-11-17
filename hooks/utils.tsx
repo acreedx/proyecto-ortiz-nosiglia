@@ -47,3 +47,8 @@ export function getUserColor(user: {
 
   return `hsl(${h}, ${s}%, ${l}%)`;
 }
+export function horaAFechaUTC(hora: string): Date {
+  if (!hora) return null as unknown as Date;
+  const [h, m] = hora.split(":");
+  return new Date(Date.UTC(2025, 0, 1, Number(h), Number(m), 0));
+}

@@ -37,7 +37,7 @@ export default function ClientSection({
   };
   return (
     <>
-      <div className="flex flex-row w-full items-center justify-between">
+      <div className="flex flex-row w-full items-center justify-between mb-4">
         <Heading>Usuarios</Heading>
         <CreateButton handleShowCreate={handleShowCreate} />
       </div>

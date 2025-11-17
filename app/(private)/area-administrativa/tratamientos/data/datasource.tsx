@@ -2,6 +2,10 @@
 "use server";
 
 import { prisma } from "../../../../../lib/prisma/prisma";
+import {
+  treatmentStatusList,
+  userStatusList,
+} from "../../../../../types/statusList";
 
 type FilterModel = Record<
   string,
@@ -17,7 +21,6 @@ type SortModel = {
   sort: "asc" | "desc";
 }[];
 
-// Convierte campos anidados tipo "patient.user.first_name"
 function setNestedObject(obj: any, path: string[], value: any) {
   const [head, ...rest] = path;
   if (!head) return;
@@ -29,45 +32,42 @@ function setNestedObject(obj: any, path: string[], value: any) {
   }
 }
 
-// Construcción de filtros a partir de AgGrid
-function buildCarePlanFilter(filterModel?: FilterModel) {
-  if (!filterModel) return {};
-
+function buildCarePlanFilter(filterModel: FilterModel | undefined) {
   const where: any = {};
-  for (const [field, filter] of Object.entries(filterModel)) {
-    if (filter.filterType === "text" && filter.filter) {
-      let condition: any;
-      if (filter.type === "contains") {
-        condition = { contains: filter.filter, mode: "insensitive" };
-      } else if (filter.type === "equals") {
-        condition = { equals: filter.filter };
-      }
+  if (!filterModel) return where;
+  if (filterModel.statusText?.filter) {
+    const text = filterModel.statusText.filter;
+    const statusMap: Record<string, string> = {
+      Activo: userStatusList.ACTIVO,
+      Inactivo: userStatusList.INACTIVO,
+      Completado: treatmentStatusList.COMPLETADO,
+    };
 
-      if (field.includes(".")) {
-        setNestedObject(where, field.split("."), condition);
-      } else {
-        where[field] = condition;
-      }
+    const mappedStatus = statusMap[text] || null;
+    if (mappedStatus) {
+      where.status = mappedStatus;
     }
   }
   return where;
 }
 
-// Construcción de orderBy para Prisma
 function buildOrderBy(sortModel?: SortModel) {
   if (!sortModel || sortModel.length === 0) return [{ created_at: "asc" }];
 
   return sortModel.map((s) => {
-    if (s.colId.includes(".")) {
+    let colId = s.colId;
+    if (colId === "statusText") {
+      colId = "status";
+    }
+    if (colId.includes(".")) {
       const nested: any = {};
-      setNestedObject(nested, s.colId.split("."), s.sort);
+      setNestedObject(nested, colId.split("."), s.sort);
       return nested;
     }
-    return { [s.colId]: s.sort };
+    return { [colId]: s.sort };
   });
 }
 
-// Acción para AgGrid Infinite Row Model
 export async function getCarePlans({
   startRow,
   endRow,

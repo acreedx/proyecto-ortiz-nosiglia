@@ -20,7 +20,16 @@ export const dialog = createOverlay<DialogProps>((props) => {
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content colorPalette={"orange"} zIndex={-1}>
+          <Dialog.Content
+            bgColor={"white"}
+            color={"black"}
+            _dark={{
+              bgColor: "rgb(36 48 63 / var(--tw-bg-opacity, 1))",
+              color: "gray.400",
+            }}
+            colorPalette={"orange"}
+            zIndex={-1}
+          >
             {content}
           </Dialog.Content>
         </Dialog.Positioner>
