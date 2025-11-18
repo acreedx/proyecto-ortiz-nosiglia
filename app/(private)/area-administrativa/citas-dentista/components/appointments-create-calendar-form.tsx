@@ -112,7 +112,6 @@ export default function AppointmentsCreateCalendarForm({
       <Dialog.Body>
         <div className="flex flex-col md:flex-row">
           <div className="w-full md:w-1/2">
-            {/* ID del paciente */}
             <Field.Root
               invalid={!!errors.patient_id}
               px={4}
@@ -257,7 +256,6 @@ export default function AppointmentsCreateCalendarForm({
                   {errors.hora_cita?.message}
                 </Field.ErrorText>
               </Field.Root>
-              {/* Especialidad */}
               <Field.Root
                 invalid={!!errors.specialty}
                 required
@@ -274,7 +272,6 @@ export default function AppointmentsCreateCalendarForm({
                 />
                 <Field.ErrorText>{errors.specialty?.message}</Field.ErrorText>
               </Field.Root>
-              {/* Motivo */}
               <Field.Root
                 invalid={!!errors.reason}
                 required
@@ -291,7 +288,6 @@ export default function AppointmentsCreateCalendarForm({
                 />
                 <Field.ErrorText>{errors.reason?.message}</Field.ErrorText>
               </Field.Root>
-              {/* Nota (opcional) */}
               <Field.Root
                 invalid={!!errors.note}
                 px={4}
@@ -307,7 +303,6 @@ export default function AppointmentsCreateCalendarForm({
                 />
                 <Field.ErrorText>{errors.note?.message}</Field.ErrorText>
               </Field.Root>
-              {/* Instrucciones al paciente (opcional) */}
               <Field.Root
                 invalid={!!errors.patient_instruction}
                 px={4}

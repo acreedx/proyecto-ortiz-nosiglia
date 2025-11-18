@@ -75,7 +75,7 @@ export default function EditConfigurationForm({ configuraciones }: Props) {
       const payload = {
         openHour: horaAFechaUTC(data.openHour),
         closeHour: horaAFechaUTC(data.closeHour),
-        monday: !!data.monday, // convierte "on"/undefined en true/false
+        monday: !!data.monday,
         tuesday: !!data.tuesday,
         wednesday: !!data.wednesday,
         thursday: !!data.thursday,
@@ -102,18 +102,21 @@ export default function EditConfigurationForm({ configuraciones }: Props) {
     <Card.Root
       as="form"
       onSubmit={handleSubmit(onSubmit)}
-      p={6}
+      p={4}
       rounded="2xl"
       borderWidth="1px"
       bg="white"
+      mt={4}
       shadow="sm"
+      _dark={{
+        bg: "rgb(36 48 63 / var(--tw-bg-opacity, 1))",
+      }}
     >
       <CardHeader>
         <Heading size="md">Editar configuración</Heading>
       </CardHeader>
 
       <CardBody display="flex" flexDirection="column" gap={6}>
-        {/* Horarios */}
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4}>
           <Field.Root>
             <Field.Label>Hora de apertura</Field.Label>
@@ -126,12 +129,11 @@ export default function EditConfigurationForm({ configuraciones }: Props) {
           </Field.Root>
         </Grid>
 
-        {/* Días */}
         <Box>
           <Text fontWeight="medium" mb={2}>
             Días de atención
           </Text>
-          <Flex gap={4} wrap="nowrap" overflowX="auto" align="center">
+          <Flex gap={4} wrap="wrap" overflowX="auto" align="center">
             <Checkbox.Root
               colorPalette={"orange"}
               {...register("monday")}
@@ -211,8 +213,7 @@ export default function EditConfigurationForm({ configuraciones }: Props) {
           </Flex>
         </Box>
 
-        {/* Submit */}
-        <Flex justify={{ base: "center", sm: "flex-start" }}>
+        <Flex justify={{ base: "center", sm: "end" }}>
           <Button type="submit" colorPalette={"orange"}>
             Guardar cambios
           </Button>

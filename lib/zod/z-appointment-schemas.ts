@@ -16,11 +16,11 @@ export const CreateAppointmentSchema = z.object({
       (val) => {
         const date = new Date(val);
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Ignorar horas/minutos/segundos para comparar solo fechas
-        return date <= today;
+        today.setHours(0, 0, 0, 0);
+        return date >= today;
       },
       {
-        message: "La fecha no puede ser mayor a hoy",
+        message: "La fecha no puede ser anterior a hoy",
       }
     ),
   hora_cita: z.string(),

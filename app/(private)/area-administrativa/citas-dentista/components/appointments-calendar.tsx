@@ -14,12 +14,16 @@ import {
   mostrarAlertaConfirmacion,
   mostrarAlertaError,
 } from "../../../../../lib/sweetalert/alerts";
-import { Prisma, User } from "@prisma/client";
+import { Configuration, Prisma, User } from "@prisma/client";
 import { convertirAppointmentsAEventos } from "../../../../../types/appointmentStatusMaps";
 import { updateAppointmentDateTime } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
 import { appointmentStatusList } from "../../../../../types/statusList";
-import { isTodayOrFuture, normalizarFecha } from "../../../../../hooks/utils";
+import {
+  isTodayOrFuture,
+  isWorkingDay,
+  normalizarFecha,
+} from "../../../../../hooks/utils";
 import { dialog } from "../../../../../providers/DialogProvider";
 import AppointmentsCreateCalendarForm from "./appointments-create-calendar-form";
 import AppointmentsViewForm from "./appointments-view-form";
@@ -47,6 +51,7 @@ export default function AppointmentsCalendar({
       };
     }>[];
     patients: User[];
+    configurations: Configuration | null;
   };
 }) {
   const handleEventChange = async (e: EventChangeArg) => {
@@ -101,20 +106,26 @@ export default function AppointmentsCalendar({
     }
   };
   const handleDateSelect = async (e: DateSelectArg) => {
-    if (isTodayOrFuture(e.start)) {
-      dialog.open("Create Dialog", {
-        content: (
-          <AppointmentsCreateCalendarForm
-            props={{ pacientes: props.patients, selectedDate: e.start }}
-          />
-        ),
-        size: "xl",
-      });
-    } else {
+    if (!isTodayOrFuture(e.start)) {
       mostrarAlertaError({
         mensaje: "No se puede crear una cita en una fecha anterior",
       });
+      return;
     }
+    if (props.configurations && !isWorkingDay(props.configurations, e.start)) {
+      mostrarAlertaError({
+        mensaje: "No se puede crear una cita en un día sin atención",
+      });
+      return;
+    }
+    dialog.open("Create Dialog", {
+      content: (
+        <AppointmentsCreateCalendarForm
+          props={{ pacientes: props.patients, selectedDate: e.start }}
+        />
+      ),
+      size: "xl",
+    });
   };
   const handleClickEvent = async (event: EventClickArg) => {
     const eventoEncontrado = props.appointments.find(
@@ -150,8 +161,6 @@ export default function AppointmentsCalendar({
       eventDurationEditable={false}
       select={handleDateSelect}
       locale={esLocale}
-      slotMinTime="08:00:00"
-      slotMaxTime="17:00:00"
       eventDidMount={(info) => {
         const border = info.event.borderColor || "gray";
         const text = info.event.textColor || "white";

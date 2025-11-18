@@ -1,3 +1,5 @@
+import { Configuration } from "@prisma/client";
+
 export function normalizarFecha(fecha: Date) {
   return new Date(
     fecha.getFullYear(),
@@ -51,4 +53,41 @@ export function horaAFechaUTC(hora: string): Date {
   if (!hora) return null as unknown as Date;
   const [h, m] = hora.split(":");
   return new Date(Date.UTC(2025, 0, 1, Number(h), Number(m), 0));
+}
+
+export const isWorkingDay = (config: Configuration, date: Date): boolean => {
+  const dayIndex = date.getUTCDay();
+  const dayMap = [
+    config.sunday,
+    config.monday,
+    config.tuesday,
+    config.wednesday,
+    config.thursday,
+    config.friday,
+    config.saturday,
+  ];
+  return dayMap[dayIndex];
+};
+
+export function generarIntervalos(config: Configuration | null): string[] {
+  const horarios: string[] = [];
+  if (!config) {
+    for (let h = 8; h < 17; h++) {
+      horarios.push(`${String(h).padStart(2, "0")}:00`);
+      horarios.push(`${String(h).padStart(2, "0")}:30`);
+    }
+    return horarios;
+  }
+  const open = config.openHour;
+  const close = config.closeHour;
+  const actual = open;
+
+  while (actual < close) {
+    const horas = actual.getUTCHours().toString().padStart(2, "0");
+    const minutos = actual.getUTCMinutes().toString().padStart(2, "0");
+    horarios.push(`${horas}:${minutos}`);
+    actual.setMinutes(actual.getMinutes() + 30);
+  }
+
+  return horarios;
 }

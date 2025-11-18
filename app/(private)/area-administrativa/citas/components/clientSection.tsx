@@ -32,7 +32,7 @@ export default function ClientSection({
           }}
         />
       ),
-      size: "md",
+      size: "xl",
     });
   };
   return (

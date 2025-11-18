@@ -61,6 +61,7 @@ export default async function Page() {
       },
     },
   });
+  const configurations = await prisma.configuration.findFirst();
   return (
     <main className="w-full flex flex-col h-full flex-grow">
       <BreadCrumb
@@ -75,6 +76,7 @@ export default async function Page() {
         props={{
           appointments: appointments,
           patients: pacientes,
+          configurations: configurations,
         }}
       />
     </main>

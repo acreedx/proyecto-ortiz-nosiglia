@@ -21,6 +21,7 @@ import { Prisma } from "@prisma/client";
 import { auth } from "../../../../../lib/nextauth/auth";
 import { registerLog } from "../../../../../lib/logs/logger";
 import { sendEmail } from "../../../../../lib/nodemailer/mailer";
+import { generarIntervalos } from "../../../../../hooks/utils";
 
 export async function create({
   data,
@@ -508,13 +509,9 @@ export async function horariosDisponibles({
   date: Date;
 }): Promise<{ horarios: string[]; ok: boolean }> {
   try {
-    const intervalosHora = Array.from({ length: 18 }, (_, i) => {
-      const hora = 8 + Math.floor(i / 2);
-      const minutos = i % 2 === 0 ? "00" : "30";
-      const label = `${hora.toString().padStart(2, "0")}:${minutos}`;
-      return label;
-    });
-    return { horarios: intervalosHora, ok: true };
+    const configurations = await prisma.configuration.findFirst();
+    const horarios = generarIntervalos(configurations);
+    return { horarios: horarios, ok: true };
   } catch (e) {
     console.log(e);
     return { horarios: [], ok: false };
