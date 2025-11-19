@@ -1,5 +1,5 @@
 "use client";
-import { Heading, useDialog } from "@chakra-ui/react";
+import { Heading } from "@chakra-ui/react";
 import { GridApi, IDatasource } from "ag-grid-community";
 import React, { useRef } from "react";
 import AppointmentsCreateForm from "./appointments-create-form";
@@ -16,7 +16,6 @@ export default function ClientSection({
     pacientes: User[];
   };
 }) {
-  const createDialog = useDialog();
   const gridApiRef = useRef<GridApi | null>(null);
   const datasourceRef = useRef<IDatasource | null>(null);
   const handleShowCreate = () => {
@@ -26,7 +25,6 @@ export default function ClientSection({
           props={{
             doctores: props.doctores,
             pacientes: props.pacientes,
-            dialog: createDialog,
             gridApiRef: gridApiRef,
             datasourceRef: datasourceRef,
           }}

@@ -21,7 +21,7 @@ import { Prisma } from "@prisma/client";
 import { auth } from "../../../../../lib/nextauth/auth";
 import { registerLog } from "../../../../../lib/logs/logger";
 import { sendEmail } from "../../../../../lib/nodemailer/mailer";
-import { generarIntervalos } from "../../../../../hooks/utils";
+import { generarIntervalos, isWorkingDay } from "../../../../../hooks/utils";
 
 export async function create({
   data,
@@ -69,6 +69,15 @@ export async function create({
       return {
         ok: false,
       };
+    }
+    const configuration = await prisma.configuration.findFirst();
+    if (configuration) {
+      if (!isWorkingDay(configuration, new Date(data.programed_date_time))) {
+        return {
+          ok: false,
+          mensaje: "No se puede crear una cita en un día sin atención",
+        };
+      }
     }
     const [horaStr, minutoStr] = data.hora_cita.split(":");
     const fechaConHora = new Date(data.programed_date_time);

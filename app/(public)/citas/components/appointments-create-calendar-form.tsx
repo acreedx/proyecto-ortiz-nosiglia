@@ -17,11 +17,9 @@ import {
   TCreateAppointmentCalendarSchema,
 } from "../../../../lib/zod/z-appointment-calendar-patient.schemas";
 import formatDateLocal from "../../../../types/dateFormatter";
-import {
-  createDentistAppointment,
-  horariosDisponibles,
-} from "../actions/operations";
+import { createDentistAppointment } from "../actions/operations";
 import { toaster } from "../../../../components/ui/toaster";
+import { horariosDisponibles } from "../../../(private)/area-administrativa/citas/actions/operations";
 
 export default function AppointmentsCreateCalendarForm({
   props,

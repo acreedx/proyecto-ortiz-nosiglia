@@ -47,7 +47,7 @@ export default function AppointmentActions({
       content: (
         <AppointmentsEditForm props={{ selectedAppointment: appointment }} />
       ),
-      size: "xl",
+      size: "md",
     });
   };
   const handleCancel = async (appointment: Appointment) => {
@@ -81,7 +81,7 @@ export default function AppointmentActions({
       }
     }
   };
-  const handleViewDetails = async (appointment: Appointment) => {
+  const handleViewDetails = (appointment: Appointment) => {
     dialog.open("View Dialog", {
       content: (
         <AppointmentsViewForm
@@ -90,7 +90,7 @@ export default function AppointmentActions({
           }}
         />
       ),
-      size: "xl",
+      size: "md",
     });
   };
   return (

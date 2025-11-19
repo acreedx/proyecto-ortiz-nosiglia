@@ -107,7 +107,7 @@ export default function AppointmentsCalendar({
             props={{ doctores: props.doctores, selectedDate: e.start }}
           />
         ),
-        size: "xl",
+        size: "md",
       });
     } else {
       toaster.create({
@@ -128,7 +128,7 @@ export default function AppointmentsCalendar({
           }}
         />
       ),
-      size: "xl",
+      size: "md",
     });
   };
   return (

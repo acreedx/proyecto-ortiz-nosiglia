@@ -54,22 +54,24 @@ export default function AppointmentsSection({
     setEvents(props.appointments);
   }, [props.appointments]);
   return (
-    <div className="flex flex-col w-full pt-4 gap-4 h-full md:flex-row">
-      <div className="w-full h-auto px-4 md:w-1/4 ">
-        <Heading>Listado de citas</Heading>
-        <AppointmentAccordion
-          props={{
-            appointments: props.appointments,
-          }}
-        />
-      </div>
-      <div className="w-full h-auto md:w-3/4">
-        <AppointmentsCalendar
-          props={{
-            appointments: Events,
-            doctores: props.doctors,
-          }}
-        />
+    <div className="flex flex-row w-full pt-4 gap-4 h-full">
+      <div className="flex flex-col xl:flex-row w-full h-auto">
+        <div className="w-full xl:w-1/4 h-auto px-4 mb-4 xl:mb-0 min-h-[700px]">
+          <Heading>Listado de citas</Heading>
+          <AppointmentAccordion
+            props={{
+              appointments: props.appointments,
+            }}
+          />
+        </div>
+        <div className="w-full xl:w-3/4 h-auto">
+          <AppointmentsCalendar
+            props={{
+              appointments: Events,
+              doctores: props.doctors,
+            }}
+          />
+        </div>
       </div>
     </div>
   );

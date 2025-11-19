@@ -5,6 +5,7 @@ import { Provider } from "../components/ui/provider";
 import { metadata } from "../lib/metadata/metadata";
 import { Toaster } from "../components/ui/toaster";
 import Script from "next/script";
+import { DialogProvider } from "../providers/DialogProvider";
 
 export { metadata };
 
@@ -39,6 +40,7 @@ export default function RootLayout({
         <Provider>
           {children}
           <Toaster />
+          <DialogProvider />
         </Provider>
       </body>
     </html>

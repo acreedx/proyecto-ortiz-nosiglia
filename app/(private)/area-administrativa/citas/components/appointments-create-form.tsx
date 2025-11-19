@@ -15,7 +15,6 @@ import {
   Box,
   Heading,
   Stack,
-  UseDialogReturn,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { toaster } from "../../../../../components/ui/toaster";
@@ -33,7 +32,6 @@ export default function AppointmentsCreateForm({
   props: {
     doctores: User[];
     pacientes: User[];
-    dialog: UseDialogReturn;
     gridApiRef: React.RefObject<GridApi | null>;
     datasourceRef: React.RefObject<IDatasource | null>;
   };
@@ -63,7 +61,6 @@ export default function AppointmentsCreateForm({
         );
       }
       reset();
-      props.dialog.setOpen(false);
     }
     if (!res.ok) {
       toaster.create({
@@ -117,7 +114,6 @@ export default function AppointmentsCreateForm({
       <Dialog.Body>
         <div className="flex flex-col md:flex-row">
           <div className="w-full md:w-1/2">
-            {/* ID del paciente */}
             <Field.Root
               invalid={!!errors.patient_id}
               px={4}
@@ -216,7 +212,6 @@ export default function AppointmentsCreateForm({
           </div>
           <div className="w-full md:w-1/2">
             <Flex wrap="wrap" gapY={4} mb={4} w="full">
-              {/* Fecha programada */}
               <Field.Root
                 invalid={!!errors.programed_date_time}
                 required
@@ -262,7 +257,6 @@ export default function AppointmentsCreateForm({
                   {errors.hora_cita?.message}
                 </Field.ErrorText>
               </Field.Root>
-              {/* Especialidad */}
               <Field.Root
                 invalid={!!errors.specialty}
                 required
@@ -297,8 +291,6 @@ export default function AppointmentsCreateForm({
                 />
                 <Field.ErrorText>{errors.reason?.message}</Field.ErrorText>
               </Field.Root>
-
-              {/* Nota (opcional) */}
               <Field.Root
                 invalid={!!errors.note}
                 px={4}
@@ -314,8 +306,6 @@ export default function AppointmentsCreateForm({
                 />
                 <Field.ErrorText>{errors.note?.message}</Field.ErrorText>
               </Field.Root>
-
-              {/* Instrucciones al paciente (opcional) */}
               <Field.Root
                 invalid={!!errors.patient_instruction}
                 px={4}

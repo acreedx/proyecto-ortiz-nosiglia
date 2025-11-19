@@ -21,7 +21,7 @@
     "@fullcalendar/timegrid": "^6.1.17",
     "@hookform/resolvers": "^5.0.1",
     "@neondatabase/serverless": "^1.0.0",
-    "@prisma/adapter-neon": "^6.6.0",
+    "@prisma/adapter-neon": "^6.19.0",
     "@prisma/client": "^6.19.0",
     "ag-grid-react": "^33.2.4",
     "bcrypt": "^5.1.1",

@@ -18,8 +18,9 @@ import {
   TEditAppointmentSchema,
 } from "../../../../lib/zod/z-appointment-calendar-patient.schemas";
 import formatDateLocal from "../../../../types/dateFormatter";
-import { edit, horariosDisponibles } from "../actions/operations";
+import { edit } from "../actions/operations";
 import { toaster } from "../../../../components/ui/toaster";
+import { horariosDisponibles } from "../../../(private)/area-administrativa/citas/actions/operations";
 
 export default function AppointmentsEditForm({
   props,

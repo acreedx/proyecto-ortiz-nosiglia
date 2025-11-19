@@ -487,22 +487,3 @@ export async function updateAppointmentDateTime({
     return { ok: false };
   }
 }
-export async function horariosDisponibles({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  date,
-}: {
-  date: Date;
-}): Promise<{ horarios: string[]; ok: boolean }> {
-  try {
-    const intervalosHora = Array.from({ length: 18 }, (_, i) => {
-      const hora = 8 + Math.floor(i / 2);
-      const minutos = i % 2 === 0 ? "00" : "30";
-      const label = `${hora.toString().padStart(2, "0")}:${minutos}`;
-      return label;
-    });
-    return { horarios: intervalosHora, ok: true };
-  } catch (e) {
-    console.log(e);
-    return { horarios: [], ok: false };
-  }
-}
