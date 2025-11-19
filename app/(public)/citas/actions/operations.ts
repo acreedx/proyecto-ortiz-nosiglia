@@ -21,6 +21,10 @@ import {
   appointmentCost,
   appointmentDefaultInstructions,
 } from "../../../../types/consts";
+import { sendEmail } from "../../../../lib/nodemailer/mailer";
+import formatDateLocal, {
+  timeFormatter,
+} from "../../../../types/dateFormatter";
 
 export async function createDentistAppointment({
   data,
@@ -45,7 +49,11 @@ export async function createDentistAppointment({
         id: session.user.id_db,
       },
       include: {
-        patient: true,
+        patient: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
     if (!userPatient) {
@@ -139,7 +147,7 @@ export async function createDentistAppointment({
           "Seleccione otro horario para la cita, ya tiene una reservada en esa fecha y hora.",
       };
     }
-    await prisma.appointment.create({
+    const createdAppointment = await prisma.appointment.create({
       data: {
         scheduled_on: new Date(),
         programed_date_time: fechaConHora,
@@ -151,6 +159,30 @@ export async function createDentistAppointment({
         doctor_id: userDoctor.staff!.doctor!.id,
         status: appointmentStatusList.STATUS_PENDIENTE,
       },
+    });
+    await sendEmail({
+      email: userPatient.email,
+      subject: "Confirmación de creación de cita - Centro Ortiz Nosiglia",
+      message: `
+        Hola ${userPatient.patient!.user.first_name} ${userPatient.patient!.user.last_name},
+
+        Te confirmamos que tu cita ha sido registrada exitosamente en nuestro sistema.
+
+        Detalles de tu cita:
+        - Fecha: ${formatDateLocal(createdAppointment.programed_date_time)}
+        - Hora: ${timeFormatter(createdAppointment.programed_date_time)}
+        - Dentista: ${userDoctor.first_name} ${userDoctor.last_name}
+        - Ubicación: Dirección: Calle 15 de Calacoto, DiagnoSur piso 1, consultorio 108, La Paz, Bolivia
+        
+        Te recomendamos presentarte unos minutos antes de la hora programada.
+
+        Si deseas realizar alguna modificación o tienes consultas adicionales,
+        no dudes en comunicarte con nuestro equipo de atención.
+
+        Muchas gracias,
+        Centro Ortiz Nosiglia
+        
+      `,
     });
     await registerLog({
       type: "sistema",
