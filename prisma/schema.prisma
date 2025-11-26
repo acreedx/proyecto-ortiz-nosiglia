@@ -1,12 +1,9 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 model Account {
@@ -388,5 +385,7 @@ model Configuration {
   friday    Boolean @default(false)
   saturday  Boolean @default(false)
   sunday    Boolean @default(false)
+  appointmentMinutesDuration Int @default(30)
+  appointmentCost Int @default(250)
   @@map("configuration")
 }

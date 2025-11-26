@@ -300,6 +300,8 @@ export async function createDefaultConfiguration(): Promise<{ ok: boolean }> {
         friday: true,
         saturday: false,
         sunday: false,
+        appointmentMinutesDuration: 30,
+        appointmentCost: 250,
       },
     });
     return { ok: true };
@@ -319,6 +321,8 @@ export async function updateConfiguration(data: {
   friday: boolean;
   saturday: boolean;
   sunday: boolean;
+  appointmentMinutesDuration: number;
+  appointmentCost: number;
 }): Promise<{ ok: boolean; message?: string }> {
   try {
     if (data.openHour >= data.closeHour) {
@@ -340,6 +344,8 @@ export async function updateConfiguration(data: {
         friday: data.friday,
         saturday: data.saturday,
         sunday: data.sunday,
+        appointmentMinutesDuration: data.appointmentMinutesDuration,
+        appointmentCost: data.appointmentCost,
       },
     });
     revalidatePath("/area-administrativa/configuracion/horarios-y-dias");

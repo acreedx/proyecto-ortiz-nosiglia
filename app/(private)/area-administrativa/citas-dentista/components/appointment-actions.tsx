@@ -9,7 +9,7 @@ import {
   FaTrash,
   FaEye,
 } from "react-icons/fa";
-import { Prisma } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import { toaster } from "../../../../../components/ui/toaster";
 import {
   confirmAppointment,
@@ -27,6 +27,7 @@ export default function AppointmentActions({
   props,
 }: {
   props: {
+    dentist: User[];
     appointment: Prisma.AppointmentGetPayload<{
       include: {
         patient: {
@@ -74,7 +75,9 @@ export default function AppointmentActions({
   ) => {
     dialog.open("Edit Dialog", {
       content: (
-        <AppointmentsEditForm props={{ selectedAppointment: appointment }} />
+        <AppointmentsEditForm
+          props={{ dentist: props.dentist, selectedAppointment: appointment }}
+        />
       ),
       size: "xl",
     });

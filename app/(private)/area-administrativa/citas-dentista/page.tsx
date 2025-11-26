@@ -37,6 +37,21 @@ export default async function Page() {
       },
     },
   });
+  const dentistas = await prisma.user.findMany({
+    where: {
+      status: {
+        in: [userStatusList.ACTIVO, userStatusList.NUEVO],
+      },
+      role: {
+        role_name: {
+          in: [rolesList.DENTISTA, rolesList.MEDICO_TEMPORAL],
+        },
+      },
+    },
+    orderBy: {
+      last_name: "asc",
+    },
+  });
   if (!usuario || !usuario.staff || !usuario.staff.doctor) {
     return <div>No encontrado</div>;
   }
@@ -70,12 +85,12 @@ export default async function Page() {
       <Heading>
         Citas del dentista {session.user.first_name} {session.user.last_name}
       </Heading>
-
       <AppointmentsColors />
       <AppointmentsSection
         props={{
           appointments: appointments,
           patients: pacientes,
+          dentists: dentistas,
           configurations: configurations,
         }}
       />

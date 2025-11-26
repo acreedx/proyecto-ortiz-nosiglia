@@ -1,6 +1,6 @@
 import { Box, Stack, Card, Badge, Text, Tabs } from "@chakra-ui/react";
 import { FaCalendar, FaTimesCircle } from "react-icons/fa";
-import { Prisma } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import { appointmentStatusList } from "../../../../../types/statusList";
 import { timeFormatter } from "../../../../../types/dateFormatter";
 import AppointmentActions from "./appointment-actions";
@@ -29,6 +29,7 @@ export default function AppointmentAccordion({
         };
       };
     }>[];
+    dentist: User[];
   };
 }) {
   const grouped = {
@@ -149,6 +150,7 @@ export default function AppointmentAccordion({
                         )}
                         <AppointmentActions
                           props={{
+                            dentist: props.dentist,
                             appointment: appt,
                           }}
                         />

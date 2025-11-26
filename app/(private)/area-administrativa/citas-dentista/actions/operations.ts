@@ -60,7 +60,7 @@ export async function createDentistAppointment({
     }
     const userDoctor = await prisma.user.findUnique({
       where: {
-        id: session.user.id_db,
+        id: data.dentist_id,
       },
       include: {
         staff: {
@@ -224,6 +224,23 @@ export async function edit({
       0
     );
     const fechaFin = new Date(fechaConHora.getTime() + 30 * 60 * 1000);
+    const userDoctor = await prisma.user.findUnique({
+      where: {
+        id: data.dentist_id,
+      },
+      include: {
+        staff: {
+          include: {
+            doctor: true,
+          },
+        },
+      },
+    });
+    if (!userDoctor) {
+      return {
+        ok: false,
+      };
+    }
     await prisma.appointment.update({
       where: {
         id: data.id,
@@ -236,6 +253,7 @@ export async function edit({
         note: data.note === "" ? null : data.note,
         patient_instruction:
           data.patient_instruction === "" ? null : data.patient_instruction,
+        doctor_id: userDoctor.staff!.doctor!.id,
       },
     });
     await registerLog({

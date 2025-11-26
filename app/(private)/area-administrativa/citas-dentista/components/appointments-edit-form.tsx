@@ -14,7 +14,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { Prisma } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,6 +31,7 @@ export default function AppointmentsEditForm({
   props,
 }: {
   props: {
+    dentist: User[];
     selectedAppointment:
       | Prisma.AppointmentGetPayload<{
           include: {
@@ -75,6 +76,7 @@ export default function AppointmentsEditForm({
       note: props.selectedAppointment?.note ?? undefined,
       patient_instruction:
         props.selectedAppointment?.patient_instruction ?? undefined,
+      dentist_id: props.selectedAppointment?.doctor.staff.user_id,
     },
   });
   const onSubmit = async (data: TEditAppointmentSchema) => {
@@ -319,6 +321,36 @@ export default function AppointmentsEditForm({
                   {errors.patient_instruction?.message}
                 </Field.ErrorText>
               </Field.Root>
+              <div className="w-full">
+                <Field.Root
+                  invalid={!!errors.dentist_id}
+                  px={4}
+                  w={{ base: "100%", md: "100%" }}
+                  required
+                  mb={4}
+                >
+                  <Field.Label>Dentistas</Field.Label>
+                  <NativeSelect.Root size={"md"}>
+                    <NativeSelect.Field
+                      placeholder="Selecciona algún dentista registrado"
+                      colorPalette={"orange"}
+                      {...register("dentist_id", {
+                        required: "Escoja algun dentista registrado",
+                      })}
+                    >
+                      {props.dentist.map((dentista) => (
+                        <option key={dentista.id} value={dentista.id}>
+                          {dentista.last_name} {dentista.first_name}
+                        </option>
+                      ))}
+                    </NativeSelect.Field>
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root>
+                  <Field.ErrorText className="text-sm">
+                    {errors.dentist_id?.message}
+                  </Field.ErrorText>
+                </Field.Root>
+              </div>
             </Flex>
           </div>
         </div>

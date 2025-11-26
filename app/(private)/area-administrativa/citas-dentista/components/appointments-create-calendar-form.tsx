@@ -31,6 +31,7 @@ export default function AppointmentsCreateCalendarForm({
   props,
 }: {
   props: {
+    dentists: User[];
     pacientes: User[];
     selectedDate: Date | undefined;
   };
@@ -167,12 +168,10 @@ export default function AppointmentsCreateCalendarForm({
                         {pacienteSeleccionado.last_name.charAt(0)}
                       </Avatar.Fallback>
                     </Avatar.Root>
-
                     <Text fontWeight="bold" fontSize="lg">
                       {pacienteSeleccionado.first_name}{" "}
                       {pacienteSeleccionado.last_name}
                     </Text>
-
                     <Box w="full">
                       <Text>
                         <strong>C.I.:</strong>{" "}
@@ -320,6 +319,36 @@ export default function AppointmentsCreateCalendarForm({
                   {errors.patient_instruction?.message}
                 </Field.ErrorText>
               </Field.Root>
+              <div className="w-full">
+                <Field.Root
+                  invalid={!!errors.dentist_id}
+                  px={4}
+                  w={{ base: "100%", md: "100%" }}
+                  required
+                  mb={4}
+                >
+                  <Field.Label>Dentistas</Field.Label>
+                  <NativeSelect.Root size={"md"}>
+                    <NativeSelect.Field
+                      placeholder="Selecciona algún dentista registrado"
+                      colorPalette={"orange"}
+                      {...register("dentist_id", {
+                        required: "Escoja algun dentista registrado",
+                      })}
+                    >
+                      {props.dentists.map((dentista) => (
+                        <option key={dentista.id} value={dentista.id}>
+                          {dentista.last_name} {dentista.first_name}
+                        </option>
+                      ))}
+                    </NativeSelect.Field>
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root>
+                  <Field.ErrorText className="text-sm">
+                    {errors.dentist_id?.message}
+                  </Field.ErrorText>
+                </Field.Root>
+              </div>
             </Flex>
           </div>
         </div>

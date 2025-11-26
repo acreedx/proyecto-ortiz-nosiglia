@@ -26,6 +26,9 @@ export const CreateAppointmentCalendarSchema = z.object({
   patient_id: z.coerce.number({
     required_error: "El ID del paciente es obligatorio",
   }),
+  dentist_id: z.coerce.number({
+    required_error: "El ID del dentista es obligatorio",
+  }),
 });
 export type TCreateAppointmentCalendarSchema = z.infer<
   typeof CreateAppointmentCalendarSchema
@@ -57,6 +60,9 @@ export const EditAppointmentSchema = z.object({
     .max(100, "Máximo 100 caracteres"),
   note: z.string().max(200, "Máximo 200 caracteres").optional(),
   patient_instruction: z.string().max(200, "Máximo 200 caracteres").optional(),
+  dentist_id: z.coerce.number({
+    required_error: "El ID del dentista es obligatorio",
+  }),
 });
 export type TEditAppointmentSchema = z.infer<typeof EditAppointmentSchema>;
 

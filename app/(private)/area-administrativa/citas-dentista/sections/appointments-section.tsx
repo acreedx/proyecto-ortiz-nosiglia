@@ -27,6 +27,7 @@ export default function AppointmentsSection({
       };
     }>[];
     patients: User[];
+    dentists: User[];
     configurations: Configuration | null;
   };
 }) {
@@ -60,6 +61,7 @@ export default function AppointmentsSection({
           <Heading>Listado de citas</Heading>
           <AppointmentAccordion
             props={{
+              dentist: props.dentists,
               appointments: props.appointments,
             }}
           />
@@ -67,6 +69,7 @@ export default function AppointmentsSection({
         <div className="w-full xl:w-3/4 h-auto">
           <AppointmentsCalendar
             props={{
+              dentists: props.dentists,
               appointments: Events,
               patients: props.patients,
               configurations: props.configurations,

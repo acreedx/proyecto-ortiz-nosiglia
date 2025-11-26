@@ -50,6 +50,7 @@ export default function AppointmentsCalendar({
         };
       };
     }>[];
+    dentists: User[];
     patients: User[];
     configurations: Configuration | null;
   };
@@ -121,7 +122,11 @@ export default function AppointmentsCalendar({
     dialog.open("Create Dialog", {
       content: (
         <AppointmentsCreateCalendarForm
-          props={{ pacientes: props.patients, selectedDate: e.start }}
+          props={{
+            pacientes: props.patients,
+            dentists: props.dentists,
+            selectedDate: e.start,
+          }}
         />
       ),
       size: "xl",
@@ -132,7 +137,7 @@ export default function AppointmentsCalendar({
       (e) => e.id === Number(event.event.id)
     );
     if (eventoEncontrado) {
-      dialog.open("Edit Dialog", {
+      dialog.open("View Dialog", {
         content: (
           <AppointmentsViewForm
             props={{

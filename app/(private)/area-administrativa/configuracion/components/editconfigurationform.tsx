@@ -33,6 +33,8 @@ type Props = {
     friday: boolean;
     saturday: boolean;
     sunday: boolean;
+    appointmentMinutesDuration: number;
+    appointmentCost: number;
   };
 };
 
@@ -46,6 +48,8 @@ type FormValues = {
   friday: boolean;
   saturday: boolean;
   sunday: boolean;
+  appointmentMinutesDuration: number;
+  appointmentCost: number;
 };
 
 export default function EditConfigurationForm({ configuraciones }: Props) {
@@ -64,6 +68,8 @@ export default function EditConfigurationForm({ configuraciones }: Props) {
       friday: configuraciones.friday,
       saturday: configuraciones.saturday,
       sunday: configuraciones.sunday,
+      appointmentMinutesDuration: configuraciones.appointmentMinutesDuration,
+      appointmentCost: configuraciones.appointmentCost,
     },
   });
 
@@ -82,6 +88,8 @@ export default function EditConfigurationForm({ configuraciones }: Props) {
         friday: !!data.friday,
         saturday: !!data.saturday,
         sunday: !!data.sunday,
+        appointmentMinutesDuration: Number(data.appointmentMinutesDuration),
+        appointmentCost: Number(data.appointmentCost),
       };
       const res = await updateConfiguration(payload);
       if (res.ok) {
@@ -212,7 +220,19 @@ export default function EditConfigurationForm({ configuraciones }: Props) {
             </Checkbox.Root>
           </Flex>
         </Box>
-
+        <Heading className="mt-4" size="md">
+          Configuración de citas
+        </Heading>
+        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4}>
+          <Field.Root>
+            <Field.Label>Duración de la cita</Field.Label>
+            <Input type="number" {...register("appointmentMinutesDuration")} />
+          </Field.Root>
+          <Field.Root>
+            <Field.Label>Costo por defecto de la cita</Field.Label>
+            <Input type="number" {...register("appointmentCost")} />
+          </Field.Root>
+        </Grid>
         <Flex justify={{ base: "center", sm: "end" }}>
           <Button type="submit" colorPalette={"orange"}>
             Guardar cambios
