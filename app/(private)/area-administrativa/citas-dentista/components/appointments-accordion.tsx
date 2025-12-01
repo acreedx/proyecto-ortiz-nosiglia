@@ -54,9 +54,28 @@ export default function AppointmentAccordion({
       fitted
       pt={2}
     >
-      <Tabs.List bg="bg.muted" rounded="l3" p="1">
+      <Tabs.List
+        bg="bg.muted"
+        rounded="l3"
+        p="1"
+        _dark={{
+          bgColor: "rgb(45 60 80 / 1)",
+          color: "gray.400",
+        }}
+      >
         {Object.entries(grouped).map(([status, list]) => (
-          <Tabs.Trigger key={status} value={status}>
+          <Tabs.Trigger
+            key={status}
+            value={status}
+            _dark={{
+              bgColor: "rgb(45 60 80 / 1)",
+              color: "gray.400",
+              _selected: {
+                bgColor: "rgb(60 75 100 / 1)", // más brillante para el seleccionado
+                color: "white",
+              },
+            }}
+          >
             {status} ({list.length})
           </Tabs.Trigger>
         ))}
@@ -74,7 +93,13 @@ export default function AppointmentAccordion({
               <Stack gap={2} mt={2} mb={2} maxH={690} overflowY="scroll">
                 {list.map((appt) => (
                   <Card.Root key={appt.id} variant="outline">
-                    <Card.Body p={4}>
+                    <Card.Body
+                      p={4}
+                      _dark={{
+                        bgColor: "rgb(45 60 80 / 1)",
+                        color: "gray.400",
+                      }}
+                    >
                       <Stack fontSize={"sm"} gap={0}>
                         <Text fontWeight="bold">
                           {appt.patient.user.first_name}{" "}
@@ -104,6 +129,7 @@ export default function AppointmentAccordion({
                           </span>
                         </Text>
                         <Badge
+                          variant={"solid"}
                           colorPalette={
                             appt.status ? statusColorMap[appt.status] : "gray"
                           }
@@ -124,11 +150,23 @@ export default function AppointmentAccordion({
                         {appt.status ===
                           appointmentStatusList.STATUS_CANCELADA && (
                           <>
-                            <Text color={"black"} className="flex items-center">
+                            <Text
+                              color={"black"}
+                              className="flex items-center"
+                              _dark={{
+                                color: "gray.400",
+                              }}
+                            >
                               <FaTimesCircle color="red" className="mr-1" />
                               Motivo de cancelación: {appt.cancellation_reason}
                             </Text>
-                            <Text color={"black"} className="flex items-center">
+                            <Text
+                              color={"black"}
+                              className="flex items-center"
+                              _dark={{
+                                color: "gray.400",
+                              }}
+                            >
                               <FaCalendar color="red" className="mr-1" />
                               Fecha de cancelación:{" "}
                               {appt.cancellation_date ? (

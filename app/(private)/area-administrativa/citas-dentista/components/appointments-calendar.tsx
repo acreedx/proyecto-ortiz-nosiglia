@@ -126,6 +126,7 @@ export default function AppointmentsCalendar({
             pacientes: props.patients,
             dentists: props.dentists,
             selectedDate: e.start,
+            configurations: props.configurations,
           }}
         />
       ),

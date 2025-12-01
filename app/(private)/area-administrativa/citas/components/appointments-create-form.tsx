@@ -131,7 +131,11 @@ export default function AppointmentsCreateForm({
                   })}
                 >
                   {props.pacientes.map((paciente) => (
-                    <option key={paciente.id} value={paciente.id}>
+                    <option
+                      key={paciente.id}
+                      value={paciente.id}
+                      className="dark:bg-[rgb(36_48_63/1)] dark:text-gray-400"
+                    >
                       {paciente.last_name} {paciente.first_name}
                     </option>
                   ))}
@@ -154,6 +158,10 @@ export default function AppointmentsCreateForm({
                   w="full"
                   mx="auto"
                   bg="white"
+                  _dark={{
+                    bgColor: "rgb(36 48 63 / var(--tw-bg-opacity, 1))",
+                    color: "gray.400",
+                  }}
                 >
                   <Stack gap={4} align="center">
                     <Heading size="md" textAlign="center">

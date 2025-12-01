@@ -22,6 +22,12 @@ export const CreateAppointmentCalendarSchema = z.object({
     .min(1, "El motivo es obligatorio")
     .max(100, "Máximo 100 caracteres"),
   note: z.string().max(200, "Máximo 200 caracteres").optional(),
+  cost: z.coerce
+    .number({ invalid_type_error: "Ingrese un número válido" })
+    .min(0, "Debe ser mayor o igual a 0")
+    .refine((val) => Number(val.toFixed(2)) === val, {
+      message: "Debe tener máximo 2 decimales",
+    }),
   patient_instruction: z.string().max(200, "Máximo 200 caracteres").optional(),
   patient_id: z.coerce.number({
     required_error: "El ID del paciente es obligatorio",
@@ -59,6 +65,12 @@ export const EditAppointmentSchema = z.object({
     .min(1, "El motivo es obligatorio")
     .max(100, "Máximo 100 caracteres"),
   note: z.string().max(200, "Máximo 200 caracteres").optional(),
+  cost: z.coerce
+    .number({ invalid_type_error: "Ingrese un número válido" })
+    .min(0, "Debe ser mayor o igual a 0")
+    .refine((val) => Number(val.toFixed(2)) === val, {
+      message: "Debe tener máximo 2 decimales",
+    }),
   patient_instruction: z.string().max(200, "Máximo 200 caracteres").optional(),
   dentist_id: z.coerce.number({
     required_error: "El ID del dentista es obligatorio",

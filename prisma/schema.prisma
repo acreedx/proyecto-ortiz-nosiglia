@@ -32,6 +32,7 @@ model Appointment {
   cancellation_date       DateTime? @db.Timestamptz(6)
   cancellation_reason     String?   @db.VarChar(200)
   completed_date_time     DateTime? @db.Timestamptz(6)
+  cost                    Int       @default(0)
   is_cancelled            Boolean?
   status                  String    @db.Char(1)
   patient_id              Int

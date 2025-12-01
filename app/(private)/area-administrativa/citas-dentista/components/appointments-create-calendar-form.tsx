@@ -19,7 +19,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { toaster } from "../../../../../components/ui/toaster";
 import { horariosDisponibles } from "../../citas/actions/operations";
-import { User } from "@prisma/client";
+import { Configuration, User } from "@prisma/client";
 import formatDateLocal from "../../../../../types/dateFormatter";
 import { createDentistAppointment } from "../actions/operations";
 import {
@@ -34,6 +34,7 @@ export default function AppointmentsCreateCalendarForm({
     dentists: User[];
     pacientes: User[];
     selectedDate: Date | undefined;
+    configurations: Configuration | null;
   };
 }) {
   const {
@@ -49,6 +50,7 @@ export default function AppointmentsCreateCalendarForm({
       programed_date_time: props.selectedDate
         ? formatDateLocal(props.selectedDate)
         : undefined,
+      cost: props.configurations?.appointmentCost,
     },
   });
   const fechaSeleccionada = watch("programed_date_time");
@@ -119,24 +121,50 @@ export default function AppointmentsCreateCalendarForm({
               w={{ base: "100%", md: "100%" }}
               required
               mb={4}
+              _dark={{
+                bgColor: "rgb(36 48 63 / var(--tw-bg-opacity, 1))",
+                color: "gray.400",
+              }}
             >
               <Field.Label>Pacientes</Field.Label>
-              <NativeSelect.Root size={"md"}>
+              <NativeSelect.Root
+                size="md"
+                className="dark:text-gray-400"
+                _dark={{
+                  bgColor: "rgb(36 48 63 / 1)",
+                  color: "gray.400",
+                }}
+              >
                 <NativeSelect.Field
-                  placeholder="Selecciona algún paciente registrado"
-                  colorPalette={"orange"}
+                  colorPalette="orange"
                   {...register("patient_id", {
                     required: "Escoja un paciente registrado",
                   })}
+                  _dark={{
+                    bgColor: "rgb(36 48 63 / 1)",
+                    color: "gray.400",
+                  }}
                 >
+                  <option
+                    value=""
+                    className="dark:bg-[rgb(36_48_63/1)] dark:text-gray-400"
+                  >
+                    Selecciona algún paciente registrado
+                  </option>
                   {props.pacientes.map((paciente) => (
-                    <option key={paciente.id} value={paciente.id}>
+                    <option
+                      key={paciente.id}
+                      value={paciente.id}
+                      className="dark:bg-[rgb(36_48_63/1)] dark:text-gray-400"
+                    >
                       {paciente.last_name} {paciente.first_name}
                     </option>
                   ))}
                 </NativeSelect.Field>
+
                 <NativeSelect.Indicator />
               </NativeSelect.Root>
+
               <Field.ErrorText className="text-sm">
                 {errors.patient_id?.message}
               </Field.ErrorText>
@@ -153,6 +181,10 @@ export default function AppointmentsCreateCalendarForm({
                   w="full"
                   mx="auto"
                   bg="white"
+                  _dark={{
+                    bgColor: "rgb(36 48 63 / var(--tw-bg-opacity, 1))",
+                    color: "gray.400",
+                  }}
                 >
                   <Stack gap={4} align="center">
                     <Heading size="md" textAlign="center">
@@ -286,6 +318,23 @@ export default function AppointmentsCreateCalendarForm({
                   {...register("reason")}
                 />
                 <Field.ErrorText>{errors.reason?.message}</Field.ErrorText>
+              </Field.Root>
+              {/*Costo de la cita*/}
+              <Field.Root
+                invalid={!!errors.cost}
+                required
+                px={4}
+                w={{ base: "100%", md: "50%" }}
+              >
+                <Field.Label>Costo</Field.Label>
+                <Input
+                  colorPalette="orange"
+                  type="number"
+                  placeholder="250.00"
+                  variant="outline"
+                  {...register("cost")}
+                />
+                <Field.ErrorText>{errors.cost?.message}</Field.ErrorText>
               </Field.Root>
               <Field.Root
                 invalid={!!errors.note}

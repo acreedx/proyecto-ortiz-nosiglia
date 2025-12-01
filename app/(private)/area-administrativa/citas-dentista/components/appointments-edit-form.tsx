@@ -285,7 +285,6 @@ export default function AppointmentsEditForm({
                 />
                 <Field.ErrorText>{errors.reason?.message}</Field.ErrorText>
               </Field.Root>
-
               {/* Nota (opcional) */}
               <Field.Root
                 invalid={!!errors.note}

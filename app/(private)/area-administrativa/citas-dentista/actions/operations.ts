@@ -151,6 +151,7 @@ export async function createDentistAppointment({
         programed_end_date_time: fechaFin,
         specialty: data.specialty,
         reason: data.reason,
+        cost: data.cost * 100,
         note: data.note === "" ? null : data.note,
         patient_instruction:
           data.patient_instruction === "" ? null : data.patient_instruction,
