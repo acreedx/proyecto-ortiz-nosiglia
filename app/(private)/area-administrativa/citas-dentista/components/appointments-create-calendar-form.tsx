@@ -26,6 +26,8 @@ import {
   CreateAppointmentCalendarSchema,
   TCreateAppointmentCalendarSchema,
 } from "../../../../../lib/zod/z-appointment-calendar.schemas";
+import formatNumber from "../../../../../types/decimalConverter";
+import { DiscountSection } from "./discount-section";
 
 export default function AppointmentsCreateCalendarForm({
   props,
@@ -41,6 +43,7 @@ export default function AppointmentsCreateCalendarForm({
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<TCreateAppointmentCalendarSchema>({
@@ -50,7 +53,12 @@ export default function AppointmentsCreateCalendarForm({
       programed_date_time: props.selectedDate
         ? formatDateLocal(props.selectedDate)
         : undefined,
-      cost: props.configurations?.appointmentCost,
+      cost: props.configurations?.appointmentCost
+        ? formatNumber({
+            value: props.configurations.appointmentCost,
+          })
+        : 0,
+      discount: 0,
     },
   });
   const fechaSeleccionada = watch("programed_date_time");
@@ -240,6 +248,13 @@ export default function AppointmentsCreateCalendarForm({
             )}
           </div>
           <div className="w-full md:w-1/2">
+            <DiscountSection
+              costValue={watch("cost")}
+              onCostChange={(value) => setValue("cost", value)}
+              discountValue={watch("discount")}
+              onDiscountChange={(value) => setValue("discount", value)}
+            />
+
             <Flex wrap="wrap" gapY={4} mb={4} w="full">
               {/* Fecha programada */}
               <Field.Root
@@ -318,23 +333,6 @@ export default function AppointmentsCreateCalendarForm({
                   {...register("reason")}
                 />
                 <Field.ErrorText>{errors.reason?.message}</Field.ErrorText>
-              </Field.Root>
-              {/*Costo de la cita*/}
-              <Field.Root
-                invalid={!!errors.cost}
-                required
-                px={4}
-                w={{ base: "100%", md: "50%" }}
-              >
-                <Field.Label>Costo</Field.Label>
-                <Input
-                  colorPalette="orange"
-                  type="number"
-                  placeholder="250.00"
-                  variant="outline"
-                  {...register("cost")}
-                />
-                <Field.ErrorText>{errors.cost?.message}</Field.ErrorText>
               </Field.Root>
               <Field.Root
                 invalid={!!errors.note}

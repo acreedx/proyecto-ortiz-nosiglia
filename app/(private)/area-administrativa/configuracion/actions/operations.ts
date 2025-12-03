@@ -345,7 +345,7 @@ export async function updateConfiguration(data: {
         saturday: data.saturday,
         sunday: data.sunday,
         appointmentMinutesDuration: data.appointmentMinutesDuration,
-        appointmentCost: data.appointmentCost,
+        appointmentCost: data.appointmentCost * 100,
       },
     });
     revalidatePath("/area-administrativa/configuracion/horarios-y-dias");

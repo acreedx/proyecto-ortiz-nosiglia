@@ -21,6 +21,7 @@ import {
   Text,
   Field,
 } from "@chakra-ui/react";
+import formatNumber from "../../../../../types/decimalConverter";
 
 type Props = {
   configuraciones: {
@@ -69,7 +70,9 @@ export default function EditConfigurationForm({ configuraciones }: Props) {
       saturday: configuraciones.saturday,
       sunday: configuraciones.sunday,
       appointmentMinutesDuration: configuraciones.appointmentMinutesDuration,
-      appointmentCost: configuraciones.appointmentCost,
+      appointmentCost: formatNumber({
+        value: configuraciones.appointmentCost,
+      }),
     },
   });
 
@@ -230,7 +233,7 @@ export default function EditConfigurationForm({ configuraciones }: Props) {
           </Field.Root>
           <Field.Root>
             <Field.Label>Costo por defecto de la cita</Field.Label>
-            <Input type="number" {...register("appointmentCost")} />
+            <Input {...register("appointmentCost")} />
           </Field.Root>
         </Grid>
         <Flex justify={{ base: "center", sm: "end" }}>

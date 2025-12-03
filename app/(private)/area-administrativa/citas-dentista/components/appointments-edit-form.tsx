@@ -136,6 +136,10 @@ export default function AppointmentsEditForm({
                   w="full"
                   mx="auto"
                   bg="white"
+                  _dark={{
+                    bgColor: "rgb(36 48 63 / var(--tw-bg-opacity, 1))",
+                    color: "gray.400",
+                  }}
                 >
                   <Stack gap={4} align="center">
                     <Heading size="md" textAlign="center">
