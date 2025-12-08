@@ -254,7 +254,6 @@ export default function AppointmentsCreateCalendarForm({
               discountValue={watch("discount")}
               onDiscountChange={(value) => setValue("discount", value)}
             />
-
             <Flex wrap="wrap" gapY={4} mb={4} w="full">
               {/* Fecha programada */}
               <Field.Root

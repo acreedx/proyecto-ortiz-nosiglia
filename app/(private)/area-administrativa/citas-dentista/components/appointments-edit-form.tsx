@@ -26,6 +26,8 @@ import {
   TEditAppointmentSchema,
 } from "../../../../../lib/zod/z-appointment-calendar.schemas";
 import { horariosDisponibles } from "../../citas/actions/operations";
+import { DiscountSection } from "./discount-section";
+import formatNumber from "../../../../../types/decimalConverter";
 
 export default function AppointmentsEditForm({
   props,
@@ -58,6 +60,7 @@ export default function AppointmentsEditForm({
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
     reset,
   } = useForm({
@@ -72,6 +75,11 @@ export default function AppointmentsEditForm({
         ? props.selectedAppointment.programed_date_time
             .toISOString()
             .substring(11, 16)
+        : undefined,
+      cost: props.selectedAppointment?.cost
+        ? formatNumber({
+            value: props.selectedAppointment.cost,
+          })
         : undefined,
       note: props.selectedAppointment?.note ?? undefined,
       patient_instruction:
@@ -204,6 +212,12 @@ export default function AppointmentsEditForm({
             )}
           </div>
           <div className="w-full md:w-1/2">
+            <DiscountSection
+              costValue={watch("cost")}
+              onCostChange={(value) => setValue("cost", value)}
+              discountValue={watch("discount")}
+              onDiscountChange={(value) => setValue("discount", value)}
+            />
             <Flex wrap="wrap" gapY={4} mb={4} w="full">
               <Input type="hidden" {...register("id")} />
               {/* Fecha programada */}

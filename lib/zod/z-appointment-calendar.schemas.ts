@@ -77,6 +77,12 @@ export const EditAppointmentSchema = z.object({
     .refine((val) => Number(val.toFixed(2)) === val, {
       message: "Debe tener máximo 2 decimales",
     }),
+  discount: z.coerce
+    .number({ invalid_type_error: "Ingrese un número válido" })
+    .min(0, "Debe ser mayor o igual a 0")
+    .refine((val) => Number(val.toFixed(2)) === val, {
+      message: "Debe tener máximo 2 decimales",
+    }),
   patient_instruction: z.string().max(200, "Máximo 200 caracteres").optional(),
   dentist_id: z.coerce.number({
     required_error: "El ID del dentista es obligatorio",
