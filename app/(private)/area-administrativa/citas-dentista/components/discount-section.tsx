@@ -28,6 +28,7 @@ export function DiscountSection({
 
   return (
     <Fieldset.Root
+      px={4}
       size="lg"
       w="100%"
       className="flex flex-row flex-wrap items-start gap-2 px-2 mb-2"
@@ -35,6 +36,7 @@ export function DiscountSection({
       <Field.Root className="flex-1 min-w-[80px] flex flex-col justify-center">
         <Field.Label className="mb-0 text-sm">Costo</Field.Label>
         <Input
+          required
           type="number"
           placeholder="250.00"
           value={costValue}

@@ -3,7 +3,10 @@ import BreadCrumb from "../../../../components/admin/breadcrumb";
 import { Heading } from "@chakra-ui/react";
 import { auth } from "../../../../lib/nextauth/auth";
 import { redirect } from "next/navigation";
-import { userStatusList } from "../../../../types/statusList";
+import {
+  appointmentStatusList,
+  userStatusList,
+} from "../../../../types/statusList";
 import { prisma } from "../../../../lib/prisma/prisma";
 import { rolesList } from "../../../../lib/nextauth/rolesList";
 import AppointmentsSection from "./sections/appointments-section";
@@ -73,6 +76,14 @@ export default async function Page() {
             },
           },
         },
+      },
+    },
+    where: {
+      status: {
+        in: [
+          appointmentStatusList.STATUS_PENDIENTE,
+          appointmentStatusList.STATUS_CONFIRMADA,
+        ],
       },
     },
   });

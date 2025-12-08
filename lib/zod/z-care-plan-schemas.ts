@@ -27,6 +27,12 @@ export const CreateCarePlanSchema = z.object({
       message: "Ingresa un número válido",
     })
     .min(0, "El costo debe ser un número positivo"),
+  discount: z.coerce
+    .number({ invalid_type_error: "Ingrese un número válido" })
+    .min(0, "Debe ser mayor o igual a 0")
+    .refine((val) => Number(val.toFixed(2)) === val, {
+      message: "Debe tener máximo 2 decimales",
+    }),
   patient_id: z.coerce.number({
     required_error: "El ID del paciente es obligatorio",
   }),
@@ -75,6 +81,12 @@ export const EditCarePlanSchema = z.object({
       invalid_type_error: "Ingrese un número válido",
     })
     .positive("Ingrese un número positivo"),
+  discount: z.coerce
+    .number({ invalid_type_error: "Ingrese un número válido" })
+    .min(0, "Debe ser mayor o igual a 0")
+    .refine((val) => Number(val.toFixed(2)) === val, {
+      message: "Debe tener máximo 2 decimales",
+    }),
   patient_id: z.coerce.number({
     required_error: "El ID del paciente es obligatorio",
   }),

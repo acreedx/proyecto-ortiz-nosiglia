@@ -10,8 +10,9 @@ export default function PatientClientButton({
   patientId: number;
 }) {
   const handleShowCreate = () => {
-    dialog.open("Edit Dialog", {
+    dialog.open("Create Dialog", {
       content: <ImagingStudiesCreateForm props={{ patientId: patientId }} />,
+      size: "xl",
     });
   };
   return <CreateButton handleShowCreate={handleShowCreate} />;

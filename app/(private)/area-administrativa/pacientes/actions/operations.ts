@@ -379,7 +379,8 @@ export async function create({
     const createdImagingStudy = await prisma.imagingStudy.create({
       data: {
         description: data.description,
-        cost: Number(data.cost),
+        cost: data.cost * 100,
+        discount: data.discount,
         status: userStatusList.ACTIVO,
         patient_id: findUser.patient.id,
         files: {

@@ -20,6 +20,8 @@ import {
 } from "../../../../../lib/zod/z-care-plan-schemas";
 import formatDateLocal from "../../../../../types/dateFormatter";
 import { GridApi, IDatasource } from "ag-grid-community";
+import formatNumber from "../../../../../types/decimalConverter";
+import { DiscountSection } from "../../citas-dentista/components/discount-section";
 
 export default function TreatmentsEditForm({
   props,
@@ -33,6 +35,8 @@ export default function TreatmentsEditForm({
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<TEditCarePlanSchema>({
@@ -42,6 +46,11 @@ export default function TreatmentsEditForm({
       ...props.treatment,
       start_date: props.treatment?.start_date
         ? formatDateLocal(props.treatment?.start_date)
+        : undefined,
+      cost: props.treatment?.cost
+        ? formatNumber({
+            value: props.treatment.cost,
+          })
         : undefined,
     },
   });
@@ -179,6 +188,13 @@ export default function TreatmentsEditForm({
               {errors.cost?.message}
             </Field.ErrorText>
           </Field.Root>
+
+          <DiscountSection
+            costValue={watch("cost")}
+            onCostChange={(value) => setValue("cost", value)}
+            discountValue={watch("discount")}
+            onDiscountChange={(value) => setValue("discount", value)}
+          />
         </Flex>
       </Dialog.Body>
       <Dialog.Footer>

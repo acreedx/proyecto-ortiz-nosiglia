@@ -19,6 +19,7 @@ import {
 } from "../../../../../lib/zod/z-imaging-study-schemas";
 import { create } from "../actions/operations";
 import { toaster } from "../../../../../components/ui/toaster";
+import { DiscountSection } from "../../citas-dentista/components/discount-section";
 
 export default function ImagingStudiesCreateForm({
   props,
@@ -30,11 +31,14 @@ export default function ImagingStudiesCreateForm({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    watch,
+    setValue,
   } = useForm({
     resolver: zodResolver(CreateImagingStudySchema),
     mode: "onChange",
     defaultValues: {
       patient_id: props.patientId,
+      discount: 0,
     },
   });
   const fileUpload = useFileUpload({
@@ -71,7 +75,7 @@ export default function ImagingStudiesCreateForm({
             invalid={!!errors.description}
             required
             px={4}
-            w={{ base: "100%", md: "50%" }}
+            w={{ base: "100%", md: "100%" }}
           >
             <Field.Label>Descripción</Field.Label>
             <Input
@@ -87,27 +91,14 @@ export default function ImagingStudiesCreateForm({
               {errors.description?.message}
             </Field.ErrorText>
           </Field.Root>
-          <Field.Root
-            invalid={!!errors.cost}
-            required
-            px={4}
-            w={{ base: "100%", md: "50%" }}
-          >
-            <Field.Label>Costo</Field.Label>
-            <Input
-              colorPalette="orange"
-              type="number"
-              variant="outline"
-              placeholder="Ingresa un costo"
-              {...register("cost", {
-                required: "El costo es requerido",
-              })}
-            />
-            <Field.ErrorText className="text-sm">
-              {errors.cost?.message}
-            </Field.ErrorText>
-          </Field.Root>
         </Flex>
+
+        <DiscountSection
+          costValue={watch("cost")}
+          onCostChange={(value) => setValue("cost", value)}
+          discountValue={watch("discount")}
+          onDiscountChange={(value) => setValue("discount", value)}
+        />
         <FileUpload.RootProvider
           value={fileUpload}
           colorPalette={"orange"}

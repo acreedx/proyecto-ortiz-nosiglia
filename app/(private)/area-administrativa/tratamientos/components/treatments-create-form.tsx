@@ -25,6 +25,7 @@ import {
 } from "../../../../../lib/zod/z-care-plan-schemas";
 import { Treatment, User } from "@prisma/client";
 import { GridApi, IDatasource } from "ag-grid-community";
+import { DiscountSection } from "../../citas-dentista/components/discount-section";
 
 export default function TreatmentsCreateForm({
   props,
@@ -46,6 +47,9 @@ export default function TreatmentsCreateForm({
   } = useForm({
     resolver: zodResolver(CreateCarePlanSchema),
     mode: "onChange",
+    defaultValues: {
+      discount: 0,
+    },
   });
   const [pacienteSeleccionado, setpacienteSeleccionado] = useState<
     User | undefined
@@ -342,24 +346,13 @@ export default function TreatmentsCreateForm({
                 </Field.ErrorText>
               </Field.Root>
 
-              {/* Costo */}
-              <Field.Root
-                invalid={!!errors.cost}
-                required
-                px={4}
-                w={{ base: "100%", md: "50%" }}
-              >
-                <Field.Label>Costo estimado</Field.Label>
-                <Input
-                  colorPalette="orange"
-                  type="text"
-                  placeholder="Ej. 250.00"
-                  variant="outline"
-                  {...register("cost")}
-                />
-                <Field.ErrorText>{errors.cost?.message}</Field.ErrorText>
-              </Field.Root>
-
+              {/* todo */}
+              <DiscountSection
+                costValue={watch("cost")}
+                onCostChange={(value) => setValue("cost", value)}
+                discountValue={watch("discount")}
+                onDiscountChange={(value) => setValue("discount", value)}
+              />
               {/* Fecha de inicio */}
               <Field.Root
                 invalid={!!errors.start_date}

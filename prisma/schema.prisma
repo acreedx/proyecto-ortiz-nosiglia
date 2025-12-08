@@ -80,6 +80,7 @@ model CarePlan {
   total_appointments        Int?
   cost                      Int
   status                    String    @db.Char(1)
+  discount                  Int       @default(0)
   patient_id                Int
   created_at                DateTime? @default(now()) @db.Timestamptz(6)
   updated_at                DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
@@ -142,6 +143,7 @@ model ImagingStudy {
   id          Int       @id @default(autoincrement())
   description String    @db.VarChar(100)
   cost        Int?
+  discount    Int       @default(0)
   status      String    @db.Char(1)
   patient_id  Int
   created_at  DateTime? @default(now()) @db.Timestamptz(6)

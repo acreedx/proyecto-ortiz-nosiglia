@@ -39,12 +39,6 @@ export default function AppointmentAccordion({
     Confirmada: props.appointments.filter(
       (a) => a.status === appointmentStatusList.STATUS_CONFIRMADA
     ),
-    Historial: props.appointments.filter(
-      (a) =>
-        a.status === appointmentStatusList.STATUS_COMPLETADA ||
-        a.status === appointmentStatusList.STATUS_CANCELADA ||
-        a.status === appointmentStatusList.STATUS_NO_ASISTIDA
-    ),
   };
   return (
     <Tabs.Root
@@ -71,7 +65,7 @@ export default function AppointmentAccordion({
               bgColor: "rgb(45 60 80 / 1)",
               color: "gray.400",
               _selected: {
-                bgColor: "rgb(60 75 100 / 1)", // más brillante para el seleccionado
+                bgColor: "rgb(60 75 100 / 1)",
                 color: "white",
               },
             }}
@@ -117,11 +111,15 @@ export default function AppointmentAccordion({
                           {timeFormatter(appt.programed_end_date_time)}
                         </Text>
                         <Text>Motivo: {appt.reason}</Text>
-                        <Text>
+                        <Text className="my-2">
                           Dentista:{" "}
                           <span
+                            className="rounded-xl p-1"
                             style={{
-                              color: getUserColor(appt.doctor.staff.user),
+                              backgroundColor: getUserColor(
+                                appt.doctor.staff.user
+                              ),
+                              color: "white",
                             }}
                           >
                             {appt.doctor.staff.user.first_name}{" "}

@@ -14,6 +14,7 @@ import {
 import { Prisma } from "@prisma/client";
 import { FaFile } from "react-icons/fa";
 import { userStatusList } from "../../../../../types/statusList";
+import formatNumber from "../../../../../types/decimalConverter";
 
 const ImagingStudies = ({
   studies,
@@ -56,6 +57,18 @@ const ImagingStudies = ({
                 {study.description}
               </Text>
             )}
+            <Text mt={2} fontSize={"sm"}>
+              Costo:{" "}
+              {study.cost
+                ? formatNumber({
+                    value: study.cost,
+                  })
+                : 0}
+              bs
+            </Text>
+            <Text mt={2} fontSize={"sm"}>
+              Descuento: {study.discount}%
+            </Text>
             <Spacer my={2} />
             <Accordion.Root collapsible colorPalette={"orange"}>
               <Accordion.Item key={study.id} value={study.id.toString()}>
