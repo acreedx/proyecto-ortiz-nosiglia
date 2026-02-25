@@ -42,7 +42,7 @@ export const menuOptions: menu[] = [
       },
       {
         icon: <FaHospitalUser color="white" />,
-        label: "Gestión de pacientes",
+        label: "Pacientes",
         route: "#",
         children: [
           {

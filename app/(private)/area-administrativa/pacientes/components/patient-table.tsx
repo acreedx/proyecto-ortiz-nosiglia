@@ -11,7 +11,13 @@ import type {
 import { AG_GRID_LOCALE_ES } from "@ag-grid-community/locale";
 import Image from "next/image";
 import { IconButton, useDialog } from "@chakra-ui/react";
-import { FaBookMedical, FaEdit, FaFile, FaXRay } from "react-icons/fa";
+import {
+  FaBookMedical,
+  FaEdit,
+  FaFile,
+  FaInfoCircle,
+  FaXRay,
+} from "react-icons/fa";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import NextLink from "next/link";
 import EditPatientForm from "./patient-edit-form";
@@ -61,27 +67,8 @@ export default function PatientTable({
       },
       { field: "first_name", headerName: "Nombre" },
       { field: "last_name", headerName: "Apellido" },
-      {
-        field: "birth_date",
-        headerName: "Fecha de nacimiento",
-        filter: false,
-        sortable: true,
-        valueFormatter: (params) =>
-          params.value ? new Date(params.value).toLocaleDateString() : "",
-      },
       { field: "phone", headerName: "Teléfono" },
       { field: "mobile", headerName: "Celular" },
-      { field: "address_line", headerName: "Dirección" },
-      {
-        field: "patient.allergies",
-        headerName: "Alergias",
-        valueFormatter: (params) => params.value ?? "Ninguna",
-      },
-      {
-        field: "patient.preconditions",
-        headerName: "Precondiciones",
-        valueFormatter: (params) => params.value ?? "Ninguna",
-      },
       {
         field: "actions",
         headerName: "Acciones",
@@ -92,6 +79,22 @@ export default function PatientTable({
           if (params.data !== undefined) {
             return (
               <div className="flex flex-row justify-center items-center">
+                <Tooltip content="Ver información del paciente">
+                  <NextLink
+                    href={`/area-administrativa/pacientes/informacion/${params.data.id}`}
+                    className="flex flex-row"
+                  >
+                    <IconButton
+                      size="sm"
+                      colorPalette="orange"
+                      variant="outline"
+                      aria-label="Odontograma"
+                      mr={2}
+                    >
+                      <FaInfoCircle />
+                    </IconButton>
+                  </NextLink>
+                </Tooltip>
                 <Tooltip content="Editar paciente">
                   <IconButton
                     size="sm"
@@ -197,7 +200,7 @@ export default function PatientTable({
         },
       },
     ],
-    []
+    [],
   );
 
   const defaultColDef = useMemo<ColDef>(
@@ -212,7 +215,7 @@ export default function PatientTable({
         maxNumConditions: 1,
       },
     }),
-    []
+    [],
   );
 
   const onGridReady = useCallback((params: GridReadyEvent) => {
