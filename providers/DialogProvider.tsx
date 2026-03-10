@@ -30,7 +30,7 @@ export const dialog = createOverlay<DialogProps>((props) => {
             colorPalette={"orange"}
             zIndex={-1}
           >
-            {content}
+            <Dialog.Body className="px-0">{content}</Dialog.Body>
           </Dialog.Content>
         </Dialog.Positioner>
       </Portal>

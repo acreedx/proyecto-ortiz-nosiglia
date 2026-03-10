@@ -1,110 +1,218 @@
 "use client";
 import {
   Box,
-  Flex,
-  Heading,
   SimpleGrid,
-  Icon,
   Text,
   Grid,
+  IconButton,
+  useDialog,
 } from "@chakra-ui/react";
-import { Prisma } from "@prisma/client";
-import Link from "next/link";
-import React from "react";
+import { Organization, Prisma } from "@prisma/client";
+import Image from "next/image";
+import React, { useRef } from "react";
 import {
   FaTooth,
   FaXRay,
   FaFileMedical,
-  FaUser,
   FaCalendarAlt,
+  FaEdit,
 } from "react-icons/fa";
+import ActionCard, {
+  ActionCardProps,
+} from "../../../../../../components/admin/action-card";
+import InfoItem, {
+  InfoItemProps,
+} from "../../../../../../components/admin/info-item";
+import { Tooltip } from "../../../../../../components/ui/tooltip";
+import { LuSiren } from "react-icons/lu";
+import EditPatientForm from "../../components/patient-edit-form";
+import { dialog } from "../../../../../../providers/DialogProvider";
+import { GridApi, IDatasource } from "ag-grid-community";
+import EmergencyContactEditForm from "../../components/emergency-contact-edit-form";
 
 function PacienteDashboard({
   paciente,
+  organizations,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  activeOrganizations,
 }: {
   paciente: Prisma.UserGetPayload<{
     include: {
       patient: {
         include: {
-          odontogram: {
-            include: {
-              odontogram_row: true;
-            };
-          };
+          emergency_contact: true;
         };
       };
     };
   }>;
+  organizations: Organization[];
+  activeOrganizations: Organization[];
 }) {
+  const infoItemProps: InfoItemProps[] = [
+    {
+      label: "Teléfono",
+      value: paciente.phone,
+    },
+    {
+      label: "Email",
+      value: paciente.email,
+    },
+    {
+      label: "Fecha de nacimiento",
+      value: paciente.birth_date
+        ? new Date(paciente.birth_date).toLocaleDateString()
+        : "—",
+    },
+    {
+      label: "Celular",
+      value: paciente.mobile,
+    },
+    {
+      label: "Teléfono",
+      value: paciente.phone,
+    },
+    {
+      label: "CI",
+      value: paciente.identification,
+    },
+  ];
+  const actionCards: ActionCardProps[] = [
+    {
+      icon: FaTooth,
+      title: "Odontograma",
+      description: "Visualiza y edita el estado dental",
+      href: `/area-administrativa/pacientes/odontograma/${paciente.id}`,
+    },
+    {
+      icon: FaXRay,
+      title: "Radiografías",
+      description: "Consulta estudios radiológicos",
+      href: `/area-administrativa/pacientes/imaging-studies/${paciente.id}`,
+    },
+    {
+      icon: FaFileMedical,
+      title: "Historial Clínico",
+      description: "Visualiza y edita el estado dental",
+      href: `/area-administrativa/pacientes/historial/${paciente.id}`,
+    },
+    {
+      icon: FaCalendarAlt,
+      title: "Citas",
+      description: "Agenda y consultas programadas",
+      href: `/area-administrativa/pacientes/${paciente.id}/citas`,
+    },
+  ];
+  const editDialog = useDialog();
+  const emergencyContactDialog = useDialog();
+  const gridApiRef = useRef<GridApi | null>(null);
+  const datasourceRef = useRef<IDatasource | null>(null);
   return (
     <div className="flex flex-col gap-4">
-      <Box p={6} bg="white" borderRadius="2xl" boxShadow="sm">
+      <Box
+        p={6}
+        bg="white"
+        borderRadius="2xl"
+        boxShadow="sm"
+        className="dark:bg-boxdark"
+      >
         <Grid
           templateColumns={{ base: "1fr", md: "300px 1fr" }}
           gap={8}
           alignItems="center"
         >
-          <Box>
-            <Heading size="lg">
-              {paciente.first_name} {paciente.last_name}
-            </Heading>
-            <Text color="gray.500" fontSize="sm">
-              CI: {paciente.identification}
-            </Text>
-          </Box>
-
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-row items-center justify-center">
+              <Image
+                alt={`${paciente.first_name}`}
+                src={`${paciente.photo_url}`}
+                width={80}
+                height={80}
+                className="h-[80px] rounded-full shadow-lg border border-black"
+              />
+            </div>
+            <Box>
+              <Text fontSize="xs" fontWeight="bold" textTransform="uppercase">
+                Nombre
+              </Text>
+              <Text>
+                {paciente.first_name} {paciente.last_name}
+              </Text>
+            </Box>
+          </div>
           <SimpleGrid columns={{ base: 1, sm: 2 }} gapX={10} gapY={4}>
-            <InfoItem label="Teléfono" value={paciente.phone} />
-            <InfoItem label="Email" value={paciente.email} />
-            <InfoItem
-              label="Fecha de nacimiento"
-              value={
-                paciente.birth_date
-                  ? new Date(paciente.birth_date).toLocaleDateString()
-                  : "—"
-              }
-            />
-            <InfoItem label="Celular" value={paciente.mobile} />
-            <InfoItem label="Teléfono" value={paciente.phone} />
+            {infoItemProps.map((e, index) => {
+              return <InfoItem key={index} label={e.label} value={e.value} />;
+            })}
           </SimpleGrid>
         </Grid>
+        <div className="flex w-full justify-end items-center">
+          <Tooltip content="Editar paciente">
+            <IconButton
+              size="sm"
+              colorPalette="orange"
+              variant="outline"
+              aria-label="Editar paciente"
+              mr={2}
+              onClick={() => {
+                dialog.open("Edit Dialog", {
+                  content: (
+                    <EditPatientForm
+                      props={{
+                        patient: paciente.patient!,
+                        organizations: organizations,
+                        dialog: editDialog,
+                        gridApiRef: gridApiRef,
+                        datasourceRef: datasourceRef,
+                      }}
+                    />
+                  ),
+                });
+              }}
+            >
+              <FaEdit color="orange" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip content="Contacto de emergencia">
+            <IconButton
+              size="sm"
+              colorPalette="orange"
+              variant="outline"
+              aria-label="Contacto de emergencia"
+              mr={2}
+              onClick={() => {
+                dialog.open("Contact Dialog", {
+                  content: (
+                    <EmergencyContactEditForm
+                      props={{
+                        patient: paciente.patient!,
+                        dialog: emergencyContactDialog,
+                        gridApiRef: gridApiRef,
+                        datasourceRef: datasourceRef,
+                      }}
+                    />
+                  ),
+                  size: "md",
+                });
+              }}
+            >
+              <LuSiren color="red" />
+            </IconButton>
+          </Tooltip>
+        </div>
       </Box>
-      <Box p={6}>
+      <Box>
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
-          <ActionCard
-            icon={FaTooth}
-            title="Odontograma"
-            description="Visualiza y edita el estado dental"
-            href={`/area-administrativa/pacientes/${paciente.id}/odontograma`}
-          />
-
-          <ActionCard
-            icon={FaXRay}
-            title="Radiografías"
-            description="Consulta estudios radiológicos"
-            href={`/area-administrativa/pacientes/${paciente.id}/radiografias`}
-          />
-
-          <ActionCard
-            icon={FaFileMedical}
-            title="Historial Clínico"
-            description="Tratamientos y evolución"
-            href={`/area-administrativa/pacientes/${paciente.id}/historial`}
-          />
-
-          <ActionCard
-            icon={FaUser}
-            title="Datos Personales"
-            description="Información general del paciente"
-            href={`/area-administrativa/pacientes/${paciente.id}/datos`}
-          />
-
-          <ActionCard
-            icon={FaCalendarAlt}
-            title="Citas"
-            description="Agenda y consultas programadas"
-            href={`/area-administrativa/pacientes/${paciente.id}/citas`}
-          />
+          {actionCards.map((e, index) => {
+            return (
+              <ActionCard
+                key={index}
+                icon={e.icon}
+                title={e.title}
+                description={e.description}
+                href={e.href}
+              />
+            );
+          })}
         </SimpleGrid>
       </Box>
     </div>
@@ -112,59 +220,3 @@ function PacienteDashboard({
 }
 
 export default PacienteDashboard;
-
-interface ActionCardProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  icon: any;
-  title: string;
-  description: string;
-  href: string;
-}
-
-function ActionCard({ icon, title, description, href }: ActionCardProps) {
-  return (
-    <Link href={href}>
-      <Box
-        p={6}
-        borderRadius="2xl"
-        bg="white"
-        boxShadow="sm"
-        _hover={{
-          boxShadow: "xl",
-          transform: "translateY(-4px)",
-        }}
-        transition="all 0.2s"
-        cursor="pointer"
-      >
-        <Flex direction="column" gap={4}>
-          <Box
-            bg="orange.50"
-            w="fit-content"
-            p={3}
-            borderRadius="xl"
-            color="orange.500"
-          >
-            <Icon as={icon} boxSize={6} />
-          </Box>
-
-          <Box>
-            <Heading size="md">{title}</Heading>
-            <Text color="gray.500" fontSize="sm">
-              {description}
-            </Text>
-          </Box>
-        </Flex>
-      </Box>
-    </Link>
-  );
-}
-function InfoItem({ label, value }: { label: string; value?: string }) {
-  return (
-    <Box>
-      <Text fontSize="xs" fontWeight="semibold" textTransform="uppercase">
-        {label}
-      </Text>
-      <Text>{value || "—"}</Text>
-    </Box>
-  );
-}

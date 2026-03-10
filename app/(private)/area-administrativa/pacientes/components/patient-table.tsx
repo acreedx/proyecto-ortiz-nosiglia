@@ -146,7 +146,6 @@ export default function PatientTable({
                     <LuSiren color="red" />
                   </IconButton>
                 </Tooltip>
-
                 <Tooltip content="Odontograma">
                   <NextLink
                     href={`/area-administrativa/pacientes/odontograma/${params.data.id}`}
